@@ -4,9 +4,9 @@ using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Interfaces
 {
-    public interface IUserService
+    public interface IAccountService
     {
         LoginResult AuthenticateUser(string userid, string password, ref User user);
-        void AddUser(UserViewModel model);
+        void AddUser(AccountServiceModel model);
     }
 }

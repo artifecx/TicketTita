@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Services.ServiceModels
 {
-    public class UserViewModel
+    public class AccountServiceModel
     {
         [Required(ErrorMessage = "Username is required.")]
         public string UserId { get; set; }

@@ -25,7 +25,7 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly TokenValidationParametersFactory _tokenValidationParametersFactory;
         private readonly TokenProviderOptionsFactory _tokenProviderOptionsFactory;
         private readonly IConfiguration _appConfiguration;
-        private readonly IUserService _userService;
+        private readonly IAccountService _userService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountController"/> class.
@@ -45,7 +45,7 @@ namespace ASI.Basecode.WebApp.Controllers
                             ILoggerFactory loggerFactory,
                             IConfiguration configuration,
                             IMapper mapper,
-                            IUserService userService,
+                            IAccountService userService,
                             TokenValidationParametersFactory tokenValidationParametersFactory,
                             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
@@ -118,7 +118,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult Register(UserViewModel model)
+        public IActionResult Register(AccountServiceModel model)
         {
             try
             {

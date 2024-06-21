@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
-    public class UserRepository : BaseRepository, IUserRepository
+    public class AccountRepository : BaseRepository, IAccountRepository
     {
-        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
+        public AccountRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
         {
 
         }

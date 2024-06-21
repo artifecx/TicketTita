@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Interfaces
 {
-    public interface IUserRepository
+    public interface IAccountRepository
     {
         IQueryable<User> GetUsers();
         bool UserExists(string userId);

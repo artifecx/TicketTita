@@ -11,12 +11,12 @@ using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Services
 {
-    public class UserService : IUserService
+    public class AccountService : IAccountService
     {
-        private readonly IUserRepository _repository;
+        private readonly IAccountRepository _repository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository repository, IMapper mapper)
+        public AccountService(IAccountRepository repository, IMapper mapper)
         {
             _mapper = mapper;
             _repository = repository;
@@ -32,7 +32,7 @@ namespace ASI.Basecode.Services.Services
             return user != null ? LoginResult.Success : LoginResult.Failed;
         }
 
-        public void AddUser(UserViewModel model)
+        public void AddUser(AccountServiceModel model)
         {
             var user = new User();
             if (!_repository.UserExists(model.UserId))
