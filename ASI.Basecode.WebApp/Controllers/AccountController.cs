@@ -85,7 +85,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
             //User user = null;
 
-            User user = new() { Id = 0, UserId = "0", Name = "Name", Password = "Password" };
+            Account user = new() { Id = 0, UserId = "0", Name = "Name", Password = "Password" };
             
             await this._signInManager.SignInAsync(user);
             this._session.SetString("UserName", model.UserId);

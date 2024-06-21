@@ -22,9 +22,9 @@ namespace ASI.Basecode.Services.Services
             _repository = repository;
         }
 
-        public LoginResult AuthenticateUser(string userId, string password, ref User user)
+        public LoginResult AuthenticateUser(string userId, string password, ref Account user)
         {
-            user = new User();
+            user = new Account();
             var passwordKey = PasswordManager.EncryptPassword(password);
             user = _repository.GetUsers().Where(x => x.UserId == userId &&
                                                      x.Password == passwordKey).FirstOrDefault();
@@ -34,7 +34,7 @@ namespace ASI.Basecode.Services.Services
 
         public void AddUser(AccountServiceModel model)
         {
-            var user = new User();
+            var user = new Account();
             if (!_repository.UserExists(model.UserId))
             {
                 _mapper.Map(model, user);
