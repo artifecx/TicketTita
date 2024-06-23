@@ -29,6 +29,12 @@ namespace ASI.Basecode.Services.Services
                 UserId = s.UserId,
                 Email = s.Email,
                 Name = s.Name,
+                CreatedBy = s.CreatedBy,
+                Password = s.Password,
+                Role = s.Role,
+                UpdatedBy = s.UpdatedBy,
+                CreatedTime = s.CreatedTime,
+                UpdatedTime = s.UpdatedTime,    
             });
             return data;
         }
@@ -37,10 +43,25 @@ namespace ASI.Basecode.Services.Services
         {
             var newModel = new User();
             _mapper.Map(model, newModel);
-            newModel.CreatedBy = "Kent";
-            newModel.CreatedDate = DateTime.Now;
-
+            newModel.UserId = Guid.NewGuid();
+            newModel.CreatedTime = DateTime.Now;
+            newModel.CreatedBy = System.Environment.UserName;
+            newModel.UpdatedTime = DateTime.Now;
             _userRepository.Add(newModel);
         }
+
+        public void Update(UserViewModel model) {
+            var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
+            _mapper.Map(model, SelectedUser);
+            SelectedUser.UpdatedBy = System.Environment.UserName;
+            SelectedUser.UpdatedTime = DateTime.Now;
+            _userRepository.Update(SelectedUser);
+        }
+
+        public void Delete(Guid UserId) {
+            _userRepository.Delete(UserId);
+        
+        }
+
     }
 }

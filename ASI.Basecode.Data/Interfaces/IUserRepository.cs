@@ -11,5 +11,10 @@ namespace ASI.Basecode.Data.Interfaces
     {
         IEnumerable<User> RetrieveAll();
         void Add(User model);
+
+        void Update(User model);
+
+        void Delete(Guid UserId);
+
     }
 }

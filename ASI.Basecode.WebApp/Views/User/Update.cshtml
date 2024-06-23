@@ -1,17 +1,22 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.UserViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Update";
 }
 
-<h1>Create</h1>
+<h1>Update</h1>
 
 <h4>UserViewModel</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="PostCreate">
+        <form asp-action="PostUpdate">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="UserId" type="hidden" />
+            <input asp-for="CreatedBy" type="hidden" />
+            <input asp-for="CreatedTime" type="hidden" />
+            <input asp-for="UpdatedBy" type="hidden" />
+            <input asp-for="UpdatedTime" type="hidden" />
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
@@ -33,7 +38,7 @@
                 <span asp-validation-for="Role" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>

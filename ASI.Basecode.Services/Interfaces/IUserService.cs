@@ -13,5 +13,8 @@ namespace ASI.Basecode.Services.Interfaces
         IEnumerable<UserViewModel> RetrieveAll();
         void Add(UserViewModel model);
 
+        void Update(UserViewModel model);
+
+        void Delete(Guid UserId);
     }
 }

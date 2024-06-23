@@ -8,20 +8,33 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
-        private readonly List<User> _data = new List<User>();
-        private int _nextId = 1;
+        private readonly List<User> _SelectedUserData = new List<User>();
 
         public IEnumerable<User> RetrieveAll()
         {
-            return _data;
+            return _SelectedUserData;
         }
 
         public void Add(User model)
         {
-            model.UserId = _nextId++;
-            _data.Add(model);
+
+            _SelectedUserData.Add(model);
+        }
+
+        public void Update(User model) {
+            var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
+            if (SelectedUser != null) {
+                SelectedUser = model;
+            }
+
+        }
+        public void Delete(Guid UserId) {
+            var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
+            if (SelectedUser != null) { 
+            _SelectedUserData.Remove(SelectedUser);
+            }
         }
     }
 }
