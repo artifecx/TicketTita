@@ -39,7 +39,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpGet]
         [Authorize]
 
-        public IActionResult GetCreateScreen()
+        public IActionResult Create()
         {
             return View();
         }
@@ -51,7 +51,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult GetUpdateScreen(Guid SelectedUserId)
+        public IActionResult Update(Guid SelectedUserId)
         {
             
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
@@ -65,7 +65,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult GetDetailsScreen(Guid SelectedUserId)
+        public IActionResult Details(Guid SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
@@ -78,7 +78,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult GetDeleteScreen(Guid SelectedUserId)
+        public IActionResult Delete(Guid SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);

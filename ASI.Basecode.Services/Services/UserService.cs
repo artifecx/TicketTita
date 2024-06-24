@@ -21,7 +21,7 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="userRepository">The user repository.</param>
         /// <param name="mapper">The mapper.</param>
-/        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
