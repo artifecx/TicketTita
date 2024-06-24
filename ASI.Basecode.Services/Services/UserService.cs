@@ -16,12 +16,21 @@ namespace ASI.Basecode.Services.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserService"/> class.
+        /// </summary>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="mapper">The mapper.</param>
+/        public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves all.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<UserViewModel> RetrieveAll()
         {
             var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
@@ -39,6 +48,10 @@ namespace ASI.Basecode.Services.Services
             return data;
         }
 
+        /// <summary>
+        /// Adds the specified model.
+        /// </summary>
+        /// <param name="model">The model.</param>
         public void Add(UserViewModel model)
         {
             var newModel = new User();
@@ -50,6 +63,10 @@ namespace ASI.Basecode.Services.Services
             _userRepository.Add(newModel);
         }
 
+        /// <summary>
+        /// Updates the specified model.
+        /// </summary>
+        /// <param name="model">The model.</param>
         public void Update(UserViewModel model) {
             var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
             _mapper.Map(model, SelectedUser);
@@ -58,6 +75,10 @@ namespace ASI.Basecode.Services.Services
             _userRepository.Update(SelectedUser);
         }
 
+        /// <summary>
+        /// Deletes the specified user identifier.
+        /// </summary>
+        /// <param name="UserId">The user identifier.</param>
         public void Delete(Guid UserId) {
             _userRepository.Delete(UserId);
         

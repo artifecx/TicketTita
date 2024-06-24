@@ -30,39 +30,69 @@ namespace ASI.Basecode.WebApp.Controllers
             return View(data);
         }
 
+        #region GET methods      
+        
+        /// <summary>
+        /// Transfers the user to the Create Screen.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Create()
+
+        public IActionResult GetCreateScreen()
         {
             return View();
         }
 
+        /// <summary>
+        /// Updates the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Update(Guid SelectedUserId)
+        public IActionResult GetUpdateScreen(Guid SelectedUserId)
         {
             
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
 
+        /// <summary>
+        /// Detailses the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Details(Guid SelectedUserId)
+        public IActionResult GetDetailsScreen(Guid SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
 
+        /// <summary>
+        /// Deletes the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Delete(Guid SelectedUserId)
+        public IActionResult GetDeleteScreen(Guid SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
 
+        #endregion
 
+        #region POST Methods        
+
+        /// <summary>
+        /// Posts the create.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize]
         public IActionResult PostCreate(UserViewModel model)
@@ -71,6 +101,11 @@ namespace ASI.Basecode.WebApp.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Posts the update.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize]
         public IActionResult PostUpdate(UserViewModel model)
@@ -79,6 +114,11 @@ namespace ASI.Basecode.WebApp.Controllers
              return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Posts the delete.
+        /// </summary>
+        /// <param name="UserId">The user identifier.</param>
+        /// <returns></returns>
         [HttpPost]
         [Authorize]
         public IActionResult PostDelete(Guid UserId)
@@ -86,5 +126,7 @@ namespace ASI.Basecode.WebApp.Controllers
             _userService.Delete(UserId);
             return RedirectToAction("Index");
         }
+
+        #endregion
     }
 }
