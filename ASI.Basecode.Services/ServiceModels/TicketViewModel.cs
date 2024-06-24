@@ -49,6 +49,10 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Date Created")]
         public DateTime createdDate { get; set; }
 
+        /// <summary>The file attachment.</summary>
+        [Display(Name = "Attachment")]
+        public Attachment attachment { get; set; }
+
         /// <summary>The date the ticket was updated</summary>
         [Display(Name = "Date Updated")]
         public DateTime? updatedDate { get; set; }
@@ -70,11 +74,7 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Status")]
         public StatusType Status { get; set; }
 
-        /// <summary>The file attachment.</summary>
-        [Display(Name = "Attachment")]
-        public Attachment attachment { get; set; }
-
-        /// <summary>The file uploaded taken when create is submitted.</summary>
+        /// <summary>The file uploaded taken when create/edit is submitted.</summary>
         [Display(Name = "File")]
         public IFormFile File { get; set; }
 

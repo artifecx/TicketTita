@@ -28,7 +28,6 @@ namespace ASI.Basecode.WebApp.Controllers
     public class TicketController : ControllerBase<TicketController>
     {
         private readonly ITicketService _ticketService;
-        private readonly IConfiguration _appConfiguration;
 
         /// <summary>
         /// Initializes a new instance of TicketController
@@ -50,7 +49,6 @@ namespace ASI.Basecode.WebApp.Controllers
                             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._ticketService = _ticketService;
-            this._appConfiguration = configuration;
         }
 
         /// <summary>
@@ -137,6 +135,7 @@ namespace ASI.Basecode.WebApp.Controllers
                     model.File.CopyTo(stream);
                     model.attachment = new Data.Models.Attachment
                     {
+                        attachment_ID = Guid.NewGuid(),
                         fileContent = stream.ToArray(),
                         fileName = model.File.FileName,
                         contentType = model.File.ContentType,
@@ -165,6 +164,7 @@ namespace ASI.Basecode.WebApp.Controllers
                     model.File.CopyTo(stream);
                     model.attachment = new Data.Models.Attachment
                     {
+                        attachment_ID = Guid.NewGuid(),
                         fileContent = stream.ToArray(),
                         fileName = model.File.FileName,
                         contentType = model.File.ContentType,
@@ -204,6 +204,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 return File(ticket.attachment.fileContent, "application/octet-stream", ticket.attachment.fileName);
             }
 
+            // TODO: change to proper return type
             return null;
         }
     }

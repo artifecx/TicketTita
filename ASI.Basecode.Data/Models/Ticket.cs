@@ -25,12 +25,6 @@ namespace ASI.Basecode.Data.Models
     public class Attachment
     {
         public Guid attachment_ID { get; set; }
-        /// <summary>
-        /// File Name format: NN_CT_IN
-        /// NN = Ticket Number
-        /// CT = Content Type (file extension: JPEG, PNG, PDF, etc.)
-        /// IN = Incremental Number (how many times an attachment has been uploaded for a ticket)
-        /// </summary>
         public string fileName { get; set; }
         public string contentType { get; set; }
         public byte[] fileContent { get; set; }
