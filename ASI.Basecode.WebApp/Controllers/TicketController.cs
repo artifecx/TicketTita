@@ -130,6 +130,21 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Create(TicketViewModel model)
         {
+            if(model.File != null && model.File.Length > 0)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    model.File.CopyTo(stream);
+                    model.attachment = new Data.Models.Attachment
+                    {
+                        fileContent = stream.ToArray(),
+                        fileName = model.File.FileName,
+                        contentType = model.File.ContentType,
+                        uploadedDate = DateTime.Now
+                    };
+                }
+            }
+            
             _ticketService.Add(model);
             return RedirectToAction("ViewAll");
         }
@@ -143,6 +158,21 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Edit(TicketViewModel model)
         {
+            if (model.File != null && model.File.Length > 0)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    model.File.CopyTo(stream);
+                    model.attachment = new Data.Models.Attachment
+                    {
+                        fileContent = stream.ToArray(),
+                        fileName = model.File.FileName,
+                        contentType = model.File.ContentType,
+                        uploadedDate = DateTime.Now
+                    };
+                }
+            }
+
             _ticketService.Update(model);
             return RedirectToAction("ViewAll");
         }
@@ -158,6 +188,23 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             _ticketService.Delete(model.ticket_ID);
             return RedirectToAction("ViewAll");
+        }
+
+
+        /// <summary>
+        /// Downloads the attachment.
+        /// </summary>
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>the file</returns>
+        public FileResult DownloadAttachment(string id)
+        {
+            var ticket = _ticketService.GetTicketById(id);
+            if (ticket != null && ticket.attachment != null)
+            {
+                return File(ticket.attachment.fileContent, "application/octet-stream", ticket.attachment.fileName);
+            }
+
+            return null;
         }
     }
 }

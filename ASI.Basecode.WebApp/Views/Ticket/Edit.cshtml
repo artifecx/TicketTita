@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input asp-for="ticket_ID" type="hidden"/>
             <input asp-for="createdDate" type="hidden" />
@@ -23,7 +23,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="issueDescription" class="control-label"></label>
-                <input asp-for="issueDescription" class="form-control" />
+                <textarea asp-for="issueDescription" class="form-control"></textarea>
                 <span asp-validation-for="issueDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -45,6 +45,23 @@
                     }
                 </select>
                 <span asp-validation-for="statusType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @if (Model.attachment != null)
+                {
+                    <input asp-for="attachment.fileName" type="hidden" />
+                    <input asp-for="attachment.fileContent" type="hidden" />
+                    <input asp-for="attachment.uploadedDate" type="hidden" />
+                    <input asp-for="attachment.contentType" type="hidden" />
+                    <label asp-for="attachment" class="control-label"></label>
+                    <input asp-for="attachment" class="form-control" value="@Model.attachment.fileName" readonly />
+                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.ticket_ID })">Download Attachment</a>
+                }
+                else
+                {
+                    <label for="File">Attachment</label>
+                    <input type="file" name="File" class="form-control" />
+                }
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

@@ -1,4 +1,5 @@
 ﻿using ASI.Basecode.Data.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -69,8 +70,17 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Status")]
         public StatusType Status { get; set; }
 
-        public IEnumerable<TicketViewModel> Tickets { get; set; }
+        /// <summary>The file attachment.</summary>
+        [Display(Name = "Attachment")]
+        public Attachment attachment { get; set; }
 
+        /// <summary>The file uploaded taken when create is submitted.</summary>
+        [Display(Name = "File")]
+        public IFormFile File { get; set; }
+
+
+        /// <summary>List of tickets to populate the table</summary>
+        public IEnumerable<TicketViewModel> Tickets { get; set; }
 
         /// <summary>List of category types to populate the dropdown</summary>
         public IEnumerable<CategoryType> CategoryTypes { get; set; }

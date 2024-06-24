@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="subject" class="control-label"></label>
@@ -18,7 +18,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="issueDescription" class="control-label"></label>
-                <input asp-for="issueDescription" class="form-control" />
+                <textarea asp-for="issueDescription" class="form-control"></textarea>
                 <span asp-validation-for="issueDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -40,6 +40,10 @@
                     }
                 </select>
                 <span asp-validation-for="priorityType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label for="File">Attachment</label>
+                <input type="file" name="File" class="form-control" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

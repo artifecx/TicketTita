@@ -12,7 +12,7 @@ namespace ASI.Basecode.Data.Models
         public int priorityType_ID { get; set; }
         public int statusType_ID { get; set; }
         public DateTime createdDate { get; set; }
-        //public Attachment attachment { get; set; }
+        public Attachment attachment { get; set; }
         public DateTime? updatedDate { get; set; }
         public DateTime? resolvedDate { get; set; }
         //public Guid user_ID { get; set; }

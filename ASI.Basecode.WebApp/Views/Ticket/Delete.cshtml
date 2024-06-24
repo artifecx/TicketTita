@@ -53,6 +53,19 @@
             @Html.DisplayFor(model => model.createdDate)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.attachment)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.attachment == null)
+            {
+                @:No Attachment
+            }
+            else
+            {
+                <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.ticket_ID })">@Model.attachment.fileName</a>
+            }
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.updatedDate)
         </dt>
         <dd class="col-sm-10">
