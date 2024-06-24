@@ -1,0 +1,62 @@
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit Ticket</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="ticket_ID" type="hidden"/>
+            <input asp-for="createdDate" type="hidden" />
+            <input asp-for="updatedDate" type="hidden" />
+            <input asp-for="resolvedDate" type="hidden" />
+            <input asp-for="categoryType_ID" type="hidden" />
+            <div class="form-group">
+                <label asp-for="subject" class="control-label"></label>
+                <input asp-for="subject" class="form-control" />
+                <span asp-validation-for="subject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="issueDescription" class="control-label"></label>
+                <input asp-for="issueDescription" class="form-control" />
+                <span asp-validation-for="issueDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="priorityType_ID" class="control-label"></label>
+                <select asp-for="priorityType_ID" class="form-control">
+                    @foreach (var item in Model.PriorityTypes)
+                    {
+                        <option value="@item.priorityType_ID">@item.priorityName</option>
+                    }
+                </select>
+                <span asp-validation-for="priorityType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="statusType_ID" class="control-label"></label>
+                <select asp-for="statusType_ID" class="form-control">
+                    @foreach (var item in Model.StatusTypes)
+                    {
+                        <option value="@item.statusType_ID">@item.statusName</option>
+                    }
+                </select>
+                <span asp-validation-for="statusType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ViewAll">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

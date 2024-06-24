@@ -1,0 +1,57 @@
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create Ticket</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="subject" class="control-label"></label>
+                <input asp-for="subject" class="form-control" />
+                <span asp-validation-for="subject" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="issueDescription" class="control-label"></label>
+                <input asp-for="issueDescription" class="form-control" />
+                <span asp-validation-for="issueDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="categoryType_ID" class="control-label"></label>
+                <select asp-for="categoryType_ID" class="form-control">
+                    @foreach (var item in Model.CategoryTypes)
+                    {
+                        <option value="@item.categoryType_ID">@item.categoryName</option>
+                    }
+                </select>
+                <span asp-validation-for="categoryType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="priorityType_ID" class="control-label"></label>
+                <select asp-for="priorityType_ID" class="form-control">
+                    @foreach (var item in Model.PriorityTypes)
+                    {
+                        <option value="@item.priorityType_ID">@item.priorityName</option>
+                    }
+                </select>
+                <span asp-validation-for="priorityType_ID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ViewAll">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
