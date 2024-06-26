@@ -7,14 +7,10 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Interfaces
 {
-    public interface IUserRepository
+    public interface IAccountRepository
     {
-        IEnumerable<User> RetrieveAll();
-        void Add(User model);
-
-        void Update(User model);
-
-        void Delete(Guid UserId);
-
+        IQueryable<Account> GetUsers();
+        bool UserExists(string userId);
+        void AddUser(Account user);
     }
 }

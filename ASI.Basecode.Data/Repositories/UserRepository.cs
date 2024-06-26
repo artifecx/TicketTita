@@ -1,6 +1,5 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
-using Basecode.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +8,54 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
-    public class UserRepository : BaseRepository, IUserRepository
+    public class UserRepository : IUserRepository
     {
-        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
-        {
 
+        /// <summary>
+        /// The selected user data
+        /// </summary>
+        private readonly List<User> _SelectedUserData = new List<User>();
+
+        /// <summary>
+        /// Retrieves all.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<User> RetrieveAll()
+        {
+            return _SelectedUserData;
         }
 
-        public IQueryable<User> GetUsers()
+
+        /// <summary>
+        /// Adds the specified model.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void Add(User model)
         {
-            return this.GetDbSet<User>();
+
+            _SelectedUserData.Add(model);
         }
 
-        public bool UserExists(string userId)
-        {
-            return this.GetDbSet<User>().Any(x => x.UserId == userId);
-        }
+        /// <summary>
+        /// Updates the specified model.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public void Update(User model) {
+            var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
+            if (SelectedUser != null) {
+                SelectedUser = model;
+            }
 
-        public void AddUser(User user)
-        {
-            this.GetDbSet<User>().Add(user);
-            UnitOfWork.SaveChanges();
         }
-
+        /// <summary>
+        /// Deletes the specified user identifier.
+        /// </summary>
+        /// <param name="UserId">The user identifier.</param>
+        public void Delete(Guid UserId) {
+            var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
+            if (SelectedUser != null) { 
+            _SelectedUserData.Remove(SelectedUser);
+            }
+        }
     }
 }
