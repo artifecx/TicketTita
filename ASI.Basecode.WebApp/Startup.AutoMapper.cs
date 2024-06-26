@@ -27,6 +27,8 @@ namespace ASI.Basecode.WebApp
             {
                 CreateMap<AccountServiceModel, Account>();
                 CreateMap<UserViewModel, User>();
+                CreateMap<TicketViewModel, Ticket>();
+                CreateMap<Ticket, TicketViewModel>();
             }
         }
     }
