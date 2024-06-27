@@ -103,9 +103,9 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult Edit(string id)
         {
             var ticket = _ticketService.GetTicketById(id);
-            ticket.CategoryTypes = _ticketService.GetCategoryTypes();
             ticket.PriorityTypes = _ticketService.GetPriorityTypes();
             ticket.StatusTypes = _ticketService.GetStatusTypes();
+            ticket.CategoryTypes = _ticketService.GetCategoryTypes();
             return View(ticket);
         }
 
@@ -128,19 +128,23 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Create(TicketViewModel model)
         {
-            if(model.File != null && model.File.Length > 0)
+            if(model.Files != null && model.Files.Any())
             {
-                using (var stream = new MemoryStream())
-                {
-                    model.File.CopyTo(stream);
-                    model.attachment = new Data.Models.Attachment
+                foreach(var file in model.Files) { 
+                    using (var stream = new MemoryStream())
                     {
-                        attachment_ID = Guid.NewGuid(),
-                        fileContent = stream.ToArray(),
-                        fileName = model.File.FileName,
-                        contentType = model.File.ContentType,
-                        uploadedDate = DateTime.Now
-                    };
+                        file.CopyTo(stream);
+                        var attachment = new Data.Models.Attachment
+                        {
+                            AttachmentId = Guid.NewGuid().ToString(),
+                            Content = stream.ToArray(),
+                            Name = file.FileName,
+                            Type = file.ContentType,
+                            UploadedDate = DateTime.Now
+                        };
+
+                        model.Attachments.Add(attachment);
+                    }
                 }
             }
             
@@ -157,24 +161,33 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Edit(TicketViewModel model)
         {
-            if (model.File != null && model.File.Length > 0)
+            if (ModelState.IsValid)
             {
-                using (var stream = new MemoryStream())
+                if (model.Files != null && model.Files.Any())
                 {
-                    model.File.CopyTo(stream);
-                    model.attachment = new Data.Models.Attachment
+                    foreach (var file in model.Files)
                     {
-                        attachment_ID = Guid.NewGuid(),
-                        fileContent = stream.ToArray(),
-                        fileName = model.File.FileName,
-                        contentType = model.File.ContentType,
-                        uploadedDate = DateTime.Now
-                    };
-                }
-            }
+                        using (var stream = new MemoryStream())
+                        {
+                            file.CopyTo(stream);
+                            var attachment = new Data.Models.Attachment
+                            {
+                                AttachmentId = Guid.NewGuid().ToString(),
+                                Content = stream.ToArray(),
+                                Name = file.FileName,
+                                Type = file.ContentType,
+                                UploadedDate = DateTime.Now
+                            };
 
-            _ticketService.Update(model);
-            return RedirectToAction("ViewAll");
+                            model.Attachments.Add(attachment);
+                        }
+                    }
+                }
+
+                _ticketService.Update(model);
+                return RedirectToAction("ViewAll");
+            }
+            return Edit(model.TicketId);
         }
 
         /// <summary>
@@ -186,7 +199,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Delete(TicketViewModel model)
         {
-            _ticketService.Delete(model.ticket_ID);
+            _ticketService.Delete(model.TicketId);
             return RedirectToAction("ViewAll");
         }
 
@@ -196,13 +209,13 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <param name="id">The ticket identifier.</param>
         /// <returns>the file</returns>
-        public FileResult DownloadAttachment(string id)
+        public FileResult DownloadAttachment(string id, string attachmentId)
         {
-            var ticket = _ticketService.GetTicketById(id);
+            /*var ticket = _ticketService.GetTicketById(id);
             if (ticket != null && ticket.attachment != null)
             {
                 return File(ticket.attachment.fileContent, "application/octet-stream", ticket.attachment.fileName);
-            }
+            }*/
 
             // TODO: change to proper return type
             return null;

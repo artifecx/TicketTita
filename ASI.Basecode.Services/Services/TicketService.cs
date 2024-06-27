@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Services
@@ -36,9 +37,10 @@ namespace ASI.Basecode.Services.Services
         {
             var newTicket = new Ticket();
             _mapper.Map(ticket, newTicket);
-            newTicket.createdDate = DateTime.Now;
-            newTicket.updatedDate = new DateTime();
-            newTicket.resolvedDate = new DateTime();
+            newTicket.CreatedDate = DateTime.Now;
+            newTicket.UpdatedDate = null;
+            newTicket.ResolvedDate = null;
+            newTicket.UserId = "1";
 
             _repository.Add(newTicket);
         }
@@ -49,19 +51,19 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket.</param>
         public void Update(TicketViewModel ticket)
         {
-            var existingTicket = _repository.FindById(ticket.ticket_ID);
+            var existingTicket = _repository.FindById(ticket.TicketId);
             
-            if(_repository.FindStatusById(ticket.statusType_ID).statusName.Equals("Closed") && 
-                ticket.resolvedDate == DateTime.MinValue)
+            if(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed") && 
+                ticket.ResolvedDate == null)
             {
-                ticket.resolvedDate = DateTime.Now;
+                ticket.ResolvedDate = DateTime.Now;
             }
-            else if(!(_repository.FindStatusById(ticket.statusType_ID).statusName.Equals("Closed")) &&
-                ticket.resolvedDate != DateTime.MinValue)
+            else if(!(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed")) &&
+                ticket.ResolvedDate != null)
             {
-                ticket.resolvedDate = new DateTime();
+                ticket.ResolvedDate = null;
             }
-            ticket.updatedDate = DateTime.Now;
+            ticket.UpdatedDate = DateTime.Now;
 
             _mapper.Map(ticket, existingTicket);
             _repository.Update(existingTicket);
