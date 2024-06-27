@@ -85,3 +85,19 @@ body {
 .w-1000px {
     width: 1000px;
 }
+
+.w-1150px {
+    width: 1150px;
+}
+
+.h-200px {
+    height: 500px;
+}
+
+.text-36px {
+    font-size: 36px;
+}
+
+.text-16px {
+    font-size: 16px;
+}

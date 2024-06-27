@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ArticleId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Content)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArticleId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Category)
+                </td>
+                <td>
+                    @{
+                        string truncatedContent = item.Content.Length > 20 ? item.Content.Substring(0, 20) + "..." : item.Content;
+                    }
+                    @Html.DisplayFor(modelItem => truncatedContent)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { articleId = item.ArticleId }) |
+                    @Html.ActionLink("Details", "Details", new { articleId = item.ArticleId }) |
+                    @Html.ActionLink("Delete", "Delete", new { articleId = item.ArticleId })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
