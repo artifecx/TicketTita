@@ -630,22 +630,22 @@ namespace ASI.Basecode.Data
                     .HasColumnType("datetime")
                     .HasColumnName("updatedTime");
 
-  /*              entity.HasOne(d => d.CreatedByNavigation)
+                entity.HasOne(d => d.CreatedByNavigation)
                     .WithMany(p => p.UserCreatedByNavigations)
-                    .HasForeignKey(d => d.CreatedBy)    
+                    .HasForeignKey(d => d.CreatedBy)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_User_Admin_CreatedBy");*/
+                    .HasConstraintName("FK_User_Admin_CreatedBy");
 
-              /*  entity.HasOne(d => d.Role)
+                entity.HasOne(d => d.Role)
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_User_Role");*/
+                    .HasConstraintName("FK_User_Role");
 
-   /*             entity.HasOne(d => d.UpdatedByNavigation)
+                entity.HasOne(d => d.UpdatedByNavigation)
                     .WithMany(p => p.UserUpdatedByNavigations)
                     .HasForeignKey(d => d.UpdatedBy)
-                    .HasConstraintName("FK_User_Admin_UpdatedBy");*/
+                    .HasConstraintName("FK_User_Admin_UpdatedBy");
             });
 
             modelBuilder.Entity<Account>(entity =>

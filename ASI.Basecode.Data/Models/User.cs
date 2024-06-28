@@ -20,15 +20,16 @@ namespace ASI.Basecode.Data.Models
         public string RoleId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
-        public DateTime UpdatedTime { get; set; }
-        public string UpdatedBy { get; set; }
-       //public virtual Admin CreatedByNavigation { get; set; }
-        //public virtual Role Role { get; set; }
-        //public virtual Admin UpdatedByNavigation { get; set; }
-/*      public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
+        public DateTime? UpdatedTime { get; set; }
+        public string? UpdatedBy { get; set; }
+
+        public virtual Admin CreatedByNavigation { get; set; }
+        public virtual Role Role { get; set; }
+        public virtual Admin UpdatedByNavigation { get; set; }
+        public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
         public virtual ICollection<TeamMember> TeamMembers { get; set; }
-        public virtual ICollection<Ticket> Tickets { get; set; }*/
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

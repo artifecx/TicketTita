@@ -8,8 +8,8 @@ namespace ASI.Basecode.Data.Models
         public Admin()
         {
             TicketAssignments = new HashSet<TicketAssignment>();
-    /*        UserCreatedByNavigations = new HashSet<User>();
-            UserUpdatedByNavigations = new HashSet<User>();*/
+            UserCreatedByNavigations = new HashSet<User>();
+            UserUpdatedByNavigations = new HashSet<User>();
         }
 
         public string AdminId { get; set; }
@@ -19,7 +19,7 @@ namespace ASI.Basecode.Data.Models
         public bool IsSuper { get; set; }
 
         public virtual ICollection<TicketAssignment> TicketAssignments { get; set; }
-/*        public virtual ICollection<User> UserCreatedByNavigations { get; set; }
-        public virtual ICollection<User> UserUpdatedByNavigations { get; set; }*/
+        public virtual ICollection<User> UserCreatedByNavigations { get; set; }
+        public virtual ICollection<User> UserUpdatedByNavigations { get; set; }
     }
 }

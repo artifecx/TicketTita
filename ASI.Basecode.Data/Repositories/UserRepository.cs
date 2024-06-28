@@ -4,78 +4,96 @@ using Basecode.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
     public class UserRepository : BaseRepository, IUserRepository
     {
+        private readonly List<Role> _roles;
+        private readonly List<Admin> _admins;
 
-        /// <summary>
-        /// The selected user data
-        /// </summary>
-        private readonly List<User> _SelectedUserData = new List<User>();
-
-        public UserRepository(IUnitOfWork unitOfWork): base(unitOfWork) { }
-
-        /// <summary>
-        /// Retrieves all.
-        /// </summary>
-        /// <returns></returns>
-  /*      public IEnumerable<User> RetrieveAll()
+        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            return _SelectedUserData;
-        }
-*/
-        public IQueryable<User> RetrieveAll() { 
-            return this.GetDbSet<User>();
+            _roles = GetRoles().ToList();
+            _admins = GetAdmins().ToList();
         }
 
-        /// <summary>
-        /// Adds the specified model.
-        /// </summary>
-        /// <param name="model">The model.</param>
+        public IQueryable<User> RetrieveAll()
+        {
+            var users = this.GetDbSet<User>();
+
+            foreach (User user in users)
+            {
+                user.Role = _roles.SingleOrDefault(r => r.RoleId == user.RoleId);
+                user.CreatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.CreatedBy);
+                user.UpdatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.UpdatedBy);
+            }
+            return users;
+        }
+
         public void Add(User model)
         {
+            AssignUserProperties(model);
+
             this.GetDbSet<User>().Add(model);
             UnitOfWork.SaveChanges();
-
-           /* _SelectedUserData.Add(model);*/
         }
 
-        /// <summary>
-        /// Updates the specified model.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void Update(User model) {
+        public void Update(User model)
+        {
+            SetNavigation(model);
+
             this.GetDbSet<User>().Update(model);
             UnitOfWork.SaveChanges();
-
-            /*     var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
-                 if (SelectedUser != null)
-                 {
-                     SelectedUser = model;
-                 }
-     */
         }
-        /// <summary>
-        /// Deletes the specified user identifier.
-        /// </summary>
-        /// <param name="UserId">The user identifier.</param>
-        public void Delete(String UserId) {
 
+        public void Delete(string UserId)
+        {
             var userToDelete = this.GetDbSet<User>().FirstOrDefault(s => s.UserId == UserId);
-            Console.WriteLine(userToDelete.Name);
-            if (userToDelete != null) {
+            if (userToDelete != null)
+            {
                 this.GetDbSet<User>().Remove(userToDelete);
                 UnitOfWork.SaveChanges();
             }
-            
-      /*      var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
-            if (SelectedUser != null) { 
-            _SelectedUserData.Remove(SelectedUser);
-            }*/
+        }
+
+        public User FindById(string id)
+        {
+            return this.GetDbSet<User>().FirstOrDefault(x => x.UserId == id);
+        }
+
+        public Role FindRoleById(string id)
+        {
+            return this.GetDbSet<Role>().FirstOrDefault(x => x.RoleId == id);
+        }
+
+        public Admin FindAdminById(string id)
+        {
+            return this.GetDbSet<Admin>().FirstOrDefault(x => x.AdminId == id);
+        }
+
+        public IQueryable<Role> GetRoles()
+        {
+            return this.GetDbSet<Role>();
+        }
+
+        public IQueryable<Admin> GetAdmins()
+        {
+            return this.GetDbSet<Admin>();
+        }
+
+        public void AssignUserProperties(User user)
+        {
+            user.Role = _roles.SingleOrDefault(r => r.RoleId == user.RoleId);
+            user.CreatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.CreatedBy);
+            user.UpdatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.UpdatedBy);
+        }
+
+        public void SetNavigation(User user)
+        {
+            user.Role = _roles.SingleOrDefault(r => r.RoleId == user.RoleId);
+            user.CreatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.CreatedBy);
+            user.UpdatedByNavigation = _admins.SingleOrDefault(a => a.AdminId == user.UpdatedBy);
         }
     }
 }
