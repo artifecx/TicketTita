@@ -10,10 +10,12 @@ namespace ASI.Basecode.Data.Interfaces
     public interface ITicketRepository
     {
         IQueryable<Ticket> GetAll();
-        void Add(Ticket ticket);
-        void Update(Ticket ticket);
+        string Add(Ticket ticket);
+        void AddAttachment(Attachment attachment);
+        string Update(Ticket ticket);
         void Delete(string id);
         Ticket FindById(string id);
+        Attachment FindAttachmentByTicketId(string id);
         CategoryType FindCategoryById(string id);
         PriorityType FindPriorityById(string id);
         StatusType FindStatusById(string id);

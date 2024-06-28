@@ -33,7 +33,7 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to add a new ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Add(TicketViewModel ticket)
+        public string Add(TicketViewModel ticket)
         {
             var newTicket = new Ticket();
             _mapper.Map(ticket, newTicket);
@@ -42,14 +42,23 @@ namespace ASI.Basecode.Services.Services
             newTicket.ResolvedDate = null;
             newTicket.UserId = "1";
 
-            _repository.Add(newTicket);
+            return _repository.Add(newTicket);
+        }
+
+        /// <summary>
+        /// Calls the repository to add a new attachment
+        /// </summary>
+        /// <param name="ticket">The attachment.</param>
+        public void AddAttachment(Attachment attachment)
+        {
+            _repository.AddAttachment(attachment);
         }
 
         /// <summary>
         /// Calls the repository to update an existing ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Update(TicketViewModel ticket)
+        public string Update(TicketViewModel ticket)
         {
             var existingTicket = _repository.FindById(ticket.TicketId);
             
@@ -66,7 +75,7 @@ namespace ASI.Basecode.Services.Services
             ticket.UpdatedDate = DateTime.Now;
 
             _mapper.Map(ticket, existingTicket);
-            _repository.Update(existingTicket);
+            return _repository.Update(existingTicket);
         }
 
         /// <summary>
@@ -90,6 +99,16 @@ namespace ASI.Basecode.Services.Services
         {
             var ticket = _repository.FindById(id);
             return _mapper.Map<TicketViewModel>(ticket);
+        }
+
+        /// <summary>
+        /// Calls the repository to get an attachment by its ticket id.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Attachment</returns>
+        public Attachment GetAttachmentByTicketId(string id)
+        {
+            return _repository.FindAttachmentByTicketId(id);
         }
 
         /// <summary>

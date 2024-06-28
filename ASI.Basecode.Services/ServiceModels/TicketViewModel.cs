@@ -49,10 +49,6 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Date Created")]
         public DateTime CreatedDate { get; set; }
 
-        /// <summary>The file attachment.</summary>
-        [Display(Name = "Attachments")]
-        public ICollection<Attachment> Attachments { get; set; }
-
         /// <summary>The date the ticket was updated</summary>
         [Display(Name = "Date Updated")]
         public DateTime? UpdatedDate { get; set; }
@@ -75,11 +71,15 @@ namespace ASI.Basecode.Services.ServiceModels
         public StatusType StatusType { get; set; }
 
         /// <summary>The files uploaded taken when create/edit is submitted.</summary>
-        [Display(Name = "Files")]
-        public ICollection<IFormFile> Files { get; set; }
+        [Display(Name = "File")]
+        public IFormFile File { get; set; }
+
+        /// <summary>The file attachment.</summary>
+        [Display(Name = "Attachment")]
+        public Attachment Attachment { get; set; }
 
 
-        /// <summary>List of tickets to populate the table</summary>
+        /// <summary>List of tickets to populate the dropdown</summary>
         public IEnumerable<TicketViewModel> Tickets { get; set; }
 
         /// <summary>List of category types to populate the dropdown</summary>

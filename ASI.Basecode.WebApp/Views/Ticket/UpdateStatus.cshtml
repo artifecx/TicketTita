@@ -1,0 +1,103 @@
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
+
+@{
+    ViewData["Title"] = "Update Status";
+}
+
+<h1>Update Ticket Status</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="UpdateStatus" method="post">
+            <div class="form-group">
+                <label for="TicketId">Select Ticket</label>
+                <select id="TicketId" name="TicketId" class="form-control" onchange="populateTicketDetails()">
+                    <option value="">-- Select Ticket --</option>
+                    @foreach (var ticket in Model.Tickets)
+                    {
+                        <option value="@ticket.TicketId">@ticket.Subject</option>
+                    }
+                </select>
+            </div>
+
+            <div id="ticketDetails" style="display:none;">
+                <div class="form-group">
+                    <label asp-for="Subject" class="control-label"></label>
+                    <input asp-for="Subject" class="form-control" readonly />
+                </div>
+                <div class="form-group">
+                    <label asp-for="IssueDescription" class="control-label"></label>
+                    <textarea asp-for="IssueDescription" class="form-control" readonly></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CategoryTypeId" class="control-label"></label>
+                    <select asp-for="CategoryTypeId" class="form-control" disabled>
+                        @foreach (var item in Model.CategoryTypes)
+                        {
+                            <option value="@item.CategoryTypeId">@item.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PriorityTypeId" class="control-label"></label>
+                    <select asp-for="PriorityTypeId" class="form-control" disabled>
+                        @foreach (var item in Model.PriorityTypes)
+                        {
+                            <option value="@item.PriorityTypeId">@item.PriorityName</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StatusTypeId" class="control-label"></label>
+                    <select asp-for="StatusTypeId" class="form-control">
+                        @foreach (var item in Model.StatusTypes)
+                        {
+                            <option value="@item.StatusTypeId">@item.StatusName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="StatusTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update Status" class="btn btn-primary" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="ViewAll">Back to List</a>
+</div>
+
+@section Scripts {
+    <script>
+        function populateTicketDetails() {
+            var ticketId = $('#TicketId').val();
+            if (ticketId) {
+                $.ajax({
+                    url: '@Url.Action("GetTicketDetails", "Ticket")',
+                    type: 'GET',
+                    data: { id: ticketId },
+                    success: function (data) {
+                        if (data) {
+                            $('#ticketDetails').show();
+                            $('[name="Subject"]').val(data.subject);
+                            $('[name="IssueDescription"]').val(data.issueDescription);
+                            $('[name="CategoryTypeId"]').val(data.categoryTypeId);
+                            $('[name="PriorityTypeId"]').val(data.priorityTypeId);
+                            $('[name="StatusTypeId"]').val(data.statusTypeId);
+                        } else {
+                            $('#ticketDetails').hide();
+                        }
+                    },
+                    error: function () {
+                        $('#ticketDetails').hide();
+                    }
+                });
+            } else {
+                $('#ticketDetails').hide();
+            }
+        }
+    </script>
+}

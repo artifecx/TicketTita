@@ -18,6 +18,11 @@ namespace ASI.Basecode.Data.Repositories
         private readonly List<PriorityType> _priorityTypes;
         private readonly List<StatusType> _statusTypes;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketRepository"/> class.
+        /// </summary>
+        /// <param name="unitOfWork">The unit of work.</param>
+        /// fetches and sets the category, priority, and status types to prevent multiple calls to the database
         public TicketRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
         { 
             _categoryTypes = GetCategoryTypes().ToList();
@@ -29,6 +34,7 @@ namespace ASI.Basecode.Data.Repositories
         /// Gets all tickets.
         /// </summary>
         /// <returns>a list of all tickets (IEnumerable)</returns>
+        /// foreach will set the navigation properties for each ticket: CategoryType, PriorityType, StatusType
         public IQueryable<Ticket> GetAll()
         {
             var tickets = this.GetDbSet<Ticket>();
@@ -43,28 +49,42 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Adds a new ticket to the list.
+        /// Adds a new ticket to the database.
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Add(Ticket ticket)
+        public string Add(Ticket ticket)
         {
-            ticket.StatusTypeId = ticket.StatusTypeId ?? "1";
-
             AssignTicketProperties(ticket);
 
             this.GetDbSet<Ticket>().Add(ticket);
             UnitOfWork.SaveChanges();
+
+            return ticket.TicketId;
         }
 
         /// <summary>
-        /// Updates an existing ticket in the list.
+        /// Adds a new attachment to the database.
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Update(Ticket ticket)
+        public void AddAttachment(Attachment attachment)
         {
-            // TODO: fix categoryType_ID is NULL cannot UPDATE
+            attachment.Ticket = FindById(attachment.TicketId);
+            this.GetDbSet<Attachment>().Add(attachment);
+            UnitOfWork.SaveChanges();
+        }
+
+        /// <summary>
+        /// Updates an existing ticket in the database.
+        /// </summary>
+        /// <param name="ticket">The ticket.</param>
+        public string Update(Ticket ticket)
+        {
+            SetNavigation(ticket);
+
             this.GetDbSet<Ticket>().Update(ticket);
             UnitOfWork.SaveChanges();
+
+            return ticket.TicketId;
         }
 
         /// <summary>
@@ -74,8 +94,13 @@ namespace ASI.Basecode.Data.Repositories
         public void Delete(string id)
         {
             var existingTicket = FindById(id);
+            var existingAttachment = this.GetDbSet<Attachment>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
             if (existingTicket != null)
             {
+                if(existingAttachment != null)
+                {
+                    this.GetDbSet<Attachment>().Remove(existingAttachment);
+                }
                 this.GetDbSet<Ticket>().Remove(existingTicket);
                 UnitOfWork.SaveChanges();
             }
@@ -91,6 +116,16 @@ namespace ASI.Basecode.Data.Repositories
         public Ticket FindById(string id)
         {
             return this.GetDbSet<Ticket>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Finds an attachment by ticket identifier.
+        /// </summary>
+        /// <param name="id">ticket_ID</param>
+        /// <returns>an attachment</returns>
+        public Attachment FindAttachmentByTicketId(string id)
+        {
+            return this.GetDbSet<Attachment>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
         }
 
         /// <summary>
@@ -126,7 +161,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <summary>
         /// Gets all category types.
         /// </summary>
-        /// <returns>List of all category types (IEnumerable)</returns>
+        /// <returns>A collection of all category types (IQueryable)</returns>
         public IQueryable<CategoryType> GetCategoryTypes()
         {
             return this.GetDbSet<CategoryType>(); ;
@@ -135,7 +170,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <summary>
         /// Gets all priority types.
         /// </summary>
-        /// <returns>List of all priority types (IEnumerable)</returns>
+        /// <returns>A collection of all priority types (IQueryable)</returns>
         public IQueryable<PriorityType> GetPriorityTypes()
         {
             return this.GetDbSet<PriorityType>();
@@ -144,14 +179,14 @@ namespace ASI.Basecode.Data.Repositories
         /// <summary>
         /// Gets all status types.
         /// </summary>
-        /// <returns>List of all status types (IEnumerable)</returns>
+        /// <returns>A collection of all status types (IQueryable)</returns>
         public IQueryable<StatusType> GetStatusTypes()
         {
             return this.GetDbSet<StatusType>();
         }
 
         /// <summary>
-        /// Assigns the following ticket properties: ticket_ID, Category, Priority, Status, CategoryNumber
+        /// Assigns the following ticket properties: TicketId, CategoryType, PriorityType, StatusType
         /// </summary>
         /// <param name="ticket">The ticket.</param>
         /// 
@@ -161,23 +196,29 @@ namespace ASI.Basecode.Data.Repositories
         /// NN = Ticket Number (total number of tickets created)
         private void AssignTicketProperties(Ticket ticket)
         {
-            /*/// Category Type ID (CC)
-            int categoryTypeId = ticket.categoryType_ID;
+            /// TicketId is reused if an entry is deleted and a new one has the same category as deleted entry
+            /// not scalable if database has many entries
+            // TODO: revisit this logic
+            int CC = Convert.ToInt32(ticket.CategoryTypeId);
+            int CN = GetAll().Count(t => t.CategoryTypeId == ticket.CategoryTypeId);
+            int NN = GetAll().Count();
 
-            /// Category Number (CN)
-            var lastTicketInCategory = _ticketList.LastOrDefault(t => t.categoryType_ID == ticket.categoryType_ID);
-            int categoryTicketCount = lastTicketInCategory == null ? 1 : lastTicketInCategory.CategoryNumber + 1;
+            ticket.TicketId = $"{CC:00}-{CN + 1:00}-{NN + 1:00}";
 
-            /// Ticket Number (NN)
-            int totalTicketCount = _ticketList.Count + 1;
+            ticket.StatusTypeId = ticket.StatusTypeId ?? "1";
+            SetNavigation(ticket);
+        }
 
-            /// Set ticket id
-            ticket.ticket_ID = $"{categoryTypeId:00}-{categoryTicketCount:00}-{totalTicketCount:00}";*/
-            ticket.TicketId = $"CC-CN-{GetAll().Count() + 1}";
 
-            /*/// Update Category Number (CN) index
-            lastTicketInCategory = _ticketList.LastOrDefault(t => t.categoryType_ID == ticket.categoryType_ID);
-            ticket.CategoryNumber = lastTicketInCategory == null ? 1 : lastTicketInCategory.CategoryNumber + 1;*/
+        /// <summary>
+        /// Sets the navigation properties for a ticket: CategoryType, PriorityType, StatusType
+        /// </summary>
+        /// <param name="ticket">The ticket.</param>
+        private void SetNavigation(Ticket ticket)
+        {
+            ticket.CategoryType = _categoryTypes.Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
+            ticket.PriorityType = _priorityTypes.Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
+            ticket.StatusType = _statusTypes.Single(x => x.StatusTypeId == ticket.StatusTypeId);
         }
         #endregion
     }
