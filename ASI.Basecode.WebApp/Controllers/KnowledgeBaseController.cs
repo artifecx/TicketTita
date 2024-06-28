@@ -26,10 +26,10 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="localizer"></param>
         /// <param name="mapper"></param>
         public KnowledgeBaseController(IKnowledgeBaseService knowledgeBaseService,
-            IHttpContextAccessor httpContextAccessor,
-                              ILoggerFactory loggerFactory,
-                              IConfiguration configuration,
-                              IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                                IHttpContextAccessor httpContextAccessor,
+                                ILoggerFactory loggerFactory,
+                                IConfiguration configuration,
+                                IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             _knowledgeBaseService = knowledgeBaseService;
         }
@@ -53,7 +53,11 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            var model = new KnowledgeBaseViewModel
+            {
+                ArticleCategories = _knowledgeBaseService.GetArticleCategories()
+            };
+            return View(model);
         }
 
         /// <summary>Returns Details View</summary>
@@ -62,10 +66,14 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
-        public IActionResult Details(int articleId)
+        public IActionResult Details(string articleId)
         {
-            var data = _knowledgeBaseService.RetrieveAll().Where(x => x.ArticleId.Equals(articleId)).FirstOrDefault();
-            return View(data);
+            var article = _knowledgeBaseService.GetArticleById(articleId);
+            if (article == null)
+            {
+                return RedirectToAction("Index");
+            }
+            return View(article);
         }
 
         /// <summary>Returns the Edit View</summary>
@@ -74,10 +82,11 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
-        public IActionResult Edit(int articleId)
+        public IActionResult Edit(string articleId)
         {
-            var data = _knowledgeBaseService.RetrieveAll().Where(x => x.ArticleId.Equals(articleId)).FirstOrDefault();
-            return View(data);
+            var article = _knowledgeBaseService.GetArticleById(articleId);
+            article.ArticleCategories = _knowledgeBaseService.GetArticleCategories();
+            return View(article);
         }
 
         /// <summary>Returns the Delete View</summary>
@@ -86,9 +95,9 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
-        public IActionResult Delete(int articleId)
+        public IActionResult Delete(string articleId)
         {
-            var data = _knowledgeBaseService.RetrieveAll().Where(x => x.ArticleId.Equals(articleId)).FirstOrDefault();
+            var data = _knowledgeBaseService.GetArticleById(articleId);
             return View(data);
         }
         #endregion
@@ -124,7 +133,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
-        public IActionResult PostDelete(int articleId)
+        public IActionResult PostDelete(string articleId)
         {
             _knowledgeBaseService.Delete(articleId);
             return RedirectToAction("Index");

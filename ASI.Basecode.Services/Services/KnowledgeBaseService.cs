@@ -25,52 +25,51 @@ namespace ASI.Basecode.Services.Services
             _mapper = mapper;
         }
 
-        /// <summary>Retrieves all.</summary>
-        /// <returns>
-        ///   <br />
-        /// </returns>
-        public IEnumerable<KnowledgeBaseViewModel> RetrieveAll()
-        {
-            var data = _knowledgeBaseRepository.RetrieveAll().Select(s => new KnowledgeBaseViewModel
-            {
-                ArticleId = s.ArticleId,
-                Title = s.Title,
-                Category = s.Category,
-                Content = s.Content,
-            });
-            return data;
-        }
-
         /// <summary>Adds the specified model.</summary>
         /// <param name="model">The model.</param>
-        public void Add(KnowledgeBaseViewModel model)
+        public void Add(KnowledgeBaseViewModel article)
         {
-            var newModel = new KnowledgeBase();
-            _mapper.Map(model, newModel);
-            newModel.AuthorId = "David";
-            newModel.DateCreated = DateTime.Now;
-            newModel.DateUpdated = DateTime.Now;
+            var newArticle = new KnowledgeBaseArticle();
+            _mapper.Map(article, newArticle);
+            newArticle.CreatedDate = DateTime.Now;
+            newArticle.UpdatedDate = new DateTime();
 
-            _knowledgeBaseRepository.Add(newModel);
+            _knowledgeBaseRepository.Add(newArticle);
         }
 
         /// <summary>Updates the specified model.</summary>
         /// <param name="model">The model.</param>
-        public void Update(KnowledgeBaseViewModel model)
+        public void Update(KnowledgeBaseViewModel article)
         {
-            var existingData = _knowledgeBaseRepository.RetrieveAll().Where(s => s.ArticleId == model.ArticleId).FirstOrDefault();
-            _mapper.Map(model, existingData);
-            existingData.EditorId = "David";
-            existingData.DateUpdated = DateTime.Now;
+            var existingArticle = _knowledgeBaseRepository.FindArticleById(article.ArticleId);
+            _mapper.Map(article, existingArticle);
+            existingArticle.UpdatedDate = DateTime.Now;
 
-            _knowledgeBaseRepository.Update(existingData);
+            _knowledgeBaseRepository.Update(existingArticle);
         }
 
         /// <summary>Deletes the specified identifier.</summary>
         /// <param name="id">The identifier.</param>
-        public void Delete(int id)
+        public void Delete(string id)
         {
             _knowledgeBaseRepository.Delete(id);
+        }
+
+        public KnowledgeBaseViewModel GetArticleById(string id)
+        {
+            var article = _knowledgeBaseRepository.FindArticleById(id);
+            return _mapper.Map<KnowledgeBaseViewModel>(article);
+        }
+
+        public IEnumerable<KnowledgeBaseViewModel> RetrieveAll()
+        {
+            var articles = _knowledgeBaseRepository.RetrieveAll();
+            return _mapper.Map<IEnumerable<KnowledgeBaseViewModel>>(articles);
+        }
+
+        public IEnumerable<ArticleCategory> GetArticleCategories()
+        {
+            return _knowledgeBaseRepository.GetArticleCategories();
         }
     }
 }

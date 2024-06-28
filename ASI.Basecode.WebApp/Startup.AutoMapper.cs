@@ -2,6 +2,7 @@
 using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.ServiceModels;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace ASI.Basecode.WebApp
 {
@@ -26,7 +27,10 @@ namespace ASI.Basecode.WebApp
             public AutoMapperProfileConfiguration()
             {
                 CreateMap<UserViewModel, User>();
-                CreateMap<KnowledgeBaseViewModel, KnowledgeBase>();
+                CreateMap<KnowledgeBaseViewModel, KnowledgeBaseArticle>();
+                CreateMap<KnowledgeBaseArticle, KnowledgeBaseViewModel>();
+                CreateMap<IEnumerable<KnowledgeBaseViewModel>, IEnumerable<KnowledgeBaseArticle>>();
+
             }
         }
     }

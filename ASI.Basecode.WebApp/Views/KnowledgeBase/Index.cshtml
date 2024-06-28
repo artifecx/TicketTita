@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>View Article List</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -16,42 +16,63 @@
                 @Html.DisplayNameFor(model => model.ArticleId)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.CategoryId)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                @Html.DisplayNameFor(model => model.Content)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Content)
+                @Html.DisplayNameFor(model => model.CreatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorId)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ArticleId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category)
-                </td>
-                <td>
-                    @{
-                        string truncatedContent = item.Content.Length > 20 ? item.Content.Substring(0, 20) + "..." : item.Content;
-                    }
-                    @Html.DisplayFor(modelItem => truncatedContent)
-                </td>
-                <td>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArticleId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Content)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @if (item.UpdatedDate == DateTime.MinValue)
+                {
+                    @:No Updates
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.UpdatedDate)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AuthorId)
+            </td>
+            <td>
                     @Html.ActionLink("Edit", "Edit", new { articleId = item.ArticleId }) |
                     @Html.ActionLink("Details", "Details", new { articleId = item.ArticleId }) |
                     @Html.ActionLink("Delete", "Delete", new { articleId = item.ArticleId })
-                </td>
-            </tr>
-        }
+            </td>
+        </tr>
+}
     </tbody>
 </table>

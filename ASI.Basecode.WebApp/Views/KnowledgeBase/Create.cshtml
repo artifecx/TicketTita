@@ -6,37 +6,35 @@
 
 <h1>Create</h1>
 
+<h4>KnowledgeBaseViewModel</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="PostCreate">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="control-form">
+                    {@foreach(var item in Model.ArticleCategories){
+                    <option value="@item.CategoryId">@item.CategoryName</option>
+                    }}
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control text-36px" />
+                <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Category" class="control-label"></label>
-                <select asp-for="Category" class="form-control">
-                    <option value="">-- Select Category --</option>
-                    <option value="Getting Started">Getting Started</option>
-                    <option value="Troubleshooting">Troubleshooting</option>
-                    <option value="Product Features">Product Features</option>
-                    <option value="How-to Guides">How-to Guides</option>
-                    <option value="FAQs">FAQs</option>
-                    <option value="Best Practices">Best Practices</option>
-                    <option value="Release Notes">Release Notes</option>
-                    <option value="Policies and Procedures">Policies and Procedures</option>
-                    <option value="Technical Documentation">Technical Documentation</option>
-                    <option value="Account Management">Account Management</option>
-                </select>
-                <span asp-validation-for="Category" class="text-danger"></span>
+                <label asp-for="Content" class="control-label"></label>
+                <input asp-for="Content" class="form-control" />
+                <span asp-validation-for="Content" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Content" class="control-label"></label>
-                <textarea asp-for="Content" class="form-control w-1150px" rows="30"></textarea>
-                <span asp-validation-for="Content" class="text-danger"></span>
+                <label asp-for="AuthorId" class="control-label"></label>
+                <input asp-for="AuthorId" class="form-control" />
+                <span asp-validation-for="AuthorId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -50,7 +48,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

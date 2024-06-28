@@ -1,4 +1,5 @@
 ﻿using ASI.Basecode.Services.ServiceModels;
+using ASI.Basecode.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,11 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface IKnowledgeBaseService
     {
-        IEnumerable<KnowledgeBaseViewModel> RetrieveAll();
-        void Add(KnowledgeBaseViewModel model);
-        void Update(KnowledgeBaseViewModel model);
-        void Delete(int id);
+        public void Add(KnowledgeBaseViewModel article);
+        public void Update(KnowledgeBaseViewModel article);
+        public void Delete(string id);
+        public KnowledgeBaseViewModel GetArticleById(string id);
+        public IEnumerable<KnowledgeBaseViewModel> RetrieveAll();
+        public IEnumerable<ArticleCategory> GetArticleCategories();
     }
 }
