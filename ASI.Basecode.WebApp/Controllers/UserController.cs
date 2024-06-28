@@ -67,7 +67,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult Details(String SelectedUserId)
         {
-            var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
+            var SelectedUser = _userService.RetrieveUser(SelectedUserId);
             return View(SelectedUser);
         }
 

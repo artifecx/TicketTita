@@ -48,6 +48,18 @@ namespace ASI.Basecode.Services.Services
             return data;
         }
 
+        public UserViewModel RetrieveUser(String UserId) {
+            var model = _userRepository.RetrieveAll().FirstOrDefault(s => s.UserId == UserId);
+            var SelectedUser = new UserViewModel();
+            SelectedUser.Email = model.Email;
+            SelectedUser.CreatedTime = model.CreatedTime;
+            SelectedUser.Password = model.Password;
+            SelectedUser.RoleId = model.RoleId;
+            SelectedUser.UpdatedBy = model.UpdatedBy;
+            SelectedUser.UpdatedTime = model.UpdatedTime;
+            return SelectedUser;
+        }
+
         /// <summary>
         /// Adds the specified model.
         /// </summary>
@@ -64,9 +76,6 @@ namespace ASI.Basecode.Services.Services
             // newModel.CreatedBy = System.Environment.UserName;
             newModel.CreatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
             newModel.UpdatedTime = DateTime.Now;
-            if (newModel.RoleId == null) {
-                Console.WriteLine("RoleID is null hmmm");
-            }
             
             _userRepository.Add(newModel);
         }
@@ -76,11 +85,20 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="model">The model.</param>
         public void Update(UserViewModel model) {
-         /*   var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).First OrDefault();
+            var SelectedUser = new User();
             _mapper.Map(model, SelectedUser);
-            SelectedUser.UpdatedBy = System.Environment.UserName;
-            SelectedUser.UpdatedTime = DateTime.Now;
-            _userRepository.Update(SelectedUser);*/
+            SelectedUser.Email = model.Email;
+            SelectedUser.CreatedTime = model.CreatedTime;
+            SelectedUser.Password = model.Password;
+            SelectedUser.RoleId = model.RoleId;
+            SelectedUser.UpdatedBy = model.UpdatedBy;
+            SelectedUser.UpdatedTime = model.UpdatedTime;
+            _userRepository.Update(SelectedUser);
+            /*  var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).First OrDefault();
+              _mapper.Map(model, SelectedUser);
+              SelectedUser.UpdatedBy = System.Environment.UserName;
+              SelectedUser.UpdatedTime = DateTime.Now;
+              _userRepository.Update(SelectedUser);*/
         }
 
         /// <summary>

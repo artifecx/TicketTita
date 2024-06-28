@@ -13,7 +13,6 @@ namespace ASI.Basecode.Data.Models
             TeamMembers = new HashSet<TeamMember>();
             Tickets = new HashSet<Ticket>();*/
         }
-
         public string UserId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -23,10 +22,10 @@ namespace ASI.Basecode.Data.Models
         public DateTime CreatedTime { get; set; }
         public DateTime UpdatedTime { get; set; }
         public string UpdatedBy { get; set; }
-       // public virtual Admin CreatedByNavigation { get; set; }
+       //public virtual Admin CreatedByNavigation { get; set; }
         //public virtual Role Role { get; set; }
         //public virtual Admin UpdatedByNavigation { get; set; }
-/*        public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
+/*      public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
         public virtual ICollection<TeamMember> TeamMembers { get; set; }

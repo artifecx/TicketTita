@@ -52,7 +52,6 @@ namespace ASI.Basecode.Data.Repositories
             this.GetDbSet<User>().Update(model);
             UnitOfWork.SaveChanges();
 
-
             /*     var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
                  if (SelectedUser != null)
                  {
