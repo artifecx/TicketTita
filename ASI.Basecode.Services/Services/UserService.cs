@@ -40,7 +40,7 @@ namespace ASI.Basecode.Services.Services
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
                 Password = s.Password,
-                Role = s.Role,
+                RoleId = s.RoleId,    
                 UpdatedBy = s.UpdatedBy,
                 CreatedTime = s.CreatedTime,
                 UpdatedTime = s.UpdatedTime,    
@@ -56,10 +56,18 @@ namespace ASI.Basecode.Services.Services
         {
             var newModel = new User();
             _mapper.Map(model, newModel);
-            newModel.UserId = Guid.NewGuid();
+            Guid userId = Guid.NewGuid();
+            newModel.UserId = userId.ToString();
+            newModel.Email = model.Email;
+       
             newModel.CreatedTime = DateTime.Now;
-            newModel.CreatedBy = System.Environment.UserName;
+            // newModel.CreatedBy = System.Environment.UserName;
+            newModel.CreatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
             newModel.UpdatedTime = DateTime.Now;
+            if (newModel.RoleId == null) {
+                Console.WriteLine("RoleID is null hmmm");
+            }
+            
             _userRepository.Add(newModel);
         }
 
@@ -68,21 +76,20 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="model">The model.</param>
         public void Update(UserViewModel model) {
-            var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
+         /*   var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).First OrDefault();
             _mapper.Map(model, SelectedUser);
             SelectedUser.UpdatedBy = System.Environment.UserName;
             SelectedUser.UpdatedTime = DateTime.Now;
-            _userRepository.Update(SelectedUser);
+            _userRepository.Update(SelectedUser);*/
         }
 
         /// <summary>
         /// Deletes the specified user identifier.
         /// </summary>
         /// <param name="UserId">The user identifier.</param>
-        public void Delete(Guid UserId) {
+        public void Delete(String UserId) {
             _userRepository.Delete(UserId);
         
         }
-
     }
 }

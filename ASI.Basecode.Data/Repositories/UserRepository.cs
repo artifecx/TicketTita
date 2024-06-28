@@ -1,5 +1,6 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
+using Basecode.Data.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : BaseRepository, IUserRepository
     {
 
         /// <summary>
@@ -16,15 +17,20 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         private readonly List<User> _SelectedUserData = new List<User>();
 
+        public UserRepository(IUnitOfWork unitOfWork): base(unitOfWork) { }
+
         /// <summary>
         /// Retrieves all.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<User> RetrieveAll()
+  /*      public IEnumerable<User> RetrieveAll()
         {
             return _SelectedUserData;
         }
-
+*/
+        public IQueryable<User> RetrieveAll() { 
+            return this.GetDbSet<User>();
+        }
 
         /// <summary>
         /// Adds the specified model.
@@ -32,8 +38,10 @@ namespace ASI.Basecode.Data.Repositories
         /// <param name="model">The model.</param>
         public void Add(User model)
         {
+            this.GetDbSet<User>().Add(model);
+            UnitOfWork.SaveChanges();
 
-            _SelectedUserData.Add(model);
+           /* _SelectedUserData.Add(model);*/
         }
 
         /// <summary>
@@ -41,21 +49,33 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <param name="model">The model.</param>
         public void Update(User model) {
-            var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
-            if (SelectedUser != null) {
-                SelectedUser = model;
-            }
+            this.GetDbSet<User>().Update(model);
+            UnitOfWork.SaveChanges();
 
+
+            /*     var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
+                 if (SelectedUser != null)
+                 {
+                     SelectedUser = model;
+                 }
+     */
         }
         /// <summary>
         /// Deletes the specified user identifier.
         /// </summary>
         /// <param name="UserId">The user identifier.</param>
-        public void Delete(Guid UserId) {
-            var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
+        public void Delete(String UserId) {
+
+            var userToDelete = this.GetDbSet<User>().FirstOrDefault(s => s.UserId == UserId);
+
+            if (userToDelete != null) {
+                this.GetDbSet<User>().Remove(userToDelete);
+            }
+            
+      /*      var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
             if (SelectedUser != null) { 
             _SelectedUserData.Remove(SelectedUser);
-            }
+            }*/
         }
     }
 }

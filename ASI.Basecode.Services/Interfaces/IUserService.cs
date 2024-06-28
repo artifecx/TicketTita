@@ -15,6 +15,6 @@ namespace ASI.Basecode.Services.Interfaces
 
         void Update(UserViewModel model);
 
-        void Delete(Guid UserId);
+        void Delete(String UserId);
     }
 }
