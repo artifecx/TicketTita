@@ -66,9 +66,10 @@ namespace ASI.Basecode.Data.Repositories
         public void Delete(String UserId) {
 
             var userToDelete = this.GetDbSet<User>().FirstOrDefault(s => s.UserId == UserId);
-
+            Console.WriteLine(userToDelete.Name);
             if (userToDelete != null) {
                 this.GetDbSet<User>().Remove(userToDelete);
+                UnitOfWork.SaveChanges();
             }
             
       /*      var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
