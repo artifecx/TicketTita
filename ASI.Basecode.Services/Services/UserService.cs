@@ -1,6 +1,7 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
+using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using System;
@@ -60,6 +61,7 @@ namespace ASI.Basecode.Services.Services
         {
             var newModel = _mapper.Map<User>(model);
             newModel.UserId = Guid.NewGuid().ToString();
+            newModel.Password = PasswordManager.EncryptPassword(newModel.Password);
             newModel.CreatedTime = DateTime.Now;
             newModel.CreatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
             newModel.UpdatedBy = null;
@@ -75,7 +77,10 @@ namespace ASI.Basecode.Services.Services
 
             _userRepository.Update(updatedModel);
         }
-
+        /// <summary>
+        /// Deletes the specified user identifier.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
         public void Delete(string userId)
         {
             _userRepository.Delete(userId);
