@@ -29,6 +29,7 @@ namespace ASI.Basecode.Services.Services
                 Email = s.Email,
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
+
                 Password = PasswordManager.DecryptPassword(s.Password),
                 RoleId = s.RoleId,
                 UpdatedBy = s.UpdatedBy,
@@ -36,6 +37,8 @@ namespace ASI.Basecode.Services.Services
                 UpdatedTime = s.UpdatedTime,
             });
             return data;
+
+            return null;
         }
 
         public UserViewModel RetrieveUser(string UserId)
@@ -71,7 +74,6 @@ namespace ASI.Basecode.Services.Services
 
         public void Update(UserViewModel model)
         {
-
             var updatedModel = _mapper.Map<User>(model);
             updatedModel.UpdatedTime = DateTime.Now;
             updatedModel.UpdatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";

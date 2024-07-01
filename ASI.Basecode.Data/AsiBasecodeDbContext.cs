@@ -6,13 +6,13 @@ using ASI.Basecode.Data.Models;
 
 namespace ASI.Basecode.Data
 {
-    public partial class AsiBasecodeDBContext : DbContext
+    public partial class AsiBasecodeDbContext : DbContext
     {
-        public AsiBasecodeDBContext()
+        public AsiBasecodeDbContext()
         {
         }
 
-        public AsiBasecodeDBContext(DbContextOptions<AsiBasecodeDBContext> options)
+        public AsiBasecodeDbContext(DbContextOptions<AsiBasecodeDbContext> options)
             : base(options)
         {
         }
@@ -41,7 +41,7 @@ namespace ASI.Basecode.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Addr=DESKTOP-SDJQGI7 ; database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True");
+                optionsBuilder.UseSqlServer("Addr=localhost;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True");
             }
         }
 
@@ -85,17 +85,16 @@ namespace ASI.Basecode.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ActivityLog_Ticket");
 
-/*                entity.HasOne(d => d.User)
+                entity.HasOne(d => d.User)
                     .WithMany(p => p.ActivityLogs)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ActivityLog_User");*/
+                    .HasConstraintName("FK_ActivityLog_User");
             });
 
             modelBuilder.Entity<Admin>(entity =>
             {
                 entity.ToTable("Admin");
-
                 entity.Property(e => e.AdminId)
                     .HasMaxLength(256)
                     .HasColumnName("admin_ID");
@@ -211,7 +210,6 @@ namespace ASI.Basecode.Data
                 entity.Property(e => e.FeedbackContent)
                     .IsRequired()
                     .HasColumnName("feedbackContent");
-
                 entity.Property(e => e.TicketId)
                     .IsRequired()
                     .HasMaxLength(256)
@@ -227,12 +225,11 @@ namespace ASI.Basecode.Data
                     .HasForeignKey(d => d.TicketId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Feedback_Ticket");
-/*
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Feedbacks)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Feedback_User");*/
+                    .HasConstraintName("FK_Feedback_User");
             });
 
             modelBuilder.Entity<KnowledgeBaseArticle>(entity =>
@@ -249,7 +246,10 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnName("author_ID");
-
+                entity.Property(e => e.CategoryId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("category_ID");
                 entity.Property(e => e.Content)
                     .IsRequired()
                     .HasColumnName("content");
@@ -267,12 +267,17 @@ namespace ASI.Basecode.Data
                 entity.Property(e => e.UpdatedDate)
                     .HasColumnType("datetime")
                     .HasColumnName("updatedDate");
-
-           /*     entity.HasOne(d => d.Author)
+                entity.HasOne(d => d.Author)
                     .WithMany(p => p.KnowledgeBaseArticles)
                     .HasForeignKey(d => d.AuthorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_KnowledgeBaseArticle_User");*/
+                    .HasConstraintName("FK_KnowledgeBaseArticle_User");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.KnowledgeBaseArticles)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_KnowledgeBaseArticle_ArticleCategory");
             });
 
             modelBuilder.Entity<Notification>(entity =>
@@ -327,6 +332,323 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnName("title");
+            });
+
+            modelBuilder.Entity<PerformanceReport>(entity =>
+            {
+                entity.HasKey(e => e.ReportId);
+
+                entity.ToTable("PerformanceReport");
+
+                entity.Property(e => e.ReportId)
+                    .HasMaxLength(256)
+                    .HasColumnName("report_ID");
+
+                entity.Property(e => e.AssignedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("assignedDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.AverageResolutionTime).HasColumnName("averageResolutionTime");
+
+                entity.Property(e => e.ResolvedTickets).HasColumnName("resolvedTickets");
+            });
+
+            modelBuilder.Entity<PriorityType>(entity =>
+            {
+                entity.ToTable("PriorityType");
+
+                entity.Property(e => e.PriorityTypeId)
+                    .HasMaxLength(256)
+                    .HasColumnName("priorityType_ID");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(500)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.PriorityName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("priorityName");
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role");
+
+                entity.Property(e => e.RoleId)
+                    .HasMaxLength(256)
+                    .HasColumnName("role_ID");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(500)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.RoleName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("roleName");
+            });
+
+            modelBuilder.Entity<StatusType>(entity =>
+            {
+                entity.ToTable("StatusType");
+
+                entity.Property(e => e.StatusTypeId)
+                    .HasMaxLength(256)
+                    .HasColumnName("statusType_ID");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(500)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.StatusName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("statusName");
+            });
+
+            modelBuilder.Entity<Team>(entity =>
+            {
+                entity.ToTable("Team");
+
+                entity.Property(e => e.TeamId)
+                    .HasMaxLength(256)
+                    .HasColumnName("team_ID");
+
+                entity.Property(e => e.Description)
+                    .HasMaxLength(500)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<TeamMember>(entity =>
+            {
+                entity.HasKey(e => new { e.TeamId, e.UserId });
+
+                entity.ToTable("TeamMember");
+
+                entity.Property(e => e.TeamId)
+                    .HasMaxLength(256)
+                    .HasColumnName("team_ID");
+
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(256)
+                    .HasColumnName("user_ID");
+
+                entity.Property(e => e.ReportId)
+                    .HasMaxLength(256)
+                    .HasColumnName("report_ID");
+
+                entity.HasOne(d => d.Report)
+                    .WithMany(p => p.TeamMembers)
+                    .HasForeignKey(d => d.ReportId)
+                    .HasConstraintName("FK_TeamMember_PerformanceReport");
+
+                entity.HasOne(d => d.Team)
+                    .WithMany(p => p.TeamMembers)
+                    .HasForeignKey(d => d.TeamId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TeamMember_Team");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.TeamMembers)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TeamMember_User");
+            });
+
+            modelBuilder.Entity<Ticket>(entity =>
+            {
+                entity.ToTable("Ticket");
+
+                entity.Property(e => e.TicketId)
+                    .HasMaxLength(256)
+                    .HasColumnName("ticket_ID");
+
+                entity.Property(e => e.CategoryTypeId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("categoryType_ID");
+
+                entity.Property(e => e.CreatedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IssueDescription)
+                    .IsRequired()
+                    .HasMaxLength(800)
+                    .HasColumnName("issueDescription");
+
+                entity.Property(e => e.PriorityTypeId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("priorityType_ID");
+
+                entity.Property(e => e.ResolvedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("resolvedDate");
+
+                entity.Property(e => e.StatusTypeId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("statusType_ID");
+
+                entity.Property(e => e.Subject)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("subject");
+
+                entity.Property(e => e.UpdatedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedDate");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("user_ID");
+
+                entity.HasOne(d => d.CategoryType)
+                    .WithMany(p => p.Tickets)
+                    .HasForeignKey(d => d.CategoryTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Ticket_CategoryType");
+
+                entity.HasOne(d => d.PriorityType)
+                    .WithMany(p => p.Tickets)
+                    .HasForeignKey(d => d.PriorityTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Ticket_PriorityType");
+
+                entity.HasOne(d => d.StatusType)
+                    .WithMany(p => p.Tickets)
+                    .HasForeignKey(d => d.StatusTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Ticket_StatusType");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Tickets)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Ticket_User");
+            });
+
+            modelBuilder.Entity<TicketAssignment>(entity =>
+            {
+                entity.HasKey(e => e.AssignmentId);
+
+                entity.ToTable("TicketAssignment");
+
+                entity.Property(e => e.AssignmentId)
+                    .HasMaxLength(256)
+                    .HasColumnName("assignment_ID");
+
+                entity.Property(e => e.AdminId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("admin_ID");
+
+                entity.Property(e => e.AssignedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("assignedDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.TeamId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("team_ID");
+
+                entity.Property(e => e.TicketId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("ticket_ID");
+
+                entity.HasOne(d => d.Admin)
+                    .WithMany(p => p.TicketAssignments)
+                    .HasForeignKey(d => d.AdminId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TicketAssignment_Admin");
+
+                entity.HasOne(d => d.Team)
+                    .WithMany(p => p.TicketAssignments)
+                    .HasForeignKey(d => d.TeamId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TicketAssignment_Team");
+
+                entity.HasOne(d => d.Ticket)
+                    .WithMany(p => p.TicketAssignments)
+                    .HasForeignKey(d => d.TicketId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_TicketAssignment_Ticket");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("User");
+
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(256)
+                    .HasColumnName("user_ID");
+
+                entity.Property(e => e.CreatedBy)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("createdBy");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createdTime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("email");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("password");
+
+                entity.Property(e => e.RoleId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("role_ID");
+
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(256)
+                    .HasColumnName("updatedBy");
+
+                entity.Property(e => e.UpdatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedTime");
+
+                entity.HasOne(d => d.CreatedByNavigation)
+                    .WithMany(p => p.UserCreatedByNavigations)
+                    .HasForeignKey(d => d.CreatedBy)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_User_Admin_CreatedBy");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.Users)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_User_Role");
+
+                entity.HasOne(d => d.UpdatedByNavigation)
+                    .WithMany(p => p.UserUpdatedByNavigations)
+                    .HasForeignKey(d => d.UpdatedBy)
+                    .HasConstraintName("FK_User_Admin_UpdatedBy");
             });
 
             modelBuilder.Entity<PerformanceReport>(entity =>

@@ -10,90 +10,90 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ticket_ID)
+            @Html.DisplayNameFor(model => model.TicketId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ticket_ID)
+            @Html.DisplayFor(model => model.TicketId)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.subject)
+            @Html.DisplayNameFor(model => model.Subject)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.subject)
+            @Html.DisplayFor(model => model.Subject)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.issueDescription)
+            @Html.DisplayNameFor(model => model.IssueDescription)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.issueDescription)
+            @Html.DisplayFor(model => model.IssueDescription)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.categoryType_ID)
+            @Html.DisplayNameFor(model => model.CategoryTypeId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.categoryName)
+            @Html.DisplayFor(model => model.CategoryType.CategoryName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.priorityType_ID)
+            @Html.DisplayNameFor(model => model.PriorityTypeId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Priority.priorityName)
+            @Html.DisplayFor(model => model.PriorityType.PriorityName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.statusType_ID)
+            @Html.DisplayNameFor(model => model.StatusTypeId)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status.statusName)
+            @Html.DisplayFor(model => model.StatusType.StatusName)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.createdDate)
+            @Html.DisplayNameFor(model => model.CreatedDate)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.createdDate)
+            @Html.DisplayFor(model => model.CreatedDate)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.attachment)
+            @Html.DisplayNameFor(model => model.Attachment)
         </dt>
         <dd class="col-sm-10">
-            @if (Model.attachment == null)
+            @if (Model.Attachment == null)
             {
                 @:No Attachment
             }
             else
             {
-                <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.ticket_ID })">@Model.attachment.fileName</a>
+                <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.TicketId })">@Model.Attachment.Name</a>
             }
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.updatedDate)
+            @Html.DisplayNameFor(model => model.UpdatedDate)
         </dt>
         <dd class = "col-sm-10">
-            @if (Model.updatedDate == DateTime.MinValue)
+            @if (Model.UpdatedDate == null)
             {
                 @:No Updates
             }
             else
             {
-                @Html.DisplayFor(model => model.updatedDate)
+                @Html.DisplayFor(model => model.UpdatedDate)
             }
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.resolvedDate)
+            @Html.DisplayNameFor(model => model.ResolvedDate)
         </dt>
         <dd class = "col-sm-10">
-            @if (Model.resolvedDate == DateTime.MinValue)
+            @if (Model.ResolvedDate == null)
             {
                 @:Open
             }
             else
             {
-                @Html.DisplayFor(model => model.resolvedDate)
+                @Html.DisplayFor(model => model.ResolvedDate)
             }
         </dd>
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.ticket_ID }) |
+    @Html.ActionLink("Edit", "Edit", new { id = Model.TicketId }) |
     <a asp-action="ViewAll">Back to List</a>
 </div>
  *@

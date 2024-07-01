@@ -8,10 +8,12 @@ namespace ASI.Basecode.Services.Interfaces
     public interface ITicketService
     {
         IEnumerable<TicketViewModel> GetAll();
-        void Add(TicketViewModel ticket);
-        void Update(TicketViewModel ticket);
+        string Add(TicketViewModel ticket);
+        void AddAttachment(Attachment attachment);
+        string Update(TicketViewModel ticket);
         void Delete(string id);
         TicketViewModel GetTicketById(string id);
+        Attachment GetAttachmentByTicketId(string id);
         IEnumerable<CategoryType> GetCategoryTypes();
         IEnumerable<PriorityType> GetPriorityTypes();
         IEnumerable<StatusType> GetStatusTypes();

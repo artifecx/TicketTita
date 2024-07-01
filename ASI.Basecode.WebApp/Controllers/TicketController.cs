@@ -57,6 +57,10 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult ViewAll()
         {
             var data = _ticketService.GetAll();
+            foreach(var d in data)
+            {
+                d.Attachment = _ticketService.GetAttachmentByTicketId(d.TicketId);
+            }
             return View(data);
         }
 
@@ -69,6 +73,7 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult ViewTicket(string id)
         {
             var ticket = _ticketService.GetTicketById(id);
+            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
             if (ticket == null)
             {
                 return RedirectToAction("ViewAll");
@@ -103,10 +108,43 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult Edit(string id)
         {
             var ticket = _ticketService.GetTicketById(id);
-            ticket.CategoryTypes = _ticketService.GetCategoryTypes();
+            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
             ticket.PriorityTypes = _ticketService.GetPriorityTypes();
             ticket.StatusTypes = _ticketService.GetStatusTypes();
+            ticket.CategoryTypes = _ticketService.GetCategoryTypes();
             return View(ticket);
+        }
+
+        /// <summary>
+        /// Get method for updating status
+        /// </summary>
+        [HttpGet]
+        public IActionResult UpdateStatus()
+        {
+            var model = new TicketViewModel
+            {
+                Tickets = _ticketService.GetAll(),
+                CategoryTypes = _ticketService.GetCategoryTypes(),
+                PriorityTypes = _ticketService.GetPriorityTypes(),
+                StatusTypes = _ticketService.GetStatusTypes()
+            };
+            return View(model);
+        }
+
+        /// <summary>
+        /// Get method for updating priority 
+        /// </summary>
+        [HttpGet]
+        public IActionResult UpdatePriority()
+        {
+            var model = new TicketViewModel
+            {
+                Tickets = _ticketService.GetAll(),
+                CategoryTypes = _ticketService.GetCategoryTypes(),
+                PriorityTypes = _ticketService.GetPriorityTypes(),
+                StatusTypes = _ticketService.GetStatusTypes()
+            };
+            return View(model);
         }
 
         /// <summary>
@@ -117,6 +155,7 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult Delete(string id)
         {
             var ticket = _ticketService.GetTicketById(id);
+            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
             return View(ticket);
         }
 
@@ -128,23 +167,30 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Create(TicketViewModel model)
         {
-            if(model.File != null && model.File.Length > 0)
+            if (model.File != null && model.File.Length > 0)
             {
                 using (var stream = new MemoryStream())
                 {
                     model.File.CopyTo(stream);
-                    model.attachment = new Data.Models.Attachment
+                    var attachment = new Data.Models.Attachment
                     {
-                        attachment_ID = Guid.NewGuid(),
-                        fileContent = stream.ToArray(),
-                        fileName = model.File.FileName,
-                        contentType = model.File.ContentType,
-                        uploadedDate = DateTime.Now
+                        AttachmentId = Guid.NewGuid().ToString(),
+                        Name = model.File.FileName,
+                        Content = stream.ToArray(),
+                        Type = model.File.ContentType,
+                        UploadedDate = DateTime.Now
                     };
+                    model.Attachment = attachment;
                 }
             }
-            
-            _ticketService.Add(model);
+            string id = _ticketService.Add(model);
+
+            if(model.Attachment != null)
+            {
+                model.Attachment.TicketId = id;
+                _ticketService.AddAttachment(model.Attachment);
+            }
+
             return RedirectToAction("ViewAll");
         }
 
@@ -162,19 +208,68 @@ namespace ASI.Basecode.WebApp.Controllers
                 using (var stream = new MemoryStream())
                 {
                     model.File.CopyTo(stream);
-                    model.attachment = new Data.Models.Attachment
+                    var attachment = new Data.Models.Attachment
                     {
-                        attachment_ID = Guid.NewGuid(),
-                        fileContent = stream.ToArray(),
-                        fileName = model.File.FileName,
-                        contentType = model.File.ContentType,
-                        uploadedDate = DateTime.Now
+                        AttachmentId = Guid.NewGuid().ToString(),
+                        Name = model.File.FileName,
+                        Content = stream.ToArray(),
+                        Type = model.File.ContentType,
+                        UploadedDate = DateTime.Now
                     };
+
+                    model.Attachment = attachment;
                 }
+                
+            }
+            string id = _ticketService.Update(model);
+
+            /*if (model.Attachment != null)
+            {
+                model.Attachment.TicketId = id;
+                _ticketService.AddAttachment(model.Attachment);
+            }*/
+
+            return RedirectToAction("ViewAll");
+        }
+
+        /// <summary>
+        /// Updates the ticket status.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Redirect to ticket details screen</returns>
+        [HttpPost]
+        public IActionResult UpdateStatus(TicketViewModel model)
+        {
+            var ticket = _ticketService.GetTicketById(model.TicketId);
+            if (ticket == null)
+            {
+                return RedirectToAction("UpdateStatus");
             }
 
-            _ticketService.Update(model);
-            return RedirectToAction("ViewAll");
+            ticket.StatusTypeId = model.StatusTypeId;
+            _ticketService.Update(ticket);
+
+            return RedirectToAction("ViewTicket", new { id = model.TicketId });
+        }
+
+        /// <summary>
+        /// Updates the ticket priority.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Redirect to ticket details screen</returns>
+        [HttpPost]
+        public IActionResult UpdatePriority(TicketViewModel model)
+        {
+            var ticket = _ticketService.GetTicketById(model.TicketId);
+            if (ticket == null)
+            {
+                return RedirectToAction("UpdatePriority");
+            }
+
+            ticket.PriorityTypeId = model.PriorityTypeId;
+            _ticketService.Update(ticket);
+
+            return RedirectToAction("ViewTicket", new { id = model.TicketId });
         }
 
         /// <summary>
@@ -186,10 +281,36 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult Delete(TicketViewModel model)
         {
-            _ticketService.Delete(model.ticket_ID);
+            _ticketService.Delete(model.TicketId);
             return RedirectToAction("ViewAll");
         }
 
+        /// <summary>
+        /// Gets the ticket details.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>json containing ticket details</returns>
+        [HttpGet]
+        public JsonResult GetTicketDetails(string id)
+        {
+            var ticket = _ticketService.GetTicketById(id);
+            if (ticket == null)
+            {
+                return Json(null);
+            }
+
+            var ticketDetails = new
+            {
+                ticket.TicketId,
+                ticket.Subject,
+                ticket.IssueDescription,
+                ticket.StatusTypeId,
+                ticket.CategoryTypeId,
+                ticket.PriorityTypeId
+            };
+
+            return Json(ticketDetails);
+        }
 
         /// <summary>
         /// Downloads the attachment.
@@ -198,10 +319,10 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>the file</returns>
         public FileResult DownloadAttachment(string id)
         {
-            var ticket = _ticketService.GetTicketById(id);
-            if (ticket != null && ticket.attachment != null)
+            var attachment = _ticketService.GetAttachmentByTicketId(id);
+            if (attachment != null && attachment.Content != null)
             {
-                return File(ticket.attachment.fileContent, "application/octet-stream", ticket.attachment.fileName);
+                return File(attachment.Content, "application/octet-stream", attachment.Name);
             }
 
             // TODO: change to proper return type

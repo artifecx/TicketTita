@@ -25,7 +25,6 @@ namespace ASI.Basecode.Data.Models
         public string UserId { get; set; }
         public byte[] Attachment { get; set; }
         public string Subject { get; set; }
-
         public virtual CategoryType CategoryType { get; set; }
         public virtual PriorityType PriorityType { get; set; }
         public virtual StatusType StatusType { get; set; }

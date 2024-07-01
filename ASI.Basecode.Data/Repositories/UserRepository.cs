@@ -42,7 +42,6 @@ namespace ASI.Basecode.Data.Repositories
         public void Update(User model)
         {
             SetNavigation(model);
-
             this.GetDbSet<User>().Update(model);
             UnitOfWork.SaveChanges();
         }

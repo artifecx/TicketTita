@@ -15,34 +15,34 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ticket_ID)
+                @Html.DisplayNameFor(model => model.TicketId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.subject)
+                @Html.DisplayNameFor(model => model.Subject)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.issueDescription)
+                @Html.DisplayNameFor(model => model.IssueDescription)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.createdDate)
+                @Html.DisplayNameFor(model => model.CreatedDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.updatedDate)
+                @Html.DisplayNameFor(model => model.UpdatedDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.resolvedDate)
+                @Html.DisplayNameFor(model => model.ResolvedDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category)
+                @Html.DisplayNameFor(model => model.CategoryType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Priority)
+                @Html.DisplayNameFor(model => model.PriorityType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Status)
+                @Html.DisplayNameFor(model => model.StatusType)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.attachment)
+                @Html.DisplayNameFor(model => model.Attachment)
             </th>
             <th></th>
         </tr>
@@ -51,50 +51,50 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ticket_ID)
+                @Html.DisplayFor(modelItem => item.TicketId)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.subject)
+                @Html.DisplayFor(modelItem => item.Subject)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.issueDescription)
+                @Html.DisplayFor(modelItem => item.IssueDescription)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.createdDate)
+                @Html.DisplayFor(modelItem => item.CreatedDate)
             </td>
             <td>
-                @if (item.updatedDate == DateTime.MinValue)
+                @if (item.UpdatedDate == null)
                 {
                     @:No Updates
                 }
                 else
                 {
-                    @Html.DisplayFor(modelItem => item.updatedDate)
+                    @Html.DisplayFor(modelItem => item.UpdatedDate)
                 }
             </td>
             <td>
-                @if (item.resolvedDate == DateTime.MinValue)
+                @if (item.ResolvedDate == null)
                 {
                     @:Open
                 }
                 else
                 {
-                    @Html.DisplayFor(modelItem => item.resolvedDate)
+                    @Html.DisplayFor(modelItem => item.ResolvedDate)
                 }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Category.categoryName)
+                @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Priority.priorityName)
+                @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Status.statusName)
+                @Html.DisplayFor(modelItem => item.StatusType.StatusName)
             </td>
             <td>
-                @if (item.attachment != null)
+                @if (item.Attachment != null)
                 {
-                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.ticket_ID })">Download Attachment</a>
+                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.TicketId })">Download Attachment</a>
                 }
                 else
                 {
@@ -102,9 +102,9 @@
                 }
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.ticket_ID }) |
-                @Html.ActionLink("Details", "ViewTicket", new { id = item.ticket_ID }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.ticket_ID })
+                @Html.ActionLink("Edit", "Edit", new { id=item.TicketId }) |
+                @Html.ActionLink("Details", "ViewTicket", new { id = item.TicketId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.TicketId })
             </td>
         </tr>
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Services
@@ -32,39 +33,49 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to add a new ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Add(TicketViewModel ticket)
+        public string Add(TicketViewModel ticket)
         {
             var newTicket = new Ticket();
             _mapper.Map(ticket, newTicket);
-            newTicket.createdDate = DateTime.Now;
-            newTicket.updatedDate = new DateTime();
-            newTicket.resolvedDate = new DateTime();
+            newTicket.CreatedDate = DateTime.Now;
+            newTicket.UpdatedDate = null;
+            newTicket.ResolvedDate = null;
+            newTicket.UserId = "1";
 
-            _repository.Add(newTicket);
+            return _repository.Add(newTicket);
+        }
+
+        /// <summary>
+        /// Calls the repository to add a new attachment
+        /// </summary>
+        /// <param name="ticket">The attachment.</param>
+        public void AddAttachment(Attachment attachment)
+        {
+            _repository.AddAttachment(attachment);
         }
 
         /// <summary>
         /// Calls the repository to update an existing ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Update(TicketViewModel ticket)
+        public string Update(TicketViewModel ticket)
         {
-            var existingTicket = _repository.FindById(ticket.ticket_ID);
+            var existingTicket = _repository.FindById(ticket.TicketId);
             
-            if(_repository.FindStatusById(ticket.statusType_ID).statusName.Equals("Closed") && 
-                ticket.resolvedDate == DateTime.MinValue)
+            if(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed") && 
+                ticket.ResolvedDate == null)
             {
-                ticket.resolvedDate = DateTime.Now;
+                ticket.ResolvedDate = DateTime.Now;
             }
-            else if(!(_repository.FindStatusById(ticket.statusType_ID).statusName.Equals("Closed")) &&
-                ticket.resolvedDate != DateTime.MinValue)
+            else if(!(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed")) &&
+                ticket.ResolvedDate != null)
             {
-                ticket.resolvedDate = new DateTime();
+                ticket.ResolvedDate = null;
             }
-            ticket.updatedDate = DateTime.Now;
+            ticket.UpdatedDate = DateTime.Now;
 
             _mapper.Map(ticket, existingTicket);
-            _repository.Update(existingTicket);
+            return _repository.Update(existingTicket);
         }
 
         /// <summary>
@@ -88,6 +99,16 @@ namespace ASI.Basecode.Services.Services
         {
             var ticket = _repository.FindById(id);
             return _mapper.Map<TicketViewModel>(ticket);
+        }
+
+        /// <summary>
+        /// Calls the repository to get an attachment by its ticket id.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Attachment</returns>
+        public Attachment GetAttachmentByTicketId(string id)
+        {
+            return _repository.FindAttachmentByTicketId(id);
         }
 
         /// <summary>
