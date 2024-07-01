@@ -1,90 +1,92 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
+using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ASI.Basecode.Services.Services
 {
-    public class UserService: IUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UserService"/> class.
-        /// </summary>
-        /// <param name="userRepository">The user repository.</param>
-        /// <param name="mapper">The mapper.</param>
         public UserService(IUserRepository userRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        /// <summary>
-        /// Retrieves all.
-        /// </summary>
-        /// <returns></returns>
         public IEnumerable<UserViewModel> RetrieveAll()
         {
-            /*var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
+            var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
             {
                 UserId = s.UserId,
                 Email = s.Email,
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
-                Password = s.Password,
-                Role = s.Role.RoleId,
+
+                Password = PasswordManager.DecryptPassword(s.Password),
+                RoleId = s.RoleId,
                 UpdatedBy = s.UpdatedBy,
                 CreatedTime = s.CreatedTime,
-                UpdatedTime = (DateTime) s.UpdatedTime,    
+                UpdatedTime = s.UpdatedTime,
             });
-            return data;*/
+            return data;
 
             return null;
         }
 
-        /// <summary>
-        /// Adds the specified model.
-        /// </summary>
-        /// <param name="model">The model.</param>
+        public UserViewModel RetrieveUser(string UserId)
+        {
+            var model = _userRepository.RetrieveAll().FirstOrDefault(s => s.UserId == UserId);
+            if (model == null) return null;
+
+            return new UserViewModel
+            {
+                UserId = model.UserId,
+                Email = model.Email,
+                Name = model.Name,
+                CreatedBy = model.CreatedBy,
+                Password = PasswordManager.DecryptPassword(model.Password),
+                RoleId = model.RoleId,
+                UpdatedBy = model.UpdatedBy,
+                CreatedTime = model.CreatedTime,
+                UpdatedTime = model.UpdatedTime
+            };
+        }
+
         public void Add(UserViewModel model)
         {
-            /*var newModel = new User();
-            _mapper.Map(model, newModel);
-            newModel.UserId = Guid.NewGuid();
+            var newModel = _mapper.Map<User>(model);
+            newModel.UserId = Guid.NewGuid().ToString();
+            newModel.Password = PasswordManager.EncryptPassword(newModel.Password);
             newModel.CreatedTime = DateTime.Now;
-            newModel.CreatedBy = System.Environment.UserName;
-            newModel.UpdatedTime = DateTime.Now;
-            _userRepository.Add(newModel);*/
+            newModel.CreatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
+            newModel.UpdatedBy = null;
+            newModel.UpdatedTime = null;
+            _userRepository.Add(newModel);
         }
 
-        /// <summary>
-        /// Updates the specified model.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        public void Update(UserViewModel model) {
-            /*var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
-            _mapper.Map(model, SelectedUser);
-            SelectedUser.UpdatedBy = System.Environment.UserName;
-            SelectedUser.UpdatedTime = DateTime.Now;
-            _userRepository.Update(SelectedUser);*/
+        public void Update(UserViewModel model)
+        {
+            var updatedModel = _mapper.Map<User>(model);
+            updatedModel.UpdatedTime = DateTime.Now;
+            updatedModel.UpdatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
+            updatedModel.Password = PasswordManager.EncryptPassword(updatedModel.Password);
+            _userRepository.Update(updatedModel);
         }
-
         /// <summary>
         /// Deletes the specified user identifier.
         /// </summary>
-        /// <param name="UserId">The user identifier.</param>
-        public void Delete(Guid UserId) {
-            _userRepository.Delete(UserId);
-        
+        /// <param name="userId">The user identifier.</param>
+        public void Delete(string userId)
+        {
+            _userRepository.Delete(userId);
         }
-
     }
 }

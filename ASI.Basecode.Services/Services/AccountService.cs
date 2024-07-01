@@ -13,26 +13,26 @@ namespace ASI.Basecode.Services.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository _repository;
+        private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
 
-        public AccountService(IAccountRepository repository, IMapper mapper)
+        public AccountService(IUserRepository repository, IMapper mapper)
         {
             _mapper = mapper;
             _repository = repository;
         }
 
-        public LoginResult AuthenticateUser(string userId, string password, ref Account user)
+        public LoginResult AuthenticateUser(string Email,string password, ref User user)
         {
-            user = new Account();
+            user = new User();
             var passwordKey = PasswordManager.EncryptPassword(password);
-            user = _repository.GetUsers().Where(x => x.UserId == userId &&
+            user = _repository.RetrieveAll().Where(x => x.Email == Email  &&
                                                      x.Password == passwordKey).FirstOrDefault();
 
             return user != null ? LoginResult.Success : LoginResult.Failed;
         }
 
-        public void AddUser(AccountServiceModel model)
+        /*public void AddUser(AccountServiceModel model)
         {
             var user = new Account();
             if (!_repository.UserExists(model.UserId))
@@ -50,6 +50,6 @@ namespace ASI.Basecode.Services.Services
             {
                 throw new InvalidDataException(Resources.Messages.Errors.UserExists);
             }
-        }
+        }*/
     }
 }

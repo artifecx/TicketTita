@@ -13,7 +13,6 @@ namespace ASI.Basecode.Data.Models
         public string CategoryId { get; set; }
         public string CategoryName { get; set; }
         public string Description { get; set; }
-
         public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
     }
 }

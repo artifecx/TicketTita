@@ -7,11 +7,12 @@ namespace ASI.Basecode.Data.Models
     {
         public User()
         {
-            ActivityLogs = new HashSet<ActivityLog>();
+
+  /*          ActivityLogs = new HashSet<ActivityLog>();
             Feedbacks = new HashSet<Feedback>();
             KnowledgeBaseArticles = new HashSet<KnowledgeBaseArticle>();
             TeamMembers = new HashSet<TeamMember>();
-            Tickets = new HashSet<Ticket>();
+            Tickets = new HashSet<Ticket>();*/
         }
 
         public string UserId { get; set; }
@@ -22,8 +23,7 @@ namespace ASI.Basecode.Data.Models
         public string CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? UpdatedTime { get; set; }
-        public string UpdatedBy { get; set; }
-
+        public string? UpdatedBy { get; set; }
         public virtual Admin CreatedByNavigation { get; set; }
         public virtual Role Role { get; set; }
         public virtual Admin UpdatedByNavigation { get; set; }

@@ -6,7 +6,7 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface IAccountService
     {
-        LoginResult AuthenticateUser(string userid, string password, ref Account user);
-        void AddUser(AccountServiceModel model);
+        LoginResult AuthenticateUser(string email, string password, ref User user);
+        /*void AddUser(AccountServiceModel model);*/
     }
 }

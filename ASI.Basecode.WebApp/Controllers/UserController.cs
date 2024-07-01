@@ -37,7 +37,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
 
         public IActionResult Create()
         {
@@ -50,8 +50,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="SelectedUserId">The selected user identifier.</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
-        public IActionResult Update(Guid SelectedUserId)
+        [Authorize(Policy = "Admin")]
+        public IActionResult Update(String SelectedUserId)
         {
             
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
@@ -65,9 +65,9 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Details(Guid SelectedUserId)
+        public IActionResult Details(String SelectedUserId)
         {
-            var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
+            var SelectedUser = _userService.RetrieveUser(SelectedUserId);
             return View(SelectedUser);
         }
 
@@ -77,8 +77,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="SelectedUserId">The selected user identifier.</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
-        public IActionResult Delete(Guid SelectedUserId)
+        [Authorize(Policy = "Admin")]
+        public IActionResult Delete(String SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
@@ -121,7 +121,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize]
-        public IActionResult PostDelete(Guid UserId)
+        public IActionResult PostDelete(String UserId)
         {
             _userService.Delete(UserId);
             return RedirectToAction("Index");

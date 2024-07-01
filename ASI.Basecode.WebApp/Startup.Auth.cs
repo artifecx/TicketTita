@@ -53,6 +53,11 @@ namespace ASI.Basecode.WebApp
                 {
                     policy.RequireAuthenticatedUser();
                 });
+                options.AddPolicy("Admin", policy =>
+                {
+                    policy.RequireClaim("Role", "Admin");
+                });
+
             });
 
             this._services.AddMvc(options =>

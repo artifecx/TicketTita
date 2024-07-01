@@ -54,7 +54,7 @@ namespace ASI.Basecode.WebApp.Mvc
         protected IMapper _mapper { get; set; }
 
         /// <summary>
-        /// Get UserId.
+        /// Get Email.
         /// </summary>
         public string UserId
         {
@@ -70,7 +70,7 @@ namespace ASI.Basecode.WebApp.Mvc
         }
 
         /// <summary>
-        /// Get Role.
+        /// Get RoleId.
         /// </summary>
         public string Supervisor
         {

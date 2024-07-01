@@ -83,16 +83,16 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             this._session.SetString("HasSession", "Exist");
 
-            //User user = null;
+            User user = null;
 
-            Account user = new() { Id = 0, UserId = "0", Name = "Name", Password = "Password" };
-            
-            await this._signInManager.SignInAsync(user);
-            this._session.SetString("UserName", model.UserId);
+            /* Account user = new() { Id = 0, Email = "0", Name = "Name", Password = "Password" };
 
-            return RedirectToAction("Index", "Home");
+             await this._signInManager.SignInAsync(user);
+             this._session.SetString("UserName", model.Email);
 
-            /*var loginResult = _userService.AuthenticateUser(model.UserId, model.Password, ref user);
+             return RedirectToAction("Index", "Home");*/
+
+            var loginResult = _userService.AuthenticateUser(model.Email, model.Password, ref user);
             if (loginResult == LoginResult.Success)
             {
                 // 認証OK
@@ -103,10 +103,10 @@ namespace ASI.Basecode.WebApp.Controllers
             else
             {
                 // 認証NG
-                TempData["ErrorMessage"] = "Incorrect UserId or Password";
+                TempData["ErrorMessage"] = "Incorrect Email or Password";
                 return View();
             }
-            return View();*/
+            return View();
         }
 
         [HttpGet]
@@ -116,7 +116,7 @@ namespace ASI.Basecode.WebApp.Controllers
             return View();
         }
 
-        [HttpPost]
+      /*  [HttpPost]
         [AllowAnonymous]
         public IActionResult Register(AccountServiceModel model)
         {
@@ -134,7 +134,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 TempData["ErrorMessage"] = Resources.Messages.Errors.ServerError;
             }
             return View();
-        }
+        }*/
 
         /// <summary>
         /// Sign Out current account and return login view.
