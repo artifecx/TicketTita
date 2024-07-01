@@ -29,7 +29,7 @@ namespace ASI.Basecode.Services.Services
                 Email = s.Email,
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
-                Password = s.Password,
+                Password = PasswordManager.DecryptPassword(s.Password),
                 RoleId = s.RoleId,
                 UpdatedBy = s.UpdatedBy,
                 CreatedTime = s.CreatedTime,
@@ -49,7 +49,7 @@ namespace ASI.Basecode.Services.Services
                 Email = model.Email,
                 Name = model.Name,
                 CreatedBy = model.CreatedBy,
-                Password = model.Password,
+                Password = PasswordManager.DecryptPassword(model.Password),
                 RoleId = model.RoleId,
                 UpdatedBy = model.UpdatedBy,
                 CreatedTime = model.CreatedTime,
@@ -71,10 +71,11 @@ namespace ASI.Basecode.Services.Services
 
         public void Update(UserViewModel model)
         {
+
             var updatedModel = _mapper.Map<User>(model);
             updatedModel.UpdatedTime = DateTime.Now;
             updatedModel.UpdatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
-
+            updatedModel.Password = PasswordManager.EncryptPassword(updatedModel.Password);
             _userRepository.Update(updatedModel);
         }
         /// <summary>

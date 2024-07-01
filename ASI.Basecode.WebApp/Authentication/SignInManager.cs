@@ -80,12 +80,15 @@ namespace ASI.Basecode.WebApp.Authentication
         public ClaimsIdentity CreateClaimsIdentity(User user)
         {
             var token = _configuration.GetTokenAuthentication();
+           
             //TODO
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim(ClaimTypes.Name, user.Name, ClaimValueTypes.String, Const.Issuer),
+                new Claim(ClaimTypes.Role, user.RoleId, ClaimValueTypes.String, Const.Issuer),
 
+                new Claim("Role", user.RoleId, ClaimValueTypes.String, Const.Issuer),
                 new Claim("Email", user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim("UserName", user.Name, ClaimValueTypes.String, Const.Issuer),
             };

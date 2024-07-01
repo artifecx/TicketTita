@@ -37,7 +37,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy ="Admin")]
 
         public IActionResult Create()
         {
@@ -50,7 +50,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="SelectedUserId">The selected user identifier.</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public IActionResult Update(String SelectedUserId)
         {
             
@@ -77,7 +77,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="SelectedUserId">The selected user identifier.</param>
         /// <returns></returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public IActionResult Delete(String SelectedUserId)
         {
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
