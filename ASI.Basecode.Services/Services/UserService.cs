@@ -33,19 +33,21 @@ namespace ASI.Basecode.Services.Services
         /// <returns></returns>
         public IEnumerable<UserViewModel> RetrieveAll()
         {
-            var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
+            /*var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
             {
                 UserId = s.UserId,
                 Email = s.Email,
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
                 Password = s.Password,
-                Role = s.Role,
+                Role = s.Role.RoleId,
                 UpdatedBy = s.UpdatedBy,
                 CreatedTime = s.CreatedTime,
-                UpdatedTime = s.UpdatedTime,    
+                UpdatedTime = (DateTime) s.UpdatedTime,    
             });
-            return data;
+            return data;*/
+
+            return null;
         }
 
         /// <summary>
@@ -54,13 +56,13 @@ namespace ASI.Basecode.Services.Services
         /// <param name="model">The model.</param>
         public void Add(UserViewModel model)
         {
-            var newModel = new User();
+            /*var newModel = new User();
             _mapper.Map(model, newModel);
             newModel.UserId = Guid.NewGuid();
             newModel.CreatedTime = DateTime.Now;
             newModel.CreatedBy = System.Environment.UserName;
             newModel.UpdatedTime = DateTime.Now;
-            _userRepository.Add(newModel);
+            _userRepository.Add(newModel);*/
         }
 
         /// <summary>
@@ -68,11 +70,11 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="model">The model.</param>
         public void Update(UserViewModel model) {
-            var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
+            /*var SelectedUser = _userRepository.RetrieveAll().Where(s => s.UserId == model.UserId).FirstOrDefault();
             _mapper.Map(model, SelectedUser);
             SelectedUser.UpdatedBy = System.Environment.UserName;
             SelectedUser.UpdatedTime = DateTime.Now;
-            _userRepository.Update(SelectedUser);
+            _userRepository.Update(SelectedUser);*/
         }
 
         /// <summary>

@@ -11,51 +11,41 @@
     <div class="col-md-4">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="ticket_ID" type="hidden"/>
-            <input asp-for="createdDate" type="hidden" />
-            <input asp-for="updatedDate" type="hidden" />
-            <input asp-for="resolvedDate" type="hidden" />
-            <input asp-for="categoryType_ID" type="hidden" />
+            <input asp-for="TicketId" type="hidden"/>
+            <input asp-for="CreatedDate" type="hidden" />
+            <input asp-for="UpdatedDate" type="hidden" />
+            <input asp-for="ResolvedDate" type="hidden" />
+            <input asp-for="PriorityTypeId" type="hidden" />
+            <input asp-for="StatusTypeId" type="hidden" />
+            <input asp-for="CategoryTypeId" type="hidden" />
             <div class="form-group">
-                <label asp-for="subject" class="control-label"></label>
-                <input asp-for="subject" class="form-control" />
-                <span asp-validation-for="subject" class="text-danger"></span>
+                <label asp-for="Subject" class="control-label"></label>
+                <input asp-for="Subject" class="form-control" />
+                <span asp-validation-for="Subject" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="issueDescription" class="control-label"></label>
-                <textarea asp-for="issueDescription" class="form-control"></textarea>
-                <span asp-validation-for="issueDescription" class="text-danger"></span>
+                <label asp-for="IssueDescription" class="control-label"></label>
+                <textarea asp-for="IssueDescription" class="form-control"></textarea>
+                <span asp-validation-for="IssueDescription" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="priorityType_ID" class="control-label"></label>
-                <select asp-for="priorityType_ID" class="form-control">
-                    @foreach (var item in Model.PriorityTypes)
-                    {
-                        <option value="@item.priorityType_ID">@item.priorityName</option>
-                    }
-                </select>
-                <span asp-validation-for="priorityType_ID" class="text-danger"></span>
+                <label asp-for="PriorityTypeId" class="control-label"></label>
+                <input class="form-control" value="@Model.PriorityType.PriorityName" readonly />
             </div>
             <div class="form-group">
-                <label asp-for="statusType_ID" class="control-label"></label>
-                <select asp-for="statusType_ID" class="form-control">
-                    @foreach (var item in Model.StatusTypes)
-                    {
-                        <option value="@item.statusType_ID">@item.statusName</option>
-                    }
-                </select>
-                <span asp-validation-for="statusType_ID" class="text-danger"></span>
+                <label asp-for="StatusTypeId" class="control-label"></label>
+                <input class="form-control" value="@Model.StatusType.StatusName" readonly />
             </div>
             <div class="form-group">
-                @if (Model.attachment != null)
+                @if (Model.Attachment != null)
                 {
-                    <input asp-for="attachment.fileName" type="hidden" />
-                    <input asp-for="attachment.fileContent" type="hidden" />
-                    <input asp-for="attachment.uploadedDate" type="hidden" />
-                    <input asp-for="attachment.contentType" type="hidden" />
-                    <label asp-for="attachment" class="control-label"></label>
-                    <input asp-for="attachment" class="form-control" value="@Model.attachment.fileName" readonly />
-                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.ticket_ID })">Download Attachment</a>
+                    <input asp-for="Attachment.Name" type="hidden" />
+                    <input asp-for="Attachment.Content" type="hidden" />
+                    <input asp-for="Attachment.UploadedDate" type="hidden" />
+                    <input asp-for="Attachment.Type" type="hidden" />
+                    <label asp-for="Attachment" class="control-label"></label>
+                    <input asp-for="Attachment" class="form-control" value="@Model.Attachment.Name" readonly />
+                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.TicketId })">Download Attachment</a>
                 }
                 else
                 {

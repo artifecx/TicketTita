@@ -1,21 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Models
 {
-    public class User
+    public partial class User
     {
-        public Guid UserId { get; set; }
+        public User()
+        {
+            ActivityLogs = new HashSet<ActivityLog>();
+            Feedbacks = new HashSet<Feedback>();
+            KnowledgeBaseArticles = new HashSet<KnowledgeBaseArticle>();
+            TeamMembers = new HashSet<TeamMember>();
+            Tickets = new HashSet<Ticket>();
+        }
+
+        public string UserId { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role {  get; set; }
+        public string RoleId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
+        public DateTime? UpdatedTime { get; set; }
         public string UpdatedBy { get; set; }
-        public DateTime UpdatedTime { get; set; }
+
+        public virtual Admin CreatedByNavigation { get; set; }
+        public virtual Role Role { get; set; }
+        public virtual Admin UpdatedByNavigation { get; set; }
+        public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
+        public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
+        public virtual ICollection<TeamMember> TeamMembers { get; set; }
+        public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

@@ -41,10 +41,10 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <param name="model">The model.</param>
         public void Update(User model) {
-            var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
+            /*var SelectedUser = _SelectedUserData.Where(s => s.UserId == model.UserId).FirstOrDefault();
             if (SelectedUser != null) {
                 SelectedUser = model;
-            }
+            }*/
 
         }
         /// <summary>
@@ -52,10 +52,10 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <param name="UserId">The user identifier.</param>
         public void Delete(Guid UserId) {
-            var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
+            /*var SelectedUser = _SelectedUserData.Where(s => s.UserId == UserId).FirstOrDefault();
             if (SelectedUser != null) { 
             _SelectedUserData.Remove(SelectedUser);
-            }
+            }*/
         }
     }
 }

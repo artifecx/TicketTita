@@ -9,16 +9,18 @@ namespace ASI.Basecode.Data.Interfaces
 {
     public interface ITicketRepository
     {
-        IEnumerable<Ticket> GetAll();
-        void Add(Ticket ticket);
-        void Update(Ticket ticket);
+        IQueryable<Ticket> GetAll();
+        string Add(Ticket ticket);
+        void AddAttachment(Attachment attachment);
+        string Update(Ticket ticket);
         void Delete(string id);
         Ticket FindById(string id);
-        CategoryType FindCategoryById(int id);
-        PriorityType FindPriorityById(int id);
-        StatusType FindStatusById(int id);
-        IEnumerable<CategoryType> GetCategoryTypes();
-        IEnumerable<PriorityType> GetPriorityTypes();
-        IEnumerable<StatusType> GetStatusTypes();
+        Attachment FindAttachmentByTicketId(string id);
+        CategoryType FindCategoryById(string id);
+        PriorityType FindPriorityById(string id);
+        StatusType FindStatusById(string id);
+        IQueryable<CategoryType> GetCategoryTypes();
+        IQueryable<PriorityType> GetPriorityTypes();
+        IQueryable<StatusType> GetStatusTypes();
     }
 }
