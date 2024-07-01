@@ -10,6 +10,7 @@ namespace ASI.Basecode.Services.Interfaces
         IEnumerable<TicketViewModel> GetAll();
         string Add(TicketViewModel ticket);
         void AddAttachment(Attachment attachment);
+        void RemoveAttachment(string attachmentId);
         string Update(TicketViewModel ticket);
         void Delete(string id);
         TicketViewModel GetTicketById(string id);

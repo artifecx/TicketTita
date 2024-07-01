@@ -15,5 +15,5 @@ namespace ASI.Basecode.Data.Models
 
         public virtual User Author { get; set; }
         public virtual ArticleCategory Category { get; set; }
-
+    }
 }
