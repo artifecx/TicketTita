@@ -1,4 +1,4 @@
-﻿@* @model IEnumerable<ASI.Basecode.Services.ServiceModels.TicketViewModel>
+﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.TicketViewModel>
 
 @{
     ViewData["Title"] = "ViewAll";
@@ -48,66 +48,66 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TicketId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Subject)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IssueDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedDate)
-            </td>
-            <td>
-                @if (item.UpdatedDate == null)
-                {
-                    @:No Updates
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.UpdatedDate)
-                }
-            </td>
-            <td>
-                @if (item.ResolvedDate == null)
-                {
-                    @:Open
-                }
-                else
-                {
-                    @Html.DisplayFor(modelItem => item.ResolvedDate)
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StatusType.StatusName)
-            </td>
-            <td>
-                @if (item.Attachment != null)
-                {
-                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.TicketId })">Download Attachment</a>
-                }
-                else
-                {
-                    @:No attachment
-                }
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id=item.TicketId }) |
-                @Html.ActionLink("Details", "ViewTicket", new { id = item.TicketId }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.TicketId })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subject)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IssueDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedDate)
+                </td>
+                <td>
+                    @if (item.UpdatedDate == null)
+                    {
+                        @:No Updates
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.UpdatedDate)
+                    }
+                </td>
+                <td>
+                    @if (item.ResolvedDate == null)
+                    {
+                        @:Open
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(modelItem => item.ResolvedDate)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StatusType.StatusName)
+                </td>
+                <td>
+                    @if (item.Attachment != null)
+                    {
+                        <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.TicketId })">Download Attachment</a>
+                    }
+                    else
+                    {
+                        @:No attachment
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.TicketId }) |
+                    @Html.ActionLink("Details", "ViewTicket", new { id = item.TicketId }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.TicketId })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
- *@

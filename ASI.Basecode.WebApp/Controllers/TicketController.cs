@@ -1,4 +1,4 @@
-﻿/*using ASI.Basecode.Data.Models;
+﻿using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
@@ -44,11 +44,11 @@ namespace ASI.Basecode.WebApp.Controllers
                             ILoggerFactory loggerFactory,
                             IConfiguration configuration,
                             IMapper mapper,
-                            ITicketService _ticketService,
+                            ITicketService ticketService,
                             TokenValidationParametersFactory tokenValidationParametersFactory,
                             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
-            this._ticketService = _ticketService;
+            this._ticketService = ticketService;
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult ViewAll()
         {
             var data = _ticketService.GetAll();
-            foreach(var d in data)
+            foreach (var d in data)
             {
                 d.Attachment = _ticketService.GetAttachmentByTicketId(d.TicketId);
             }
@@ -73,11 +73,11 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult ViewTicket(string id)
         {
             var ticket = _ticketService.GetTicketById(id);
-            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
             if (ticket == null)
             {
                 return RedirectToAction("ViewAll");
             }
+            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
             return View(ticket);
         }
 
@@ -185,7 +185,7 @@ namespace ASI.Basecode.WebApp.Controllers
             }
             string id = _ticketService.Add(model);
 
-            if(model.Attachment != null)
+            if (model.Attachment != null)
             {
                 model.Attachment.TicketId = id;
                 _ticketService.AddAttachment(model.Attachment);
@@ -219,15 +219,15 @@ namespace ASI.Basecode.WebApp.Controllers
 
                     model.Attachment = attachment;
                 }
-                
+
             }
             string id = _ticketService.Update(model);
 
-            /*if (model.Attachment != null)
+            if (model.File != null)
             {
                 model.Attachment.TicketId = id;
                 _ticketService.AddAttachment(model.Attachment);
-            }*/
+            }
 
             return RedirectToAction("ViewAll");
         }
@@ -328,6 +328,24 @@ namespace ASI.Basecode.WebApp.Controllers
             // TODO: change to proper return type
             return null;
         }
+
+        /// <summary>
+        /// Removes the ticket attachment.
+        /// </summary>
+        /// <param name="ticketId">The ticket identifier.</param>
+        /// <param name="attachmentId">The attachment identifier.</param>
+        /// <returns>the edit ticket screen</returns>
+        [HttpPost]
+        public IActionResult RemoveAttachment(string ticketId, string attachmentId)
+        {
+            var ticket = _ticketService.GetTicketById(ticketId);
+            if (attachmentId != null && ticket != null)
+            {
+                _ticketService.RemoveAttachment(attachmentId);
+                ticket.Attachment = null;
+                _ticketService.Update(ticket);
+            }
+            return RedirectToAction("Edit", new { id = ticketId });
+        }
     }
 }
-*/

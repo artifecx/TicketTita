@@ -1,4 +1,4 @@
-﻿/*using ASI.Basecode.Data.Interfaces;
+﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using Basecode.Data.Repositories;
 using System;
@@ -23,13 +23,13 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <param name="unitOfWork">The unit of work.</param>
         /// fetches and sets the category, priority, and status types to prevent multiple calls to the database
-        public TicketRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
-        { 
+        public TicketRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
+        {
             _categoryTypes = GetCategoryTypes().ToList();
             _priorityTypes = GetPriorityTypes().ToList();
             _statusTypes = GetStatusTypes().ToList();
         }
-        
+
         /// <summary>
         /// Gets all tickets.
         /// </summary>
@@ -74,6 +74,19 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
+        /// Removes the ticket attachment.
+        /// </summary>
+        /// <param name="attachment">The attachment.</param>
+        public void RemoveAttachment(Attachment attachment)
+        {
+            if (attachment != null)
+            {
+                this.GetDbSet<Attachment>().Remove(attachment);
+                UnitOfWork.SaveChanges();
+            }
+        }
+
+        /// <summary>
         /// Updates an existing ticket in the database.
         /// </summary>
         /// <param name="ticket">The ticket.</param>
@@ -90,14 +103,14 @@ namespace ASI.Basecode.Data.Repositories
         /// <summary>
         /// Deletes the specified ticket found using the identifier.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="id">The ticket identifier.</param>
         public void Delete(string id)
         {
             var existingTicket = FindById(id);
-            var existingAttachment = this.GetDbSet<Attachment>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
+            var existingAttachment = FindAttachmentByTicketId(id);
             if (existingTicket != null)
             {
-                if(existingAttachment != null)
+                if (existingAttachment != null)
                 {
                     this.GetDbSet<Attachment>().Remove(existingAttachment);
                 }
@@ -126,6 +139,16 @@ namespace ASI.Basecode.Data.Repositories
         public Attachment FindAttachmentByTicketId(string id)
         {
             return this.GetDbSet<Attachment>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Finds the attachment by its identifier.
+        /// </summary>
+        /// <param name="id">The attachment identifier.</param>
+        /// <returns>an attachment</returns>
+        public Attachment FindAttachmentById(string id)
+        {
+            return this.GetDbSet<Attachment>().Where(x => x.AttachmentId.Equals(id)).FirstOrDefault();
         }
 
         /// <summary>
@@ -223,4 +246,3 @@ namespace ASI.Basecode.Data.Repositories
         #endregion
     }
 }
-*/

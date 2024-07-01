@@ -1,4 +1,4 @@
-﻿@* @model ASI.Basecode.Services.ServiceModels.TicketViewModel
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -92,11 +92,10 @@
             }
         </dd>
     </dl>
-    
+
     <form asp-action="Delete">
         <input asp-for="TicketId" type="hidden" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="ViewAll">Back to List</a>
     </form>
 </div>
- *@

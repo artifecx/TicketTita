@@ -1,4 +1,4 @@
-﻿@* @model ASI.Basecode.Services.ServiceModels.TicketViewModel
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,7 +11,7 @@
     <div class="col-md-4">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input asp-for="TicketId" type="hidden"/>
+            <input asp-for="TicketId" type="hidden" />
             <input asp-for="CreatedDate" type="hidden" />
             <input asp-for="UpdatedDate" type="hidden" />
             <input asp-for="ResolvedDate" type="hidden" />
@@ -39,12 +39,18 @@
             <div class="form-group">
                 @if (Model.Attachment != null)
                 {
+                    <input asp-for="Attachment.AttachmentId" type="hidden" />
                     <input asp-for="Attachment.Name" type="hidden" />
                     <input asp-for="Attachment.Content" type="hidden" />
                     <input asp-for="Attachment.UploadedDate" type="hidden" />
                     <input asp-for="Attachment.Type" type="hidden" />
                     <label asp-for="Attachment" class="control-label"></label>
-                    <input asp-for="Attachment" class="form-control" value="@Model.Attachment.Name" readonly />
+                    <div class="d-flex align-items-center">
+                        <input asp-for="Attachment" class="form-control" value="@Model.Attachment.Name" readonly />
+                        <button type="submit" formaction="@Url.Action("RemoveAttachment", "Ticket", new { ticketId = Model.TicketId, attachmentId = Model.Attachment.AttachmentId })" class="btn btn-danger" title="Remove Attachment" style="margin-left: 10px;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.TicketId })">Download Attachment</a>
                 }
                 else
@@ -65,6 +71,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
- *@
