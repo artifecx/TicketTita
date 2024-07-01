@@ -5,51 +5,88 @@ using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
-using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _repository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository repository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper)
         {
+            _userRepository = userRepository;
             _mapper = mapper;
-            _repository = repository;
         }
 
-        public LoginResult AuthenticateUser(string userId, string password, ref User user)
+        public IEnumerable<UserViewModel> RetrieveAll()
         {
-            user = new User();
-            var passwordKey = PasswordManager.EncryptPassword(password);
-            user = _repository.GetUsers().Where(x => x.UserId == userId &&
-                                                     x.Password == passwordKey).FirstOrDefault();
+            var data = _userRepository.RetrieveAll().Select(s => new UserViewModel
+            {
+                UserId = s.UserId,
+                Email = s.Email,
+                Name = s.Name,
+                CreatedBy = s.CreatedBy,
 
-            return user != null ? LoginResult.Success : LoginResult.Failed;
+                Password = PasswordManager.DecryptPassword(s.Password),
+                RoleId = s.RoleId,
+                UpdatedBy = s.UpdatedBy,
+                CreatedTime = s.CreatedTime,
+                UpdatedTime = s.UpdatedTime,
+            });
+            return data;
+
+            return null;
         }
 
-        public void AddUser(UserViewModel model)
+        public UserViewModel RetrieveUser(string UserId)
         {
-            var user = new User();
-            if (!_repository.UserExists(model.UserId))
-            {
-                _mapper.Map(model, user);
-                user.Password = PasswordManager.EncryptPassword(model.Password);
-                user.CreatedTime = DateTime.Now;
-                user.UpdatedTime = DateTime.Now;
-                user.CreatedBy = System.Environment.UserName;
-                user.UpdatedBy = System.Environment.UserName;
+            var model = _userRepository.RetrieveAll().FirstOrDefault(s => s.UserId == UserId);
+            if (model == null) return null;
 
-                _repository.AddUser(user);
-            }
-            else
+            return new UserViewModel
             {
-                throw new InvalidDataException(Resources.Messages.Errors.UserExists);
-            }
+                UserId = model.UserId,
+                Email = model.Email,
+                Name = model.Name,
+                CreatedBy = model.CreatedBy,
+                Password = PasswordManager.DecryptPassword(model.Password),
+                RoleId = model.RoleId,
+                UpdatedBy = model.UpdatedBy,
+                CreatedTime = model.CreatedTime,
+                UpdatedTime = model.UpdatedTime
+            };
+        }
+
+        public void Add(UserViewModel model)
+        {
+            var newModel = _mapper.Map<User>(model);
+            newModel.UserId = Guid.NewGuid().ToString();
+            newModel.Password = PasswordManager.EncryptPassword(newModel.Password);
+            newModel.CreatedTime = DateTime.Now;
+            newModel.CreatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
+            newModel.UpdatedBy = null;
+            newModel.UpdatedTime = null;
+            _userRepository.Add(newModel);
+        }
+
+        public void Update(UserViewModel model)
+        {
+            var updatedModel = _mapper.Map<User>(model);
+            updatedModel.UpdatedTime = DateTime.Now;
+            updatedModel.UpdatedBy = "D56F556E-50A4-4240-A0FF-9A6898B3A03B";
+            updatedModel.Password = PasswordManager.EncryptPassword(updatedModel.Password);
+            _userRepository.Update(updatedModel);
+        }
+        /// <summary>
+        /// Deletes the specified user identifier.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        public void Delete(string userId)
+        {
+            _userRepository.Delete(userId);
         }
     }
 }

@@ -1,0 +1,113 @@
+﻿@* @model IEnumerable<ASI.Basecode.Services.ServiceModels.TicketViewModel>
+
+@{
+    ViewData["Title"] = "ViewAll";
+}
+
+<h1>View All</h1>
+
+<p>
+    <a asp-action="Create">Create New</a> |
+    <a asp-action="UpdateStatus">Update Status</a> |
+    <a asp-action="UpdatePriority">Update Priority</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TicketId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Subject)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IssueDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ResolvedDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PriorityType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StatusType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Attachment)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TicketId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Subject)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IssueDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedDate)
+            </td>
+            <td>
+                @if (item.UpdatedDate == null)
+                {
+                    @:No Updates
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.UpdatedDate)
+                }
+            </td>
+            <td>
+                @if (item.ResolvedDate == null)
+                {
+                    @:Open
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.ResolvedDate)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StatusType.StatusName)
+            </td>
+            <td>
+                @if (item.Attachment != null)
+                {
+                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.TicketId })">Download Attachment</a>
+                }
+                else
+                {
+                    @:No attachment
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.TicketId }) |
+                @Html.ActionLink("Details", "ViewTicket", new { id = item.TicketId }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.TicketId })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+ *@

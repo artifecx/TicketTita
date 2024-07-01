@@ -6,6 +6,10 @@
              style="width: 185px;" alt="logo"
              onclick="window.location.href = '@Url.Action("Index", "Home")';">
     </div>
+  
+    <a asp-action="Index" asp-controller="User">User Control</a>
+    <a asp-action="ViewAll" asp-controller="Ticket">Ticket Screen</a>
+  
     <a asp-controller="KnowledgeBase" asp-action="Index">Articles</a>
     <div class="logosec">
         @HttpContextAccessor.HttpContext.Session.GetString("UserName")
