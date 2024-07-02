@@ -1,4 +1,5 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
+@using Humanizer;
 
 @{
     ViewData["Title"] = "Update Status";
@@ -14,9 +15,16 @@
                 <label for="TicketId">Select Ticket</label>
                 <select id="TicketId" name="TicketId" class="form-control" onchange="populateTicketDetails()">
                     <option value="">-- Select Ticket --</option>
-                    @foreach (var ticket in Model.Tickets)
+                    @foreach (var categoryGroup in Model.Tickets.GroupBy(t => t.CategoryType.CategoryName))
                     {
-                        <option value="@ticket.TicketId">@ticket.Subject</option>
+                        <optgroup label="@categoryGroup.Key">
+                            @foreach (var ticket in categoryGroup.OrderByDescending(t => t.PriorityType.PriorityTypeId))
+                            {
+                                <option value="@ticket.TicketId">
+                                    @ticket.TicketId | @ticket.PriorityType.PriorityName | @ticket.CreatedDate.ToUniversalTime().Humanize()
+                                </option>
+                            }
+                        </optgroup>
                     }
                 </select>
             </div>

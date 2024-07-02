@@ -17,6 +17,7 @@ namespace ASI.Basecode.Data.Repositories
         private readonly List<CategoryType> _categoryTypes;
         private readonly List<PriorityType> _priorityTypes;
         private readonly List<StatusType> _statusTypes;
+        private readonly List<TicketAssignment> _ticketAssignments;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketRepository"/> class.
@@ -28,6 +29,7 @@ namespace ASI.Basecode.Data.Repositories
             _categoryTypes = GetCategoryTypes().ToList();
             _priorityTypes = GetPriorityTypes().ToList();
             _statusTypes = GetStatusTypes().ToList();
+            _ticketAssignments = GetTicketAssignments().ToList();
         }
 
         /// <summary>
@@ -38,12 +40,25 @@ namespace ASI.Basecode.Data.Repositories
         public IQueryable<Ticket> GetAll()
         {
             var tickets = this.GetDbSet<Ticket>();
-
-            foreach (Ticket t in tickets)
+            foreach (var ticket in tickets)
             {
-                t.CategoryType = _categoryTypes.Single(x => x.CategoryTypeId == t.CategoryTypeId);
-                t.PriorityType = _priorityTypes.Single(x => x.PriorityTypeId == t.PriorityTypeId);
-                t.StatusType = _statusTypes.Single(x => x.StatusTypeId == t.StatusTypeId);
+                SetNavigationProperties(ticket);
+                ticket.TicketAssignments = _ticketAssignments.Where(x => x.TicketId == ticket.TicketId).ToList(); //TODO: check if this is necessary
+            }
+            return tickets;
+        }
+
+        public IQueryable<Ticket> GetTickets(string type)
+        {
+            var assignedTicketIds = _ticketAssignments.Select(ta => ta.TicketId).ToList();
+
+            var tickets = type.Equals("unassigned")
+                ? this.GetDbSet<Ticket>().Where(t => !assignedTicketIds.Contains(t.TicketId))
+                : this.GetDbSet<Ticket>().Where(t => assignedTicketIds.Contains(t.TicketId));
+
+            foreach (var ticket in tickets)
+            {
+                SetNavigationProperties(ticket);
             }
             return tickets;
         }
@@ -63,6 +78,42 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
+        /// Updates an existing ticket in the database.
+        /// </summary>
+        /// <param name="ticket">The ticket.</param>
+        public string Update(Ticket ticket)
+        {
+            SetNavigationProperties(ticket);
+
+            this.GetDbSet<Ticket>().Update(ticket);
+            UnitOfWork.SaveChanges();
+
+            return ticket.TicketId;
+        }
+
+        /// <summary>
+        /// Deletes the specified ticket found using the identifier.
+        /// </summary>
+        /// <param name="id">The ticket identifier.</param>
+        public void Delete(Ticket ticket)
+        {
+            var existingAttachment = FindAttachmentByTicketId(ticket.TicketId);
+            if (existingAttachment != null)
+            {
+                this.GetDbSet<Attachment>().Remove(existingAttachment);
+            }
+
+            var existingAssignment = FindAssignmentByTicketId(ticket.TicketId);
+            if (existingAssignment != null)
+            {
+                this.GetDbSet<TicketAssignment>().Remove(existingAssignment);
+            }
+
+            this.GetDbSet<Ticket>().Remove(ticket);
+            UnitOfWork.SaveChanges();
+        }
+
+        /// <summary>
         /// Adds a new attachment to the database.
         /// </summary>
         /// <param name="ticket">The ticket.</param>
@@ -79,44 +130,20 @@ namespace ASI.Basecode.Data.Repositories
         /// <param name="attachment">The attachment.</param>
         public void RemoveAttachment(Attachment attachment)
         {
-            if (attachment != null)
-            {
-                this.GetDbSet<Attachment>().Remove(attachment);
-                UnitOfWork.SaveChanges();
-            }
-        }
-
-        /// <summary>
-        /// Updates an existing ticket in the database.
-        /// </summary>
-        /// <param name="ticket">The ticket.</param>
-        public string Update(Ticket ticket)
-        {
-            SetNavigation(ticket);
-
-            this.GetDbSet<Ticket>().Update(ticket);
+            this.GetDbSet<Attachment>().Remove(attachment);
             UnitOfWork.SaveChanges();
-
-            return ticket.TicketId;
         }
 
-        /// <summary>
-        /// Deletes the specified ticket found using the identifier.
-        /// </summary>
-        /// <param name="id">The ticket identifier.</param>
-        public void Delete(string id)
+        public void AssignTicket(TicketAssignment assignment)
         {
-            var existingTicket = FindById(id);
-            var existingAttachment = FindAttachmentByTicketId(id);
-            if (existingTicket != null)
-            {
-                if (existingAttachment != null)
-                {
-                    this.GetDbSet<Attachment>().Remove(existingAttachment);
-                }
-                this.GetDbSet<Ticket>().Remove(existingTicket);
-                UnitOfWork.SaveChanges();
-            }
+            this.GetDbSet<TicketAssignment>().Add(assignment);
+            UnitOfWork.SaveChanges();
+        }
+
+        public void RemoveAssignment(TicketAssignment assignment)
+        {
+            this.GetDbSet<TicketAssignment>().Remove(assignment);
+            UnitOfWork.SaveChanges();
         }
 
 
@@ -128,7 +155,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>a Ticket</returns>
         public Ticket FindById(string id)
         {
-            return this.GetDbSet<Ticket>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<Ticket>().FirstOrDefault(x => x.TicketId == id);
         }
 
         /// <summary>
@@ -138,7 +165,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>an attachment</returns>
         public Attachment FindAttachmentByTicketId(string id)
         {
-            return this.GetDbSet<Attachment>().Where(x => x.TicketId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<Attachment>().FirstOrDefault(x => x.TicketId == id);
         }
 
         /// <summary>
@@ -148,7 +175,22 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>an attachment</returns>
         public Attachment FindAttachmentById(string id)
         {
-            return this.GetDbSet<Attachment>().Where(x => x.AttachmentId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<Attachment>().FirstOrDefault(x => x.AttachmentId == id);
+        }
+
+        public TicketAssignment FindAssignmentByTicketId(string id) {
+            return this.GetDbSet<TicketAssignment>().FirstOrDefault(x => x.TicketId == id);
+        }
+
+        public Team FindTeamByUserId(string id)
+        {
+            var memberOf = this.GetDbSet<TeamMember>().FirstOrDefault(x => x.UserId == id);
+            return this.GetDbSet<Team>().FirstOrDefault(x => x.TeamId == memberOf.TeamId);
+        }
+
+        public User FindAgentByUserId(string id)
+        {
+            return this.GetDbSet<User>().FirstOrDefault(x => x.UserId == id);
         }
 
         /// <summary>
@@ -158,7 +200,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>a category type (CategoryType)</returns>
         public CategoryType FindCategoryById(string id)
         {
-            return this.GetDbSet<CategoryType>().Where(x => x.CategoryTypeId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<CategoryType>().FirstOrDefault(x => x.CategoryTypeId == id);
         }
 
         /// <summary>
@@ -168,7 +210,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>a priority type (PriorityType)</returns>
         public PriorityType FindPriorityById(string id)
         {
-            return this.GetDbSet<PriorityType>().Where(x => x.PriorityTypeId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<PriorityType>().FirstOrDefault(x => x.PriorityTypeId == id);
         }
 
         /// <summary>
@@ -178,7 +220,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>a status type (StatusType)</returns>
         public StatusType FindStatusById(string id)
         {
-            return this.GetDbSet<StatusType>().Where(x => x.StatusTypeId.Equals(id)).FirstOrDefault();
+            return this.GetDbSet<StatusType>().FirstOrDefault(x => x.StatusTypeId == id);
         }
 
         /// <summary>
@@ -187,7 +229,7 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>A collection of all category types (IQueryable)</returns>
         public IQueryable<CategoryType> GetCategoryTypes()
         {
-            return this.GetDbSet<CategoryType>(); ;
+            return this.GetDbSet<CategoryType>();
         }
 
         /// <summary>
@@ -206,6 +248,16 @@ namespace ASI.Basecode.Data.Repositories
         public IQueryable<StatusType> GetStatusTypes()
         {
             return this.GetDbSet<StatusType>();
+        }
+
+        public IQueryable<User> GetSupportAgents()
+        {
+            return this.GetDbSet<User>().Where(x => x.RoleId == "Support Agent");
+        }
+
+        public IQueryable<TicketAssignment> GetTicketAssignments()
+        {
+            return this.GetDbSet<TicketAssignment>();
         }
 
         /// <summary>
@@ -228,8 +280,8 @@ namespace ASI.Basecode.Data.Repositories
 
             ticket.TicketId = $"{CC:00}-{CN + 1:00}-{NN + 1:00}";
 
-            ticket.StatusTypeId = ticket.StatusTypeId ?? "1";
-            SetNavigation(ticket);
+            ticket.StatusTypeId ??= "1";
+            SetNavigationProperties(ticket);
         }
 
 
@@ -237,7 +289,7 @@ namespace ASI.Basecode.Data.Repositories
         /// Sets the navigation properties for a ticket: CategoryType, PriorityType, StatusType
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        private void SetNavigation(Ticket ticket)
+        private void SetNavigationProperties(Ticket ticket)
         {
             ticket.CategoryType = _categoryTypes.Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
             ticket.PriorityType = _priorityTypes.Single(x => x.PriorityTypeId == ticket.PriorityTypeId);

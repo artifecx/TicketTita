@@ -4,6 +4,7 @@ using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,38 +34,15 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to add a new ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public string Add(TicketViewModel ticket)
+        public string Add(TicketViewModel ticket, string userId)
         {
-            var newTicket = new Ticket();
-            _mapper.Map(ticket, newTicket);
+            var newTicket = _mapper.Map<Ticket>(ticket);
             newTicket.CreatedDate = DateTime.Now;
             newTicket.UpdatedDate = null;
             newTicket.ResolvedDate = null;
-            newTicket.UserId = "1";
+            newTicket.UserId = userId;
 
             return _repository.Add(newTicket);
-        }
-
-        /// <summary>
-        /// Calls the repository to add a new attachment
-        /// </summary>
-        /// <param name="ticket">The attachment.</param>
-        public void AddAttachment(Attachment attachment)
-        {
-            _repository.AddAttachment(attachment);
-        }
-
-        /// <summary>
-        /// Removes the ticket attachment.
-        /// </summary>
-        /// <param name="attachmentId">The attachment identifier.</param>
-        public void RemoveAttachment(string attachmentId)
-        {
-            var attachment = _repository.FindAttachmentById(attachmentId);
-            if (attachment != null)
-            {
-                _repository.RemoveAttachment(attachment);
-            }
         }
 
         /// <summary>
@@ -74,17 +52,12 @@ namespace ASI.Basecode.Services.Services
         public string Update(TicketViewModel ticket)
         {
             var existingTicket = _repository.FindById(ticket.TicketId);
+            if (existingTicket == null)
+            {
+                throw new ArgumentException($"Ticket with ID {ticket.TicketId} not found.");
+            }
 
-            if (_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed") &&
-                ticket.ResolvedDate == null)
-            {
-                ticket.ResolvedDate = DateTime.Now;
-            }
-            else if (!(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed")) &&
-                ticket.ResolvedDate != null)
-            {
-                ticket.ResolvedDate = null;
-            }
+            UpdateTicketStatus(ticket);
             ticket.UpdatedDate = DateTime.Now;
 
             _mapper.Map(ticket, existingTicket);
@@ -97,7 +70,38 @@ namespace ASI.Basecode.Services.Services
         /// <param name="id">The identifier.</param>
         public void Delete(string id)
         {
-            _repository.Delete(id);
+            var ticket = _repository.FindById(id);
+            if(ticket != null) _repository.Delete(ticket);
+        }
+
+        /// <summary>
+        /// Calls the repository to add a new attachment
+        /// </summary>
+        /// <param name="ticket">The attachment.</param>
+        public void AddAttachment(Attachment attachment)
+        {
+            if(attachment != null) _repository.AddAttachment(attachment);
+        }
+
+        /// <summary>
+        /// Removes the ticket attachment.
+        /// </summary>
+        /// <param name="attachmentId">The attachment identifier.</param>
+        public void RemoveAttachment(string attachmentId)
+        {
+            var attachment = _repository.FindAttachmentById(attachmentId);
+            if (attachment != null) _repository.RemoveAttachment(attachment);
+        }
+
+        public void AssignTicket(TicketAssignment assignment)
+        {
+            if(assignment != null) _repository.AssignTicket(assignment);
+        }
+
+        public void RemoveAssignment(string id)
+        {
+            var assignment = _repository.FindAssignmentByTicketId(id);
+            if (assignment != null) _repository.RemoveAssignment(assignment);
         }
 
         #region Get Methods        
@@ -123,6 +127,21 @@ namespace ASI.Basecode.Services.Services
             return _repository.FindAttachmentByTicketId(id);
         }
 
+        public TicketAssignment GetAssignmentByTicketId(string id)
+        {
+            return _repository.FindAssignmentByTicketId(id);
+        }
+
+        public Team GetTeamByUserId(string id)
+        {
+            return _repository.FindTeamByUserId(id);
+        }
+
+        public User GetAgentById(string id)
+        {
+            return _repository.FindAgentByUserId(id);
+        }
+
         /// <summary>
         /// Calls the repository to get all tickets.
         /// Maps the list of Ticket to a list of TicketViewModel.
@@ -132,6 +151,12 @@ namespace ASI.Basecode.Services.Services
         {
             var tickets = _repository.GetAll();
             return _mapper.Map<IEnumerable<TicketViewModel>>(tickets);
+        }
+
+        public IEnumerable<TicketViewModel> GetTickets(string type)
+        {
+            var unassignedTickets = _repository.GetTickets(type);
+            return _mapper.Map<IEnumerable<TicketViewModel>>(unassignedTickets);
         }
 
         /// <summary>
@@ -159,6 +184,30 @@ namespace ASI.Basecode.Services.Services
         public IEnumerable<StatusType> GetStatusTypes()
         {
             return _repository.GetStatusTypes();
+        }
+
+        public IEnumerable<User> GetSupportAgents()
+        {
+            return _repository.GetSupportAgents();
+        }
+
+        private void UpdateTicketStatus(TicketViewModel ticket)
+        {
+            var status = _repository.FindStatusById(ticket.StatusTypeId);
+
+            if (status == null)
+            {
+                throw new ArgumentException($"Status with ID {ticket.StatusTypeId} not found.");
+            }
+
+            if (status.StatusName.Equals("Closed") && ticket.ResolvedDate == null)
+            {
+                ticket.ResolvedDate ??= DateTime.Now;
+            }
+            else if(!status.StatusName.Equals("Closed") && ticket.ResolvedDate != null)
+            {
+                ticket.ResolvedDate = null;
+            }
         }
         #endregion
     }
