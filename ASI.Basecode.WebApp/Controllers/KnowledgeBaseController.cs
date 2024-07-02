@@ -111,6 +111,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpPost]
         public IActionResult PostCreate(KnowledgeBaseViewModel model)
         {
+            model.AuthorId = _session.GetString("UserId");
             _knowledgeBaseService.Add(model);
             return RedirectToAction("Index");
         }
