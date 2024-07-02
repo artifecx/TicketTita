@@ -12,10 +12,12 @@ namespace ASI.Basecode.Data.Interfaces
         IQueryable<Ticket> GetAll();
         string Add(Ticket ticket);
         void AddAttachment(Attachment attachment);
+        void RemoveAttachment(Attachment attachment);
         string Update(Ticket ticket);
         void Delete(string id);
         Ticket FindById(string id);
         Attachment FindAttachmentByTicketId(string id);
+        Attachment FindAttachmentById(string id);
         CategoryType FindCategoryById(string id);
         PriorityType FindPriorityById(string id);
         StatusType FindStatusById(string id);

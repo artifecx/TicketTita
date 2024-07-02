@@ -1,4 +1,4 @@
-﻿/*using ASI.Basecode.Data.Interfaces;
+﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.Manager;
@@ -55,19 +55,32 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
+        /// Removes the ticket attachment.
+        /// </summary>
+        /// <param name="attachmentId">The attachment identifier.</param>
+        public void RemoveAttachment(string attachmentId)
+        {
+            var attachment = _repository.FindAttachmentById(attachmentId);
+            if (attachment != null)
+            {
+                _repository.RemoveAttachment(attachment);
+            }
+        }
+
+        /// <summary>
         /// Calls the repository to update an existing ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
         public string Update(TicketViewModel ticket)
         {
             var existingTicket = _repository.FindById(ticket.TicketId);
-            
-            if(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed") && 
+
+            if (_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed") &&
                 ticket.ResolvedDate == null)
             {
                 ticket.ResolvedDate = DateTime.Now;
             }
-            else if(!(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed")) &&
+            else if (!(_repository.FindStatusById(ticket.StatusTypeId).StatusName.Equals("Closed")) &&
                 ticket.ResolvedDate != null)
             {
                 ticket.ResolvedDate = null;
@@ -86,7 +99,6 @@ namespace ASI.Basecode.Services.Services
         {
             _repository.Delete(id);
         }
-
 
         #region Get Methods        
         /// <summary>
@@ -151,4 +163,3 @@ namespace ASI.Basecode.Services.Services
         #endregion
     }
 }
-*/
