@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -772,11 +772,11 @@ namespace ASI.Basecode.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TeamMember_Team");
 
-       /*         entity.HasOne(d => d.User)
+       *//*         entity.HasOne(d => d.User)
                     .WithMany(p => p.TeamMembers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TeamMember_User");*/
+                    .HasConstraintName("FK_TeamMember_User");*//*
             });
 
             modelBuilder.Entity<Ticket>(entity =>
@@ -850,11 +850,11 @@ namespace ASI.Basecode.Data
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Ticket_StatusType");
 
-   /*             entity.HasOne(d => d.User)
+   *//*             entity.HasOne(d => d.User)
                     .WithMany(p => p.Tickets)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Ticket_User");*/
+                    .HasConstraintName("FK_Ticket_User");*//*
             });
 
             modelBuilder.Entity<TicketAssignment>(entity =>
@@ -978,3 +978,4 @@ namespace ASI.Basecode.Data
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
+*/
