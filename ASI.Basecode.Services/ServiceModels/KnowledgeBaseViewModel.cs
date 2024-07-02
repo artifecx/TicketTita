@@ -14,7 +14,7 @@ namespace ASI.Basecode.Services.ServiceModels
         [StringLength(256)]
         public string ArticleId { get; set; }
         [Required]
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
         [Required]
         [StringLength(100)]
         public string Title { get; set; }

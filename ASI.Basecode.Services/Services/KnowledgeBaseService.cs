@@ -32,7 +32,7 @@ namespace ASI.Basecode.Services.Services
             var newArticle = new KnowledgeBaseArticle();
             _mapper.Map(article, newArticle);
             newArticle.CreatedDate = DateTime.Now;
-            newArticle.UpdatedDate = new DateTime();
+            newArticle.UpdatedDate = null;
 
             _knowledgeBaseRepository.Add(newArticle);
         }

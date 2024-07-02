@@ -9,12 +9,12 @@ namespace ASI.Basecode.Data.Interfaces
 {
     public interface IKnowledgeBaseRepository
     {
-        IEnumerable<KnowledgeBaseArticle> RetrieveAll();
-        void Add(KnowledgeBaseArticle model);
-        void Update(KnowledgeBaseArticle model);
+        IQueryable<KnowledgeBaseArticle> RetrieveAll();
+        string Add(KnowledgeBaseArticle article);
+        string Update(KnowledgeBaseArticle article);
         void Delete(string id);
-        public KnowledgeBaseArticle FindArticleById(string id);
-        public ArticleCategory FindArticleCategoryById(int id);
-        public IEnumerable<ArticleCategory> GetArticleCategories();
+        KnowledgeBaseArticle FindArticleById(string id);
+        ArticleCategory FindArticleCategoryById(string id);
+        IQueryable<ArticleCategory> GetArticleCategories();
     }
 }

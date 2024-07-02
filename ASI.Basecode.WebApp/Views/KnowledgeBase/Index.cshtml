@@ -55,7 +55,7 @@
                 @Html.DisplayFor(modelItem => item.CreatedDate)
             </td>
             <td>
-                @if (item.UpdatedDate == DateTime.MinValue)
+                @if (item.UpdatedDate == null)
                 {
                     @:No Updates
                 }
