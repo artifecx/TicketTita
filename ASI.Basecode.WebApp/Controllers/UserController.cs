@@ -41,7 +41,11 @@ namespace ASI.Basecode.WebApp.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var model = new UserViewModel
+            {
+                Roles = _userService.GetRoles().ToList()
+            };
+            return View(model);
         }
 
         /// <summary>
@@ -53,8 +57,8 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize(Policy = "Admin")]
         public IActionResult Update(String SelectedUserId)
         {
-            
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
+            SelectedUser.Roles = _userService.GetRoles().ToList();
             return View(SelectedUser);
         }
 

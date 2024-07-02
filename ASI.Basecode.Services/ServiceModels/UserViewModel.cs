@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ASI.Basecode.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -54,5 +55,7 @@ namespace ASI.Basecode.Services.ServiceModels
         /// Gets or sets the name of the updated by.
         /// </summary>
         public string? UpdatedByName { get; set; }
+
+        public List<Role> Roles { get; set; }
     }
 }

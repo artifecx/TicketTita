@@ -136,15 +136,29 @@ namespace ASI.Basecode.Services.Services
 
             updatedUser.Password = PasswordManager.EncryptPassword(updatedUser.Password);
             _userRepository.Update(updatedUser);
-            if (model.RoleId == "Admin") 
+
+            if (model.RoleId != "Admin")
             {
                 var existingAdmin = _adminRepository.FindById(updatedUser.UserId);
                 if (existingAdmin != null)
                 {
-                    existingAdmin.Name = updatedUser.Name;
-                    existingAdmin.Email = updatedUser.Email;
-                    existingAdmin.Password = updatedUser.Password;
-                    _adminRepository.Update(existingAdmin);
+                    _adminRepository.Delete(existingAdmin.AdminId);
+                }
+            }
+            else
+            {
+                var existingAdmin = _adminRepository.FindById(updatedUser.UserId);
+                if (existingAdmin == null)
+                {
+                    var newAdmin = new Admin
+                    {
+                        AdminId = updatedUser.UserId,
+                        Name = updatedUser.Name,
+                        Email = updatedUser.Email,
+                        Password = updatedUser.Password,
+                        IsSuper = false
+                    };
+                    _adminRepository.Add(newAdmin);
                 }
             }
         }
@@ -162,6 +176,7 @@ namespace ASI.Basecode.Services.Services
                 _adminRepository.Delete(userId);
             }
         }
+        #region Get Methods
         /// <summary>
         /// Gets the current admin.
         /// </summary>
@@ -178,5 +193,15 @@ namespace ASI.Basecode.Services.Services
 
             return _adminRepository.FindById(adminId);
         }
+
+        /// <summary>
+        /// Gets the roles.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Role> GetRoles()
+        {
+            return _userRepository.GetRoles();
+        }
+        #endregion
     }
 }
