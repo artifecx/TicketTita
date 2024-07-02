@@ -1,4 +1,4 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -657,138 +657,9 @@ namespace ASI.Basecode.Data
                     .HasConstraintName("FK_User_Admin_UpdatedBy");
             });
 
-            modelBuilder.Entity<PerformanceReport>(entity =>
-            {
-                entity.HasKey(e => e.ReportId);
-
-                entity.ToTable("PerformanceReport");
-
-                entity.Property(e => e.ReportId)
-                    .HasMaxLength(256)
-                    .HasColumnName("report_ID");
-
-                entity.Property(e => e.AssignedDate)
-                    .HasColumnType("datetime")
-                    .HasColumnName("assignedDate")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.AverageResolutionTime).HasColumnName("averageResolutionTime");
-
-                entity.Property(e => e.ResolvedTickets).HasColumnName("resolvedTickets");
-            });
-
-            modelBuilder.Entity<PriorityType>(entity =>
-            {
-                entity.ToTable("PriorityType");
-
-                entity.Property(e => e.PriorityTypeId)
-                    .HasMaxLength(256)
-                    .HasColumnName("priorityType_ID");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(500)
-                    .HasColumnName("description");
-
-                entity.Property(e => e.PriorityName)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnName("priorityName");
-            });
-
-            modelBuilder.Entity<Role>(entity =>
-            {
-                entity.ToTable("Role");
-
-                entity.Property(e => e.RoleId)
-                    .HasMaxLength(256)
-                    .HasColumnName("role_ID");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(500)
-                    .HasColumnName("description");
-
-                entity.Property(e => e.RoleName)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnName("roleName");
-            });
-
-            modelBuilder.Entity<StatusType>(entity =>
-            {
-                entity.ToTable("StatusType");
-
-                entity.Property(e => e.StatusTypeId)
-                    .HasMaxLength(256)
-                    .HasColumnName("statusType_ID");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(500)
-                    .HasColumnName("description");
-
-                entity.Property(e => e.StatusName)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnName("statusName");
-            });
-
-            modelBuilder.Entity<Team>(entity =>
-            {
-                entity.ToTable("Team");
-
-                entity.Property(e => e.TeamId)
-                    .HasMaxLength(256)
-                    .HasColumnName("team_ID");
-
-                entity.Property(e => e.Description)
-                    .HasMaxLength(500)
-                    .HasColumnName("description");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnName("name");
-            });
-
-            modelBuilder.Entity<TeamMember>(entity =>
-            {
-                entity.HasKey(e => new { e.TeamId, e.UserId });
-
-                entity.ToTable("TeamMember");
-
-                entity.Property(e => e.TeamId)
-                    .HasMaxLength(256)
-                    .HasColumnName("team_ID");
-
-                entity.Property(e => e.UserId)
-                    .HasMaxLength(256)
-                    .HasColumnName("user_ID");
-
-                entity.Property(e => e.ReportId)
-                    .HasMaxLength(256)
-                    .HasColumnName("report_ID");
-
-                entity.HasOne(d => d.Report)
-                    .WithMany(p => p.TeamMembers)
-                    .HasForeignKey(d => d.ReportId)
-                    .HasConstraintName("FK_TeamMember_PerformanceReport");
-
-                entity.HasOne(d => d.Team)
-                    .WithMany(p => p.TeamMembers)
-                    .HasForeignKey(d => d.TeamId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TeamMember_Team");
-
-       /*         entity.HasOne(d => d.User)
-                    .WithMany(p => p.TeamMembers)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TeamMember_User");*/
-            });
-
             OnModelCreatingPartial(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
-*/
