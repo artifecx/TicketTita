@@ -43,7 +43,7 @@ namespace ASI.Basecode.WebApp
            this._services.AddScoped<IAccountRepository, AccountRepository>();
             this._services.AddScoped<IUserRepository, UserRepository>();
             this._services.AddScoped<ITicketRepository, TicketRepository>();
-
+            this._services.AddScoped<IAdminRepository, AdminRepository>();
             // Manager Class
             this._services.AddScoped<SignInManager>();
 
