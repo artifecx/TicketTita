@@ -56,6 +56,10 @@ namespace ASI.Basecode.Services.ServiceModels
         /// </summary>
         public string? UpdatedByName { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the roles.
+        /// </summary>
         public List<Role> Roles { get; set; }
     }
 }

@@ -87,7 +87,6 @@ namespace ASI.Basecode.WebApp.Controllers
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
-
         #endregion
 
         #region POST Methods        
