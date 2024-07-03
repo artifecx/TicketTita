@@ -14,17 +14,15 @@
     @RenderSection("Styles", required: false)
 </head>
 <body>
-    @Html.Partial("_Header")
-    <div class="container">
-        <main role="main">
+    <div class="layout">
+        @Html.Partial("_Sidebar")
+        <main role="main" class="content">
             @RenderBody()
+            <footer class="footer">
+                @Copyright
+            </footer>
         </main>
     </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            @Copyright
-        </div>
-    </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>

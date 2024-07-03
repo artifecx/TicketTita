@@ -10,15 +10,16 @@
 }
 
 :root {
-    --background-color1: #fafaff;
+    --background-color1: #F9FAFC;
     --background-color2: #ffffff;
     --background-color3: #ededed;
     --background-color4: #cad7fda4;
     --primary-color: #052542;
     --secondary-color: #073d67;
-    --Border-color: #3f0097;
+    --border-color: #D4D7DC;
     --one-use-color: #3f0097;
     --two-use-color: #5500cb;
+    --text-color-gray: #A5A1A1;
 }
 
 body {
@@ -368,5 +369,5 @@ header {
 }
 
 .text-color-gray {
-    color: #A5A1A1;
+    color: var(--text-color-gray);
 }

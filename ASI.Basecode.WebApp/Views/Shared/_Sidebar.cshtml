@@ -1,0 +1,31 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<div class="@((ViewBag.LoginView == true) ? "hide-navbar" : "") sidebar">
+    <div class="logosec hover-pointer">
+        <img src="~/img/ticketita-logo.svg"
+             style="width: 185px;" alt="logo"
+             onclick="window.location.href = '@Url.Action("Index", "Home")';">
+    </div>
+    <div class="sidebar-heading mt-5 mb-2">Navigation</div>
+    <ul class="list-unstyled">
+        <li class="py-2">
+            <a asp-action="Index" asp-controller="User">
+                <i class="fas fa-users px-1"></i>
+                Users
+            </a>
+        </li>
+        <li class="py-2">
+            <a asp-action="ViewAll" asp-controller="Ticket">
+                <i class="fas fa-ticket px-1"></i>
+                    Ticket Screen
+            </a>
+        </li>
+        <li class="py-2">
+            <a asp-controller="KnowledgeBase" asp-action="Index">
+                <i class="fas fa-book px-1"></i>
+                    Articles
+            </a>
+        </li>
+    </ul>
+</div>
