@@ -28,13 +28,13 @@
                 @Html.DisplayNameFor(model => model.RoleId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedBy)
+                @Html.DisplayNameFor(model => model.CreatedByName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedTime)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedBy)
+                @Html.DisplayNameFor(model => model.UpdatedByName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UpdatedTime)
@@ -43,41 +43,42 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Password)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoleId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedBy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedBy)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedTime)
-            </td>
-            <td>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Password)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoleId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedByName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreatedTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedByName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UpdatedTime)
+                </td>
+                <td>
                     @Html.ActionLink("Edit", "Update", new { SelectedUserId = item.UserId }) |
                     @Html.ActionLink("Details", "Details", new { SelectedUserId = item.UserId }) |
                     @Html.ActionLink("Delete", "Delete", new { SelectedUserId = item.UserId })
-            </td>
-        </tr>
-}
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

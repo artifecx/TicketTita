@@ -16,12 +16,23 @@ namespace ASI.Basecode.Services.Services
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AccountService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository.</param>
+        /// <param name="mapper">The mapper.</param>
         public AccountService(IUserRepository repository, IMapper mapper)
         {
             _mapper = mapper;
             _repository = repository;
         }
-
+        /// <summary>
+        /// Authenticates the user.
+        /// </summary>
+        /// <param name="Email">The email.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
         public LoginResult AuthenticateUser(string Email,string password, ref User user)
         {
             user = new User();
@@ -31,25 +42,5 @@ namespace ASI.Basecode.Services.Services
 
             return user != null ? LoginResult.Success : LoginResult.Failed;
         }
-
-        /*public void AddUser(AccountServiceModel model)
-        {
-            var user = new Account();
-            if (!_repository.UserExists(model.UserId))
-            {
-                _mapper.Map(model, user);
-                user.Password = PasswordManager.EncryptPassword(model.Password);
-                user.CreatedTime = DateTime.Now;
-                user.UpdatedTime = DateTime.Now;
-                user.CreatedBy = System.Environment.UserName;
-                user.UpdatedBy = System.Environment.UserName;
-
-                _repository.AddUser(user);
-            }
-            else
-            {
-                throw new InvalidDataException(Resources.Messages.Errors.UserExists);
-            }
-        }*/
     }
 }

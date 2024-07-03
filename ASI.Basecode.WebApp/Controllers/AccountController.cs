@@ -98,6 +98,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 // 認証OK
                 await this._signInManager.SignInAsync(user);
                 this._session.SetString("UserName", user.Name);
+                this._session.SetString("UserId", user.UserId);
                 return RedirectToAction("Index", "Home");
             }
             else
