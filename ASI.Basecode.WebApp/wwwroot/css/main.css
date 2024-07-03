@@ -14,18 +14,23 @@
     font-weight: bold;
 }
 
-    .sidebar .list-unstyled li a {
-        text-decoration: none;
-        color: var(--text-color-gray);
-    }
+.list-unstyled li a {
+    text-decoration: none;
+    color: var(--text-color-gray);
+}
 
-        .sidebar .list-unstyled li a:hover {
-            text-decoration: none;
-            color: black;
-        }
+.list-unstyled li a:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.list-unstyled li a.active {
+    color: black;
+}
+
 
 .list-unstyled {
-    margin-left: 15px;
+    padding-left: 15px;
 }
 
 .content {
