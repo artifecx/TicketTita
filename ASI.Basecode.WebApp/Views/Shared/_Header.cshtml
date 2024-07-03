@@ -10,6 +10,7 @@
     <a asp-action="Index" asp-controller="User">User Control</a>
     <a asp-action="ViewAll" asp-controller="Ticket">Ticket Screen</a>
   
+    <a asp-controller="KnowledgeBase" asp-action="Index">Articles</a>
     <div class="logosec">
         @HttpContextAccessor.HttpContext.Session.GetString("UserName")
         <div class="mr-20 hover-pointer" style="position: relative">

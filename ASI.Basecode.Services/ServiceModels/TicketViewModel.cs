@@ -78,6 +78,14 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Attachment")]
         public Attachment Attachment { get; set; }
 
+        [Display(Name = "Ticket Assignee")]
+        public TicketAssignment TicketAssignment { get; set; }
+
+        [Display(Name = "Assignee")]
+        public User Agent { get; set; }
+
+        [Display(Name = "Support Agents")]
+        public IEnumerable<User> Agents { get; set; }
 
         /// <summary>List of tickets to populate the dropdown</summary>
         public IEnumerable<TicketViewModel> Tickets { get; set; }

@@ -7,8 +7,34 @@
     background: linear-gradient(to right, #ff0000, #000000); /* Red, Black */
 }
 
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    border-radius: 20px;
+}
+
+    .btn-primary:active, .btn-primary:focus {
+        box-shadow: 0 0 10px 4px rgba(5, 37, 66, 0.2) !important
+    }
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color) !important;
+        border-color: var(--secondary-color) !important;
+        box-shadow: 0 0 10px 4px rgba(5, 37, 66, 0.2) !important
+    }
+
+.card {
+    box-shadow: 0 10px 10px -2px rgba(174, 27, 30, 0.2) !important;
+}
+
+.form-control:active, .form-control:focus {
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 5px 2px rgba(5, 37, 66, 0.2) !important;
+}
+
 .login-btn {
-    width: 180px;
+    width: 120px;
+    height: 50px
 }
 
 .register-box {
