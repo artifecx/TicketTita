@@ -1,6 +1,7 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using Basecode.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,7 @@ namespace ASI.Basecode.Data.Repositories
             foreach (KnowledgeBaseArticle a in articles)
             {
                 a.Category = _categories.Single(x => x.CategoryId == a.CategoryId);
+                a.Author = FindUserById(a.AuthorId);
             }
 
             return articles;
@@ -89,7 +91,9 @@ namespace ASI.Basecode.Data.Repositories
 
         public KnowledgeBaseArticle FindArticleById(string id)
         {
-            return this.GetDbSet<KnowledgeBaseArticle>().Where(x => x.ArticleId == id).FirstOrDefault();
+            var article = this.GetDbSet<KnowledgeBaseArticle>().Where(x => x.ArticleId == id).FirstOrDefault();
+            article.Author = FindUserById(article.AuthorId);
+            return article;
         }
 
         public ArticleCategory FindArticleCategoryById(string id)
@@ -100,6 +104,11 @@ namespace ASI.Basecode.Data.Repositories
         public IQueryable<ArticleCategory> GetArticleCategories()
         {
             return this.GetDbSet<ArticleCategory>();
+        }
+
+        public User FindUserById(string id)
+        {
+            return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
         }
 
         #region Assign Article Properties
@@ -117,6 +126,7 @@ namespace ASI.Basecode.Data.Repositories
         private void SetNavigation(KnowledgeBaseArticle article)
         {
             article.Category = _categories.Single(x => x.CategoryId == article.CategoryId);
+            article.Author = FindUserById(article.AuthorId);
         }
         #endregion
     }
