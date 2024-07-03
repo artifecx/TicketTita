@@ -12,10 +12,9 @@ namespace ASI.Basecode.Services.Interfaces
     {
         IEnumerable<UserViewModel> RetrieveAll();
         void Add(UserViewModel model);
-
         UserViewModel RetrieveUser(String UserId);
         void Update(UserViewModel model);
-
         void Delete(String UserId);
+        IEnumerable<Role> GetRoles();
     }
 }
