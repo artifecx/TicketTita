@@ -10,19 +10,20 @@
 }
 
 :root {
-    --background-color1: #fafaff;
+    --background-color1: #F9FAFC;
     --background-color2: #ffffff;
     --background-color3: #ededed;
     --background-color4: #cad7fda4;
-    --primary-color: #4b49ac;
-    --secondary-color: #0c007d;
-    --Border-color: #3f0097;
+    --primary-color: #052542;
+    --secondary-color: #073d67;
+    --border-color: #D4D7DC;
     --one-use-color: #3f0097;
     --two-use-color: #5500cb;
+    --text-color-gray: #A5A1A1;
 }
 
 body {
-    background-color: var(--background-color4);
+    background-color: var(--background-color2);
     max-width: 100%;
     overflow-x: hidden;
 }
@@ -31,7 +32,7 @@ header {
     height: 70px;
     width: 100vw;
     padding: 0 30px;
-    background-color: var(--background-color1);
+    background-color: var(--background-color2);
     z-index: 100;
     box-shadow: 1px 1px 15px rgba(161, 182, 253, 0.825);
     display: flex;
@@ -116,9 +117,9 @@ header {
     align-items: center;
     justify-content: center;
     position: relative;
-    cursor: pointer; 
+    cursor: pointer;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 .main-container {
@@ -361,4 +362,12 @@ header {
     background-color: rgb(0, 177, 0);
     color: white;
     border-radius: 4px;
+}
+
+.text-color {
+    color: var(--primary-color);
+}
+
+.text-color-gray {
+    color: var(--text-color-gray);
 }
