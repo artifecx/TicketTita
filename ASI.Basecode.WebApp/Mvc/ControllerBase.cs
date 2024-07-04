@@ -144,5 +144,83 @@ namespace ASI.Basecode.WebApp.Mvc
 
             this._logger.LogError(logContent.ToString());
         }
+
+        /// <summary>
+        /// Starts the log.
+        /// </summary>
+        /// <param name="methodName">Name of the method.</param>
+        public void StartLog(string methodName)
+        {
+            _logger.LogInformation($"=======Ticket : {methodName} Started=======");
+        }
+
+        /// <summary>
+        /// Ends the log.
+        /// </summary>
+        /// <param name="methodName">Name of the method.</param>
+        public void EndLog(string methodName)
+        {
+            _logger.LogInformation($"=======Ticket : {methodName} Ended=======");
+        }
+
+        #region Exception Handlers
+        /// <summary>
+        /// Handles the exception.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <param name="actionName">Name of the action.</param>
+        public IActionResult HandleException(Func<IActionResult> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return View("Error"); // TODO: Redirect to a common error page
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+        public JsonResult HandleException(Func<JsonResult> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return new JsonResult(new { success = false, error = "An error occurred. Please try again later." });
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        public FileResult HandleException(Func<FileResult> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return null;
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+        #endregion Exception Handlers
     }
 }
