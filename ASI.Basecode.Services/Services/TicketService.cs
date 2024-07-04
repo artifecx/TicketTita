@@ -208,7 +208,7 @@ namespace ASI.Basecode.Services.Services
         public IEnumerable<TicketViewModel> GetTicketsByAssignmentStatus(string status)
         {
             var assignedTicketIds = GetTicketAssignments().Select(ta => ta.TicketId).ToList();
-            var tickets = _repository.GetTickets(status, assignedTicketIds);
+            var tickets = _repository.GetTickets(status, assignedTicketIds).ToList();
             tickets.ForEach(ticket => SetNavigationProperties(ticket));
 
             return _mapper.Map<IEnumerable<TicketViewModel>>(tickets);
@@ -308,7 +308,7 @@ namespace ASI.Basecode.Services.Services
             {
                 "status" => GetAll(),
                 "assign" => GetTicketsByAssignmentStatus("unassigned"),
-                "assigned" => GetTicketsByAssignmentStatus("assigned"),
+                "assigned" => GetTicketsByAssignmentStatus("reassign"),
                 _ => GetUnresolvedTickets(),
             };
 

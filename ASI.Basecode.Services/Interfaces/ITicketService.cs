@@ -29,5 +29,6 @@ namespace ASI.Basecode.Services.Interfaces
         IEnumerable<User> GetSupportAgents();
         IEnumerable<TicketAssignment> GetTicketAssignments();
         TicketViewModel InitializeModel(string type);
+        string ExtractAgentId(string id);
     }
 }
