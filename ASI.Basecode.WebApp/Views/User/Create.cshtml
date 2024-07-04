@@ -51,4 +51,11 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var errMessage = '@TempData["DuplicateErr"]'
+        if (errMessage) { 
+            toastr.error(errMessage);
+        }
+    </script>
 }

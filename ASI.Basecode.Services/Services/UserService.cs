@@ -94,6 +94,7 @@ namespace ASI.Basecode.Services.Services
             newUser.UserId = Guid.NewGuid().ToString();
             newUser.Password = PasswordManager.EncryptPassword(newUser.Password);
             newUser.CreatedTime = DateTime.Now;
+        
 
             var currentAdmin = GetCurrentAdmin();
             if (currentAdmin != null)
@@ -103,8 +104,11 @@ namespace ASI.Basecode.Services.Services
 
             newUser.UpdatedBy = null;
             newUser.UpdatedTime = null;
-
-            _userRepository.Add(newUser);
+            bool Exists = _userRepository.RetrieveAll().Any(s => s.Name == newUser.Name);
+            if (Exists) {
+                
+            }
+                _userRepository.Add(newUser);
 
             if (model.RoleId == "Admin") 
             {
