@@ -9,8 +9,9 @@ namespace ASI.Basecode.Data.Interfaces
 {
     public interface ITicketRepository
     {
+        // autofill the interface with the methods from the repository
         IQueryable<Ticket> GetAll();
-        IQueryable<Ticket> GetTickets(string type);
+        IQueryable<Ticket> GetTickets(string type, List<string> assignedTicketIds);
         string Add(Ticket ticket);
         string Update(Ticket ticket);
         void Delete(Ticket ticket);
@@ -19,8 +20,8 @@ namespace ASI.Basecode.Data.Interfaces
         void AssignTicket(TicketAssignment assignment);
         void RemoveAssignment(TicketAssignment assignment);
         Ticket FindById(string id);
-        Attachment FindAttachmentByTicketId(string id);
         Attachment FindAttachmentById(string id);
+        Attachment FindAttachmentByTicketId(string id);
         TicketAssignment FindAssignmentByTicketId(string id);
         Team FindTeamByUserId(string id);
         User FindAgentByUserId(string id);
