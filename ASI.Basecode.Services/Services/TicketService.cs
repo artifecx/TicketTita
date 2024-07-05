@@ -161,9 +161,12 @@ namespace ASI.Basecode.Services.Services
             tickets.ForEach(ticket => SetNavigationProperties(ticket));
 
             var ticketViewModels = _mapper.Map<IEnumerable<TicketViewModel>>(tickets).ToList();
-            ticketViewModels.ForEach(ticket => ticket.Attachment = GetAttachmentByTicketId(ticket.TicketId));
-            ticketViewModels.ForEach(ticket => ticket.TicketAssignment = GetAssignmentByTicketId(ticket.TicketId));
-            ticketViewModels.ForEach(ticket => ticket.Agent = GetAgentById(ExtractAgentId(ticket.TicketAssignment?.AssignmentId)));
+            foreach(var t in ticketViewModels)
+            {
+                t.Attachment = GetAttachmentByTicketId(t.TicketId);
+                t.TicketAssignment = GetAssignmentByTicketId(t.TicketId);
+                t.Agent = GetAgentById(ExtractAgentId(t.TicketAssignment?.AssignmentId));
+            }
 
             return ticketViewModels;
         }
