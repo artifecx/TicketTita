@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ASI.Basecode.WebApp.Controllers
@@ -43,12 +44,15 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult Index()
         {
             var data = _knowledgeBaseService.RetrieveAll();
+            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
             return View(data);
         }
 
-        public IActionResult Search(string searchTerm)
+        [HttpGet]
+        public IActionResult Search(string searchTerm, List<string> selectedCategories)
         {
-            var articles = _knowledgeBaseService.SearchArticles(searchTerm);
+            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories);
+            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
             return View("Index", articles);
         }
 

@@ -114,13 +114,18 @@ namespace ASI.Basecode.Data.Repositories
             return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
         }
 
-        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm)
+        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories)
         {
             var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
 
-            if(!string.IsNullOrEmpty(searchTerm))
+            if (!string.IsNullOrEmpty(searchTerm))
             {
                 articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
+            }
+
+            if (selectedCategories != null && selectedCategories.Any())
+            {
+                articles = articles.Where(x => selectedCategories.Contains(x.CategoryId));
             }
 
             foreach (KnowledgeBaseArticle article in articles)
