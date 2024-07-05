@@ -164,7 +164,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult PostCreate(UserViewModel model)
         {
-            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name);
+            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name || s.Email == model.Email);
             if (Exists) {
                 TempData["DuplicateErr"] = "Duplicate Data";
                 return RedirectToAction("Create", model);
@@ -184,8 +184,15 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult PostUpdate(UserViewModel model)
         {
-            _userService.Update(model);
-             return RedirectToAction("Index");
+            // Check if another user exists with the same name or email, excluding the current user
+            bool Exists = _userService.RetrieveAll().Any(s => (s.Name == model.Name || s.Email == model.Email) && s.UserId != model.UserId);
+            if (Exists)
+            {
+                TempData["DuplicateErr"] = "A user with the same name or email already exists.";
+                return RedirectToAction("Update", new { SelectedUserId = model.UserId });
+            }
+
+            return RedirectToAction("Index");
         }
 
         /// <summary>
