@@ -1,0 +1,101 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace ASI.Basecode.Data.Migrations
+{
+    public partial class AddDefaultValues : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.InsertData(
+                table: "Admin",
+                columns: new[] { "admin_ID", "name", "email", "password", "isSuper" },
+                values: new object[] { "D56F556E-50A4-4240-A0FF-9A6898B3A03B", "Joel", "joel@example.com", "securepassword", true }
+            );
+
+            migrationBuilder.InsertData(
+                table: "Role",
+                columns: new[] { "role_ID", "roleName", "description" },
+                values: new object[,]
+                {
+                    { "Admin", "Admin", "Administrator with full access to the system" },
+                    { "Support Agent", "Support Agent", "Support agent with access to help desk functionalities" },
+                    { "Employee", "Employee", "Employee with basic access to the system" }
+                } 
+            );
+
+            migrationBuilder.InsertData(
+                table: "User",
+                columns: new[] { "user_ID", "name", "email", "password", "role_ID", "createdBy", "createdTime", "updatedTime", "updatedBy" },
+                values: new object[,] 
+                {
+                    { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", "Admin", 
+                        "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
+                    { "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", "Agent A", "agenta@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
+                        "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
+                    { "71e6123f-641d-42fe-937f-07a5cd27977f", "Agent B", "agentb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
+                        "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" }
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "PriorityType",
+                columns: new[] { "priorityType_ID", "priorityName", "description" },
+                values: new object[,] 
+                { 
+                    { "1", "Low", "Ticket with low priority." },
+                    { "2", "Medium", "Ticket with medium priority." },
+                    { "3", "High", "Ticket with high priority." },
+                    { "4", "Severe", "Ticket with the highest priority." },
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "StatusType",
+                columns: new[] { "statusType_ID", "statusName", "description" },
+                values: new object[,]
+                {
+                    { "1", "Open", "Ticket is open." },
+                    { "2", "In Progress", "Ticket is in progress." },
+                    { "3", "Resolved", "Ticket is marked as resolved." },
+                    { "4", "Closed", "Ticket is closed with or without resolution." },
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "CategoryType",
+                columns: new[] { "categoryType_ID", "categoryName", "description" },
+                values: new object[,]
+                {
+                    { "1", "Software", "Software related issues." },
+                    { "2", "Hardware", "Hardware related issues." },
+                    { "3", "Network", "Network related issues." },
+                    { "4", "Account", "Account related issues." },
+                    { "5", "Other", "Other issues not categorized." }
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "Team",
+                columns: new[] { "team_ID", "name", "description" },
+                values: new object[,]
+                {
+                    { "33e3e490-cf80-428b-b1d6-67c3455ac462", "A-Team", "Amazing team." },
+                    { "0ee1f465-9b7d-4199-b384-121990d92f9d", "B-Team", "Bmazing team." }
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "TeamMember",
+                columns: new[] { "team_ID", "user_ID", "report_ID" },
+                values: new object[,]
+                {
+                    { "33e3e490-cf80-428b-b1d6-67c3455ac462", "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", null },
+                    { "0ee1f465-9b7d-4199-b384-121990d92f9d", "71e6123f-641d-42fe-937f-07a5cd27977f", null }
+                }
+            );
+        }
+    }
+}

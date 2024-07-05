@@ -14,17 +14,18 @@ namespace ASI.Basecode.Services.ServiceModels
     /// </summary>
     public class TicketViewModel
     {
+        #region Ticket Properties
         /// <summary>The ticket identifier.</summary>
         [Display(Name = "Ticket ID")]
         public string TicketId { get; set; }
 
-        /// <summary>The subject.</summary>
+        /// <summary>The ticket subject.</summary>
         [Display(Name = "Subject")]
-        [StringLength(60)]
+        [StringLength(100)]
         [Required(ErrorMessage = "Subject is required.")]
         public string Subject { get; set; }
 
-        /// <summary>The issue description.</summary>
+        /// <summary>The ticket issue description.</summary>
         [Display(Name = "Description")]
         [StringLength(800)]
         [Required(ErrorMessage = "Description is required.")]
@@ -57,38 +58,57 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Date Resolved")]
         public DateTime? ResolvedDate { get; set; }
 
+        /// <summary>The user identifier for who submitted the ticket.</summary>
+        [Display(Name = "Submitted by")]
+        public string UserId { get; set; }
+        #endregion
 
-        /// <summary>The category the ticket has</summary>
-        [Display(Name = "Category")]
-        public CategoryType CategoryType { get; set; }
 
-        /// <summary>The priority the ticket has</summary>
-        [Display(Name = "Priority")]
-        public PriorityType PriorityType { get; set; }
+        #region Relationships        
+        /// <summary>The agent assigned to the ticket.</summary>
+        [Display(Name = "Assignee")]
+        public User Agent { get; set; }
 
-        /// <summary>The status the ticket has</summary>
-        [Display(Name = "Status")]
-        public StatusType StatusType { get; set; }
-
-        /// <summary>The files uploaded taken when create/edit is submitted.</summary>
-        [Display(Name = "File")]
-        public IFormFile File { get; set; }
+        /// <summary>Holds the ticket assignment values.</summary>
+        [Display(Name = "Ticket Assignee")]
+        public TicketAssignment TicketAssignment { get; set; }
 
         /// <summary>The file attachment.</summary>
         [Display(Name = "Attachment")]
         public Attachment Attachment { get; set; }
 
+        /// <summary>The file uploaded taken when create/edit is submitted.</summary>
+        [Display(Name = "File")]
+        public IFormFile File { get; set; }
+        #endregion
 
-        /// <summary>List of tickets to populate the dropdown</summary>
+
+        #region Navigation Properties for Foreign Keys
+        [Display(Name = "Category")]
+        public CategoryType CategoryType { get; set; }
+
+        [Display(Name = "Priority")]
+        public PriorityType PriorityType { get; set; }
+
+        [Display(Name = "Status")]
+        public StatusType StatusType { get; set; }
+
+        [Display(Name = "User")]
+        public User User { get; set; }
+        #endregion
+
+
+        #region Dropdown Population
+        [Display(Name = "Support Agents")]
+        public IEnumerable<User> Agents { get; set; }
+
         public IEnumerable<TicketViewModel> Tickets { get; set; }
 
-        /// <summary>List of category types to populate the dropdown</summary>
         public IEnumerable<CategoryType> CategoryTypes { get; set; }
 
-        /// <summary>List of priority types to populate the dropdown</summary>
         public IEnumerable<PriorityType> PriorityTypes { get; set; }
 
-        /// <summary>List of status types to populate the dropdown</summary>
         public IEnumerable<StatusType> StatusTypes { get; set; }
+        #endregion
     }
 }

@@ -10,9 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.DotNet.Scaffolding.Shared.Project;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Serilog.Parsing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,8 +22,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Sockets;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using static ASI.Basecode.Resources.Constants.Enums;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
@@ -30,15 +34,15 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly ITicketService _ticketService;
 
         /// <summary>
-        /// Initializes a new instance of TicketController
+        /// Initializes a new instance of the <see cref="TicketController"/> class.
         /// </summary>
-        /// <param name="signInManager">The sign in manager.</param>
-        /// <param name="localizer">The localizer.</param>
-        /// <param name="userService">The user service.</param>
         /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="configuration">The configuration.</param>
         /// <param name="mapper">The mapper.</param>
+        /// <param name="ticketService">The ticket service.</param>
+        /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
+        /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
         public TicketController(
                             IHttpContextAccessor httpContextAccessor,
                             ILoggerFactory loggerFactory,
@@ -51,100 +55,67 @@ namespace ASI.Basecode.WebApp.Controllers
             this._ticketService = ticketService;
         }
 
-        /// <summary>
-        /// Show all tickets
-        /// </summary>
+        #region GET Methods
+        /// <summary>Show all tickets</summary>
         public IActionResult ViewAll()
         {
-            var data = _ticketService.GetAll();
-            foreach (var d in data)
+            return HandleException(() =>
             {
-                d.Attachment = _ticketService.GetAttachmentByTicketId(d.TicketId);
-            }
-            return View(data);
+                var tickets = _ticketService.GetAll().ToList();
+                return View(tickets);
+            }, "ViewAll");
         }
 
         /// <summary>
         /// Show ticket details by id
         /// </summary>
         /// <param name="id">Ticket identifier.</param>
-        //[Authorize]
         [HttpGet]
         public IActionResult ViewTicket(string id)
         {
-            var ticket = _ticketService.GetTicketById(id);
-            if (ticket == null)
+            return HandleException(() =>
             {
-                return RedirectToAction("ViewAll");
-            }
-            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
-            return View(ticket);
+                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
+                var ticket = _ticketService.GetTicketById(id);
+                if (ticket == null) return RedirectToAction("ViewAll");
+                return View(ticket);
+            }, "ViewTicket");
         }
 
-        /// <summary>
-        /// Get method for creating tickets
-        /// Initialize the model with category, priority and status types
-        /// </summary>
-        //[Authorize]
+        /// <summary>Get method for creating tickets</summary>
         [HttpGet]
-        public IActionResult Create()
-        {
-            var model = new TicketViewModel
-            {
-                CategoryTypes = _ticketService.GetCategoryTypes(),
-                PriorityTypes = _ticketService.GetPriorityTypes(),
-                StatusTypes = _ticketService.GetStatusTypes()
-            };
-            return View(model);
-        }
+        public IActionResult Create() => HandleException(() => View(_ticketService.InitializeModel("default")), "Create");
+
+        /// <summary>Get method for updating status</summary>
+        [HttpGet]
+        public IActionResult UpdateStatus() => HandleException(() => View(_ticketService.InitializeModel("status")), "UpdateStatus");
+
+        /// <summary>Get method for updating priority</summary>
+        [HttpGet]
+        public IActionResult UpdatePriority() => HandleException(() => View(_ticketService.InitializeModel("default")), "UpdatePriority");
+
+        /// <summary>Get method for adding ticket assignee</summary>
+        [HttpGet]
+        public IActionResult AssignTicket() => HandleException(() => View(_ticketService.InitializeModel("assign")), "AssignTicket");
+
+        /// <summary>Get method for reassigning ticket assignee</summary>
+        [HttpGet]
+        public IActionResult ReassignTicket() => HandleException(() => View(_ticketService.InitializeModel("reassign")), "ReassignTicket");
 
         /// <summary>
         /// Get method for editing tickets
-        /// Initialize the ticket with category, priority and status types
         /// </summary>
         /// <param name="id">Ticket identifier.</param>
-        //[Authorize]
         [HttpGet]
         public IActionResult Edit(string id)
         {
-            var ticket = _ticketService.GetTicketById(id);
-            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
-            ticket.PriorityTypes = _ticketService.GetPriorityTypes();
-            ticket.StatusTypes = _ticketService.GetStatusTypes();
-            ticket.CategoryTypes = _ticketService.GetCategoryTypes();
-            return View(ticket);
-        }
-
-        /// <summary>
-        /// Get method for updating status
-        /// </summary>
-        [HttpGet]
-        public IActionResult UpdateStatus()
-        {
-            var model = new TicketViewModel
+            return HandleException(() =>
             {
-                Tickets = _ticketService.GetAll(),
-                CategoryTypes = _ticketService.GetCategoryTypes(),
-                PriorityTypes = _ticketService.GetPriorityTypes(),
-                StatusTypes = _ticketService.GetStatusTypes()
-            };
-            return View(model);
-        }
-
-        /// <summary>
-        /// Get method for updating priority 
-        /// </summary>
-        [HttpGet]
-        public IActionResult UpdatePriority()
-        {
-            var model = new TicketViewModel
-            {
-                Tickets = _ticketService.GetAll(),
-                CategoryTypes = _ticketService.GetCategoryTypes(),
-                PriorityTypes = _ticketService.GetPriorityTypes(),
-                StatusTypes = _ticketService.GetStatusTypes()
-            };
-            return View(model);
+                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
+                var ticket = _ticketService.GetTicketById(id);
+                if (ticket == null) return RedirectToAction("ViewAll");
+                return View(ticket);
+            }, "Edit");
         }
 
         /// <summary>
@@ -154,179 +125,136 @@ namespace ASI.Basecode.WebApp.Controllers
         [HttpGet]
         public IActionResult Delete(string id)
         {
-            var ticket = _ticketService.GetTicketById(id);
-            ticket.Attachment = _ticketService.GetAttachmentByTicketId(id);
-            return View(ticket);
-        }
-
-        /// <summary>
-        /// Create a new ticket
-        /// </summary>
-        /// <returns>Redirect to view all tickets</returns>
-        /// Accessible only by client
-        [HttpPost]
-        public IActionResult Create(TicketViewModel model)
-        {
-            if (model.File != null && model.File.Length > 0)
+            return HandleException(() =>
             {
-                using (var stream = new MemoryStream())
-                {
-                    model.File.CopyTo(stream);
-                    var attachment = new Data.Models.Attachment
-                    {
-                        AttachmentId = Guid.NewGuid().ToString(),
-                        Name = model.File.FileName,
-                        Content = stream.ToArray(),
-                        Type = model.File.ContentType,
-                        UploadedDate = DateTime.Now
-                    };
-                    model.Attachment = attachment;
-                }
-            }
-            string id = _ticketService.Add(model);
-
-            if (model.Attachment != null)
-            {
-                model.Attachment.TicketId = id;
-                _ticketService.AddAttachment(model.Attachment);
-            }
-
-            return RedirectToAction("ViewAll");
-        }
-
-        /// <summary>
-        /// Edit an existing ticket
-        /// </summary>
-        /// <param name="model">the ticket</param>
-        /// <returns>Redirect to details of edited ticket</returns>
-        /// Accessible only by client
-        [HttpPost]
-        public IActionResult Edit(TicketViewModel model)
-        {
-            if (model.File != null && model.File.Length > 0)
-            {
-                using (var stream = new MemoryStream())
-                {
-                    model.File.CopyTo(stream);
-                    var attachment = new Data.Models.Attachment
-                    {
-                        AttachmentId = Guid.NewGuid().ToString(),
-                        Name = model.File.FileName,
-                        Content = stream.ToArray(),
-                        Type = model.File.ContentType,
-                        UploadedDate = DateTime.Now
-                    };
-
-                    model.Attachment = attachment;
-                }
-
-            }
-            string id = _ticketService.Update(model);
-
-            if (model.File != null)
-            {
-                model.Attachment.TicketId = id;
-                _ticketService.AddAttachment(model.Attachment);
-            }
-
-            return RedirectToAction("ViewAll");
-        }
-
-        /// <summary>
-        /// Updates the ticket status.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>Redirect to ticket details screen</returns>
-        [HttpPost]
-        public IActionResult UpdateStatus(TicketViewModel model)
-        {
-            var ticket = _ticketService.GetTicketById(model.TicketId);
-            if (ticket == null)
-            {
-                return RedirectToAction("UpdateStatus");
-            }
-
-            ticket.StatusTypeId = model.StatusTypeId;
-            _ticketService.Update(ticket);
-
-            return RedirectToAction("ViewTicket", new { id = model.TicketId });
-        }
-
-        /// <summary>
-        /// Updates the ticket priority.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>Redirect to ticket details screen</returns>
-        [HttpPost]
-        public IActionResult UpdatePriority(TicketViewModel model)
-        {
-            var ticket = _ticketService.GetTicketById(model.TicketId);
-            if (ticket == null)
-            {
-                return RedirectToAction("UpdatePriority");
-            }
-
-            ticket.PriorityTypeId = model.PriorityTypeId;
-            _ticketService.Update(ticket);
-
-            return RedirectToAction("ViewTicket", new { id = model.TicketId });
-        }
-
-        /// <summary>
-        /// Delete an existing ticket
-        /// </summary>
-        /// <param name="model">the ticket</param>
-        /// <returns>Redirect to view all tickets</returns>
-        /// Accessible only by client
-        [HttpPost]
-        public IActionResult Delete(TicketViewModel model)
-        {
-            _ticketService.Delete(model.TicketId);
-            return RedirectToAction("ViewAll");
+                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
+                var ticket = _ticketService.GetTicketById(id);
+                if (ticket == null) return RedirectToAction("ViewAll");
+                return View(ticket);
+            }, "Delete");
         }
 
         /// <summary>
         /// Gets the ticket details.
         /// </summary>
         /// <param name="id">The identifier.</param>
-        /// <returns>json containing ticket details</returns>
+        /// <returns>Json containing ticket details</returns>
         [HttpGet]
         public JsonResult GetTicketDetails(string id)
         {
-            var ticket = _ticketService.GetTicketById(id);
-            if (ticket == null)
+            return HandleException(() =>
             {
-                return Json(null);
-            }
-
-            var ticketDetails = new
-            {
-                ticket.TicketId,
-                ticket.Subject,
-                ticket.IssueDescription,
-                ticket.StatusTypeId,
-                ticket.CategoryTypeId,
-                ticket.PriorityTypeId
-            };
-
-            return Json(ticketDetails);
+                if (string.IsNullOrEmpty(id)) return Json(null);
+                var ticketDetails = _ticketService.GetTicketDetails(id);
+                if (ticketDetails == null) return Json(null);
+                return Json(ticketDetails);
+            }, "GetTicketDetails");
         }
 
         /// <summary>
         /// Downloads the attachment.
         /// </summary>
         /// <param name="id">The ticket identifier.</param>
-        /// <returns>the file</returns>
+        /// <returns>The file</returns>
+        [HttpGet]
         public FileResult DownloadAttachment(string id)
         {
-            var attachment = _ticketService.GetAttachmentByTicketId(id);
-            if (attachment != null && attachment.Content != null)
+            return HandleException(() =>
             {
+                if (string.IsNullOrEmpty(id)) return null;
+                var attachment = _ticketService.GetAttachmentByTicketId(id);
+                if (attachment == null) return null;
                 return File(attachment.Content, "application/octet-stream", attachment.Name);
-            }
+            }, "DownloadAttachment");
+        }
+        #endregion GET Methods
 
-            // TODO: change to proper return type
-            return null;
+        #region POST Methods
+        /// <summary>
+        /// Create a new ticket
+        /// </summary>
+        /// <returns>View all tickets screen</returns>
+        [HttpPost]
+        public IActionResult Create(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                if (string.IsNullOrEmpty(userId)) return RedirectToAction("ViewAll");
+
+                _ticketService.Add(model, userId);
+                return RedirectToAction("ViewAll");
+            }, "Create");
+        }
+
+        /// <summary>
+        /// Edit an existing ticket
+        /// </summary>
+        /// <param name="model">the ticket</param>
+        /// <returns>View all tickets screen</returns>
+        [HttpPost]
+        public IActionResult Edit(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                if (model == null) return RedirectToAction("ViewAll");
+                _ticketService.Update(model);
+                return RedirectToAction("ViewAll");
+            }, "Edit");
+        }
+
+        /// <summary>
+        /// Updates the ticket status.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Ticket details screen</returns>
+        [HttpPost]
+        public IActionResult UpdateStatus(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                var ticket = _ticketService.GetTicketById(model.TicketId);
+                if (ticket == null) return RedirectToAction("ViewAll");
+
+                ticket.StatusTypeId = model.StatusTypeId;
+                _ticketService.Update(ticket);
+                return RedirectToAction("ViewTicket", new { id = model.TicketId });
+            }, "UpdateStatus");
+        }
+
+        /// <summary>
+        /// Updates the ticket priority.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Ticket details screen</returns>
+        [HttpPost]
+        public IActionResult UpdatePriority(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                var ticket = _ticketService.GetTicketById(model.TicketId);
+                if (ticket == null) return RedirectToAction("ViewAll");
+
+                ticket.PriorityTypeId = model.PriorityTypeId;
+                _ticketService.Update(ticket);
+                return RedirectToAction("ViewTicket", new { id = model.TicketId });
+            }, "UpdatePriority");
+        }
+
+        /// <summary>
+        /// Delete an existing ticket
+        /// </summary>
+        /// <param name="model">the ticket</param>
+        /// <returns>View all tickets screen</returns>
+        [HttpPost]
+        public IActionResult Delete(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                if (string.IsNullOrEmpty(model.TicketId)) return RedirectToAction("ViewAll");
+                _ticketService.Delete(model.TicketId);
+                return RedirectToAction("ViewAll");
+            }, "Delete");
         }
 
         /// <summary>
@@ -334,18 +262,62 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <param name="ticketId">The ticket identifier.</param>
         /// <param name="attachmentId">The attachment identifier.</param>
-        /// <returns>the edit ticket screen</returns>
+        /// <returns>Edit ticket screen</returns>
         [HttpPost]
         public IActionResult RemoveAttachment(string ticketId, string attachmentId)
         {
-            var ticket = _ticketService.GetTicketById(ticketId);
-            if (attachmentId != null && ticket != null)
+            return HandleException(() =>
             {
+                if (string.IsNullOrEmpty(ticketId) || string.IsNullOrEmpty(attachmentId)) return RedirectToAction("ViewAll");
+                var ticket = _ticketService.GetTicketById(ticketId);
+                if (ticket == null) return RedirectToAction("ViewAll");
+
                 _ticketService.RemoveAttachment(attachmentId);
                 ticket.Attachment = null;
                 _ticketService.Update(ticket);
-            }
-            return RedirectToAction("Edit", new { id = ticketId });
+                return RedirectToAction("Edit", new { id = ticketId });
+            }, "RemoveAttachment");
         }
+
+        /// <summary>
+        /// Assigns the ticket.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Ticket details screen</returns>
+        [HttpPost]
+        public IActionResult AssignTicket(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                if (model == null || model.Agent == null) return RedirectToAction("ViewAll");
+                _ticketService.AddTicketAssignment(model);
+                return RedirectToAction("ViewTicket", new { id = model.TicketId });
+            }, "AssignTicket");
+        }
+
+        /// <summary>
+        /// Reassigns the ticket.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Ticket details screen</returns>
+        [HttpPost]
+        public IActionResult ReassignTicket(TicketViewModel model)
+        {
+            return HandleException(() =>
+            {
+                if (model == null) return RedirectToAction("ViewAll");
+                var assignment = _ticketService.GetAssignmentByTicketId(model.TicketId);
+                if (assignment != null && model.Agent.UserId != _ticketService.ExtractAgentId(assignment.AssignmentId))
+                {
+                    _ticketService.RemoveAssignment(assignment.TicketId);
+                    if (model.Agent != null && !model.Agent.UserId.Equals("remove"))
+                    {
+                        _ticketService.AddTicketAssignment(model);
+                    }
+                }
+                return RedirectToAction("ViewTicket", new { id = model.TicketId });
+            }, "ReassignTicket");
+        }
+        #endregion POST Methods
     }
 }

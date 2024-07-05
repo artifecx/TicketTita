@@ -90,6 +90,19 @@
                 @Html.DisplayFor(model => model.ResolvedDate)
             }
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.TicketAssignment)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.TicketAssignment == null)
+            {
+                @:No Assignee
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.Agent.Name)
+            }
+        </dd>
     </dl>
 </div>
 <div>

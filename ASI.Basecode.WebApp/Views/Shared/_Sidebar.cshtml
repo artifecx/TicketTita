@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    bool isAdmin = HttpContextAccessor.HttpContext.User.IsInRole("Admin");
+}
+
+<div class="@((ViewBag.LoginView == true) ? "hide-navbar" : "") sidebar">
+    <div class="logosec hover-pointer">
+        <img src="~/img/ticketita-logo.svg"
+             style="width: 185px;" alt="logo"
+             onclick="window.location.href = '@Url.Action("Index", "Home")';">
+    </div>
+    <div class="sidebar-header mt-5 mb-2">Navigation</div>
+    <ul class="list-unstyled">
+        @if (isAdmin)
+        {
+            <li class="py-2">
+                <a asp-action="Index" asp-controller="User" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "User" ? "active" : "")">
+                    <i class="fa fa-users px-1"></i>
+                    Users
+                </a>
+            </li>
+        }
+        <li class="py-2">
+            <a asp-action="ViewAll" asp-controller="Ticket" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Ticket" ? "active" : "")">
+                <i class="fa fa-ticket px-1"></i>
+                Ticket Screen
+            </a>
+        </li>
+        <li class="py-2">
+            <a asp-controller="KnowledgeBase" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "KnowledgeBase" ? "active" : "")">
+                <i class="fa fa-book px-1"></i>
+                Articles
+            </a>
+        </li>
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var links = document.querySelectorAll('.sidebar li a');
+        links.forEach(function (link) {
+            link.addEventListener('click', function () {
+                links.forEach(function (link) {
+                    link.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+    });
+</script>

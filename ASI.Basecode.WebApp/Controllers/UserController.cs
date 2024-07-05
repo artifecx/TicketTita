@@ -12,6 +12,7 @@ using System.Linq;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase<UserController>
     {
         private readonly IUserService _userService;
@@ -41,7 +42,11 @@ namespace ASI.Basecode.WebApp.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            var model = new UserViewModel
+            {
+                Roles = _userService.GetRoles().ToList()
+            };
+            return View(model);
         }
 
         /// <summary>
@@ -53,8 +58,8 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize(Policy = "Admin")]
         public IActionResult Update(String SelectedUserId)
         {
-            
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
+            SelectedUser.Roles = _userService.GetRoles().ToList();
             return View(SelectedUser);
         }
 
@@ -83,7 +88,6 @@ namespace ASI.Basecode.WebApp.Controllers
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
-
         #endregion
 
         #region POST Methods        
@@ -97,7 +101,14 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult PostCreate(UserViewModel model)
         {
+            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name);
+            if (Exists) {
+                TempData["DuplicateErr"] = "Duplicate Data";
+                return RedirectToAction("Create", model);
+            }
+
             _userService.Add(model);
+            TempData["CreateMessage"] = "User Added Succesfully";
             return RedirectToAction("Index");
         }
 
@@ -120,11 +131,11 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="UserId">The user identifier.</param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize]
-        public IActionResult PostDelete(String UserId)
+        [Authorize] 
+        public IActionResult PostDelete(string id)
         {
-            _userService.Delete(UserId);
-            return RedirectToAction("Index");
+            _userService.Delete(id);
+            return Json(new { success = true });
         }
 
         #endregion
