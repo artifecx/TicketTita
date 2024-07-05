@@ -2,9 +2,27 @@
 
 @{
     ViewData["Title"] = "Index";
+    string currentFilter = ViewData["CurrentFilter"] as string;
+    string sortOrder = ViewData["CurrentSort"] as string;
+    string nameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+    string emailSortParm = sortOrder == "Email" ? "email_desc" : "Email";
+    string createdBySortParm = sortOrder == "CreatedBy" ? "createdBy_desc" : "CreatedBy";
+    string createdTimeSortParm = sortOrder == "CreatedTime" ? "createdTime_desc" : "CreatedTime";
+    string updatedBySortParm = sortOrder == "UpdatedBy" ? "updatedBy_desc" : "UpdatedBy";
+    string roleSortParm = sortOrder == "Role" ? "role_desc" : "Role";
+    string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
 }
 
 <h1>Index</h1>
+
+<form method="get" asp-action="Index">
+    <div class="form-group">
+        <input type="text" name="searchString" class="form-control" placeholder="Search by name or email" value="@currentFilter" />
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a asp-action="Index" class="btn btn-secondary">Clear Filters</a>
+    </div>
+</form>
+
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -16,28 +34,42 @@
                 @Html.DisplayNameFor(model => model.UserId)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                <a asp-action="Index" asp-route-sortOrder="@nameSortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.Name)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
+                <a asp-action="Index" asp-route-sortOrder="@emailSortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.Email)
+                </a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Password)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.RoleId)
+                <a asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.RoleId)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedByName)
+                <a asp-action="Index" asp-route-sortOrder="@createdBySortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.CreatedByName)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedTime)
+                <a asp-action="Index" asp-route-sortOrder="@createdTimeSortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.CreatedTime)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedByName)
+                <a asp-action="Index" asp-route-sortOrder="@updatedBySortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.UpdatedByName)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedTime)
+                <a asp-action="Index" asp-route-sortOrder="@updatedTimeSortParm" asp-route-currentFilter="@currentFilter">
+                    @Html.DisplayNameFor(model => model.UpdatedTime)
+                </a>
             </th>
             <th></th>
         </tr>
