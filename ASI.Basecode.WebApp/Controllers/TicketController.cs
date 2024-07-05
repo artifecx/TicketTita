@@ -55,22 +55,35 @@ namespace ASI.Basecode.WebApp.Controllers
             this._ticketService = ticketService;
         }
 
-        #region GET Methods
         /// <summary>Show all tickets</summary>
+        [Authorize]
         public IActionResult ViewAll()
         {
             return HandleException(() =>
             {
                 var tickets = _ticketService.GetAll().ToList();
+                var UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                if (User.IsInRole("Employee"))
+                {
+                    tickets = tickets.Where(x => x.UserId == UserId).ToList();
+                } 
+                else if(User.IsInRole("Support Agent"))
+                {
+                    tickets = tickets.Where(x => x.Agent?.UserId == UserId).ToList();
+                }
+                
                 return View(tickets);
             }, "ViewAll");
         }
 
+        #region GET Methods
         /// <summary>
         /// Show ticket details by id
         /// </summary>
         /// <param name="id">Ticket identifier.</param>
         [HttpGet]
+        [Authorize]
         public IActionResult ViewTicket(string id)
         {
             return HandleException(() =>
@@ -84,22 +97,27 @@ namespace ASI.Basecode.WebApp.Controllers
 
         /// <summary>Get method for creating tickets</summary>
         [HttpGet]
+        [Authorize(Policy = "Employee")]
         public IActionResult Create() => HandleException(() => View(_ticketService.InitializeModel("default")), "Create");
 
         /// <summary>Get method for updating status</summary>
         [HttpGet]
+        [Authorize]
         public IActionResult UpdateStatus() => HandleException(() => View(_ticketService.InitializeModel("status")), "UpdateStatus");
 
         /// <summary>Get method for updating priority</summary>
         [HttpGet]
+        [Authorize(Policy = "AdminOrAgent")]
         public IActionResult UpdatePriority() => HandleException(() => View(_ticketService.InitializeModel("default")), "UpdatePriority");
 
         /// <summary>Get method for adding ticket assignee</summary>
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public IActionResult AssignTicket() => HandleException(() => View(_ticketService.InitializeModel("assign")), "AssignTicket");
 
         /// <summary>Get method for reassigning ticket assignee</summary>
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public IActionResult ReassignTicket() => HandleException(() => View(_ticketService.InitializeModel("reassign")), "ReassignTicket");
 
         /// <summary>
@@ -107,6 +125,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <param name="id">Ticket identifier.</param>
         [HttpGet]
+        [Authorize(Policy = "Employee")]
         public IActionResult Edit(string id)
         {
             return HandleException(() =>
@@ -119,27 +138,12 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         /// <summary>
-        /// Get method for deleting tickets
-        /// </summary>
-        /// <param name="id">Ticket identifier.</param>
-        [HttpGet]
-        public IActionResult Delete(string id)
-        {
-            return HandleException(() =>
-            {
-                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
-                var ticket = _ticketService.GetTicketById(id);
-                if (ticket == null) return RedirectToAction("ViewAll");
-                return View(ticket);
-            }, "Delete");
-        }
-
-        /// <summary>
         /// Gets the ticket details.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <returns>Json containing ticket details</returns>
         [HttpGet]
+        [Authorize]
         public JsonResult GetTicketDetails(string id)
         {
             return HandleException(() =>
@@ -157,6 +161,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="id">The ticket identifier.</param>
         /// <returns>The file</returns>
         [HttpGet]
+        [Authorize]
         public FileResult DownloadAttachment(string id)
         {
             return HandleException(() =>
@@ -175,6 +180,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns>View all tickets screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult Create(TicketViewModel model)
         {
             return HandleException(() =>
@@ -183,6 +189,8 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (string.IsNullOrEmpty(userId)) return RedirectToAction("ViewAll");
 
                 _ticketService.Add(model, userId);
+
+                TempData["CreateMessage"] = "Created Successfully";
                 return RedirectToAction("ViewAll");
             }, "Create");
         }
@@ -193,6 +201,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="model">the ticket</param>
         /// <returns>View all tickets screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult Edit(TicketViewModel model)
         {
             return HandleException(() =>
@@ -209,6 +218,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="model">The model.</param>
         /// <returns>Ticket details screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult UpdateStatus(TicketViewModel model)
         {
             return HandleException(() =>
@@ -228,6 +238,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="model">The model.</param>
         /// <returns>Ticket details screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult UpdatePriority(TicketViewModel model)
         {
             return HandleException(() =>
@@ -245,15 +256,16 @@ namespace ASI.Basecode.WebApp.Controllers
         /// Delete an existing ticket
         /// </summary>
         /// <param name="model">the ticket</param>
-        /// <returns>View all tickets screen</returns>
+        /// <returns>Deletion success status (bool)</returns>
         [HttpPost]
-        public IActionResult Delete(TicketViewModel model)
+        [Authorize]
+        public IActionResult Delete(string id)
         {
             return HandleException(() =>
             {
-                if (string.IsNullOrEmpty(model.TicketId)) return RedirectToAction("ViewAll");
-                _ticketService.Delete(model.TicketId);
-                return RedirectToAction("ViewAll");
+                if (string.IsNullOrEmpty(id)) return Json(new { success = false });
+                _ticketService.Delete(id);
+                return Json(new { success = true });
             }, "Delete");
         }
 
@@ -264,6 +276,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="attachmentId">The attachment identifier.</param>
         /// <returns>Edit ticket screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult RemoveAttachment(string ticketId, string attachmentId)
         {
             return HandleException(() =>
@@ -285,6 +298,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="model">The model.</param>
         /// <returns>Ticket details screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult AssignTicket(TicketViewModel model)
         {
             return HandleException(() =>
@@ -301,6 +315,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="model">The model.</param>
         /// <returns>Ticket details screen</returns>
         [HttpPost]
+        [Authorize]
         public IActionResult ReassignTicket(TicketViewModel model)
         {
             return HandleException(() =>

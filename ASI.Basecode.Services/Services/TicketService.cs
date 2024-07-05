@@ -162,6 +162,8 @@ namespace ASI.Basecode.Services.Services
 
             var ticketViewModels = _mapper.Map<IEnumerable<TicketViewModel>>(tickets).ToList();
             ticketViewModels.ForEach(ticket => ticket.Attachment = GetAttachmentByTicketId(ticket.TicketId));
+            ticketViewModels.ForEach(ticket => ticket.TicketAssignment = GetAssignmentByTicketId(ticket.TicketId));
+            ticketViewModels.ForEach(ticket => ticket.Agent = GetAgentById(ExtractAgentId(ticket.TicketAssignment?.AssignmentId)));
 
             return ticketViewModels;
         }
