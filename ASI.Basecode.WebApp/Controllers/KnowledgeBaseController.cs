@@ -46,6 +46,12 @@ namespace ASI.Basecode.WebApp.Controllers
             return View(data);
         }
 
+        public IActionResult Search(string searchTerm)
+        {
+            var articles = _knowledgeBaseService.SearchArticles(searchTerm);
+            return View("Index", articles);
+        }
+
         /// <summary>
         /// Return Create View
         /// </summary>

@@ -71,5 +71,11 @@ namespace ASI.Basecode.Services.Services
         {
             return _knowledgeBaseRepository.GetArticleCategories();
         }
+
+        public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm)
+        {
+            var articles = _knowledgeBaseRepository.SearchArticles(searchTerm);
+            return _mapper.Map<IEnumerable<KnowledgeBaseViewModel>>(articles);
+        }
     }
 }

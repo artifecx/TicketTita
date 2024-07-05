@@ -91,8 +91,11 @@ namespace ASI.Basecode.Data.Repositories
 
         public KnowledgeBaseArticle FindArticleById(string id)
         {
-            var article = this.GetDbSet<KnowledgeBaseArticle>().Where(x => x.ArticleId == id).FirstOrDefault();
-            article.Author = FindUserById(article.AuthorId);
+            var article = this.GetDbSet<KnowledgeBaseArticle>().Where(x => x.ArticleId.Equals(id)).FirstOrDefault();
+            if (article != null)
+            {
+                article.Author = FindUserById(article.AuthorId);
+            }
             return article;
         }
 
@@ -109,6 +112,24 @@ namespace ASI.Basecode.Data.Repositories
         public User FindUserById(string id)
         {
             return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
+        }
+
+        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm)
+        {
+            var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
+
+            if(!string.IsNullOrEmpty(searchTerm))
+            {
+                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
+            }
+
+            foreach (KnowledgeBaseArticle article in articles)
+            {
+                article.Category = _categories.Single(x => x.CategoryId == article.CategoryId);
+                article.Author = FindUserById(article.AuthorId);
+            }
+
+            return articles;
         }
 
         #region Assign Article Properties
