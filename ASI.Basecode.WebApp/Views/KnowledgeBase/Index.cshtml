@@ -12,15 +12,25 @@
 </p>
 
 <form asp-action="Search" method="get">
-    <input type="text" name="searchTerm" placeholder="Search Articles..."/>
-        <select id="categories" name="selectedCategories" multiple="multiple">
-            @foreach (var category in ViewBag.Categories as IEnumerable<ArticleCategory>)
-            {
-                <option value="@category.CategoryId">@category.CategoryName</option>
-            }
-        </select>
+    <input type="text" name="searchTerm" placeholder="Search Articles..." />
+    <select id="categories" name="selectedCategories" multiple="multiple">
+        @foreach (var category in ViewBag.Categories as IEnumerable<ArticleCategory>)
+        {
+            <option value="@category.CategoryId">@category.CategoryName</option>
+        }
+    </select>
+    <select name="sortBy">
+        <option value="CreatedDate" selected="@(ViewBag.SortBy == "CreatedDate" ? "selected" : null)">Created Date</option>
+        <option value="UpdatedDate" selected="@(ViewBag.SortBy == "UpdatedDate" ? "selected" : null)">Updated Date</option>
+        <option value="Title" selected="@(ViewBag.SortBy == "Title" ? "selected" : null)">Title</option>
+    </select>
+    <select name="sortOrder">
+        <option value="asc" selected="@(ViewBag.SortOrder == "asc" ? "selected" : null)">Ascending</option>
+        <option value="desc" selected="@(ViewBag.SortOrder == "desc" ? "selected" : null)">Descending</option>
+    </select>
     <button type="submit">Search</button>
 </form>
+    
 
 <table class="table">
     <thead>

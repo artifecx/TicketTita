@@ -49,10 +49,12 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         [HttpGet]
-        public IActionResult Search(string searchTerm, List<string> selectedCategories)
+        public IActionResult Search(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder)
         {
-            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories);
+            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder);
             ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortOrder = sortOrder;
             return View("Index", articles);
         }
 

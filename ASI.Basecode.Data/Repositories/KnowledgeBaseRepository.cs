@@ -114,7 +114,7 @@ namespace ASI.Basecode.Data.Repositories
             return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
         }
 
-        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories)
+        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder)
         {
             var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
 
@@ -132,6 +132,22 @@ namespace ASI.Basecode.Data.Repositories
             {
                 article.Category = _categories.Single(x => x.CategoryId == article.CategoryId);
                 article.Author = FindUserById(article.AuthorId);
+            }
+
+            switch (sortBy)
+            {
+                case "Title":
+                    articles = sortOrder == "asc" ? articles.OrderBy(x => x.Title) : articles.OrderByDescending(x => x.Title);
+                    break;
+                case "CreatedDate":
+                    articles = sortOrder == "asc" ? articles.OrderBy(x => x.CreatedDate) : articles.OrderByDescending(x => x.CreatedDate);
+                    break;
+                case "UpdateDate":
+                    articles = sortOrder == "asc" ? articles.OrderBy(x => x.UpdatedDate) : articles.OrderByDescending(x => x.UpdatedDate);
+                    break;
+                default:
+                    articles = articles.OrderBy(a => a.CreatedDate);
+                    break;
             }
 
             return articles;

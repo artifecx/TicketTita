@@ -16,6 +16,6 @@ namespace ASI.Basecode.Services.Interfaces
         public KnowledgeBaseViewModel GetArticleById(string id);
         public IEnumerable<KnowledgeBaseViewModel> RetrieveAll();
         public IEnumerable<ArticleCategory> GetArticleCategories();
-        public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm, List<string> selectedCategories);
+        public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder);
     }
 }
