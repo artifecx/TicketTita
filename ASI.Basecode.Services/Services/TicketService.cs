@@ -59,7 +59,7 @@ namespace ASI.Basecode.Services.Services
                 AssignTicketProperties(newTicket);
 
                 string id = _repository.Add(newTicket);
-                if (ticket.File != null)
+                if (ticket.Attachment != null)
                 {
                     ticket.Attachment.TicketId = id;
                     AddAttachment(ticket.Attachment);
@@ -332,7 +332,7 @@ namespace ASI.Basecode.Services.Services
         {
             var tickets = type switch
             {
-                "status" => GetAll(),
+                "status" => GetAll().Where(ticket => !ticket.StatusType.StatusName.Contains("Resolved")),
                 "assign" => GetTicketsByAssignmentStatus("unassigned"),
                 "assigned" => GetTicketsByAssignmentStatus("reassign"),
                 _ => GetUnresolvedTickets(),
