@@ -16,5 +16,7 @@ namespace ASI.Basecode.Data.Interfaces
         KnowledgeBaseArticle FindArticleById(string id);
         ArticleCategory FindArticleCategoryById(string id);
         IQueryable<ArticleCategory> GetArticleCategories();
+        public User FindUserById(string id);
+        IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder);
     }
 }
