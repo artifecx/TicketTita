@@ -17,10 +17,10 @@
             @Html.DisplayFor(model => model.ArticleId)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryId)
+            @Html.DisplayNameFor(model => model.Category.CategoryName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoryId)
+            @Html.DisplayFor(model => model.Category.CategoryName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Title)
@@ -54,10 +54,10 @@
             }
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AuthorId)
+            @Html.DisplayNameFor(model => model.Author.Name)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AuthorId)
+            @Html.DisplayFor(model => model.Author.Name)
         </dd>
     </dl>
 </div>
