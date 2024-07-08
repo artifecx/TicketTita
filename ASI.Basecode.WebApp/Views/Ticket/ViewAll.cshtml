@@ -3,8 +3,19 @@
 @{
     ViewData["Title"] = "ViewAll";
     var baseUrl = Url.Action("ViewAll", "Ticket");
-    var deleteUrl = Url.Action("Delete", "Ticket");
-    var getData = Url.Action("GetTempData", "Ticket");
+    string sortOrder = ViewData["CurrentSort"] as string;
+
+    var sortOptions = new List<(string Value, string Text)>
+    {
+        ("status", "Status Ascending"),
+        ("status_desc", "Status Descending"),
+        ("priority", "Priority Ascending"),
+        ("priority_desc", "Priority Descending"),
+        ("category", "Category Ascending"),
+        ("category_desc", "Category Descending"),
+        ("user", "User Ascending"),
+        ("user_desc", "User Descending")
+    };
 }
 
 <h1>View All</h1>
@@ -16,6 +27,20 @@
     <a asp-action="AssignTicket">Assign</a> |
     <a asp-action="ReassignTicket">Reassign</a>
 </p>
+
+<div class="form-group">
+    <label for="sortOrder">Sort By:</label>
+    <select id="sortOrder" class="form-control" onchange="location = this.value;">
+        <option value="@baseUrl">Default</option>
+        @foreach (var option in sortOptions)
+        {
+            <option value="@($"{baseUrl}?sortOrder={option.Value}")" selected="@(option.Value == sortOrder)">
+                @option.Text
+            </option>
+        }
+    </select>
+</div>
+
 <table class="table">
     <thead>
         <tr>
