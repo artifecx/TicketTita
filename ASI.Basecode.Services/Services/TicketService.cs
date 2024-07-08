@@ -5,6 +5,7 @@ using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using LinqKit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -19,17 +20,24 @@ namespace ASI.Basecode.Services.Services
     public class TicketService : ITicketService
     {
         private readonly ITicketRepository _repository;
+        private readonly IAdminRepository _adminRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
-        public TicketService(ITicketRepository repository, IMapper mapper)
+        public TicketService(ITicketRepository repository, IAdminRepository adminRepository,
+                            IUserRepository userRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
             _repository = repository;
+            _adminRepository = adminRepository;
+            _userRepository = userRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Ticket CRUD Operations
@@ -66,22 +74,20 @@ namespace ASI.Basecode.Services.Services
             HandleAttachment(ticket);
 
             var existingTicket = _repository.FindById(ticket.TicketId);
-            if (existingTicket == null)
+            if (existingTicket != null)
             {
-                throw new ArgumentException($"Ticket with ID {ticket.TicketId} not found.");
-            }
+                ticket.UpdatedDate = DateTime.Now;
 
-            ticket.UpdatedDate = DateTime.Now; // TODO: only update if ticket properties have changed
+                _mapper.Map(ticket, existingTicket);
+                UpdateTicketDate(existingTicket);
+                SetNavigationProperties(existingTicket);
 
-            _mapper.Map(ticket, existingTicket);
-            UpdateTicketResolvedDate(existingTicket);
-            SetNavigationProperties(existingTicket);
-
-            string id = _repository.Update(existingTicket);
-            if (ticket.File != null)
-            {
-                ticket.Attachment.TicketId = id;
-                AddAttachment(ticket.Attachment);
+                string id = _repository.Update(existingTicket);
+                if (ticket.File != null)
+                {
+                    ticket.Attachment.TicketId = id;
+                    AddAttachment(ticket.Attachment);
+                }
             }
         }
 
@@ -379,7 +385,7 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="ticket"></param>
         /// <exception cref="ArgumentException"></exception>
-        private void UpdateTicketResolvedDate(Ticket ticket)
+        private void UpdateTicketDate(Ticket ticket)
         {
             var status = _repository.FindStatusById(ticket.StatusTypeId);
 
@@ -428,7 +434,7 @@ namespace ASI.Basecode.Services.Services
             ticket.CategoryType = GetCategoryTypes().Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
             ticket.PriorityType = GetPriorityTypes().Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
             ticket.StatusType = GetStatusTypes().Single(x => x.StatusTypeId == ticket.StatusTypeId);
-            // TODO: add User navigation property
+            ticket.User = _userRepository.FindById(ticket.UserId);
         }
 
         /// <summary>
@@ -442,6 +448,7 @@ namespace ASI.Basecode.Services.Services
             var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
             var randomNumber = new Random().Next(1000, 9999);
             var assignmentId = $"{model.Agent.UserId}-{timestamp}-{randomNumber}";
+            var currentAdmin = GetCurrentAdmin();
 
             return new TicketAssignment
             {
@@ -449,7 +456,7 @@ namespace ASI.Basecode.Services.Services
                 TeamId = GetTeamByUserId(model.Agent.UserId).TeamId,
                 TicketId = model.TicketId,
                 AssignedDate = DateTime.Now,
-                AdminId = "D56F556E-50A4-4240-A0FF-9A6898B3A03B" // Hardcoded due to lack of admin login
+                AdminId = currentAdmin.AdminId
             };
         }
 
@@ -471,6 +478,23 @@ namespace ASI.Basecode.Services.Services
         {
             var assignment = GetAssignmentByTicketId(id);
             if (assignment != null) _repository.RemoveAssignment(assignment);
+        }
+
+        /// <summary>
+        /// Gets the current admin.
+        /// </summary>
+        /// <returns></returns>
+        private Admin GetCurrentAdmin()
+        {
+            var claimsPrincipal = _httpContextAccessor.HttpContext.User;
+            if (claimsPrincipal == null || !claimsPrincipal.Identity.IsAuthenticated)
+                return null;
+
+            var adminId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(adminId))
+                return null;
+
+            return _adminRepository.FindById(adminId);
         }
         #endregion Utility Methods
     }

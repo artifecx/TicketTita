@@ -9,7 +9,6 @@ namespace ASI.Basecode.Data.Interfaces
 {
     public interface ITicketRepository
     {
-        // autofill the interface with the methods from the repository
         IQueryable<Ticket> GetAll();
         IQueryable<Ticket> GetTickets(string type, List<string> assignedTicketIds);
         string Add(Ticket ticket);
