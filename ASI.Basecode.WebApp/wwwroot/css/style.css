@@ -20,6 +20,7 @@
     --one-use-color: #3f0097;
     --two-use-color: #5500cb;
     --text-color-gray: #A5A1A1;
+    --text-color-white: #ffffff;
 }
 
 body {
@@ -370,4 +371,8 @@ header {
 
 .text-color-gray {
     color: var(--text-color-gray);
+}
+
+.text-color-white {
+    color: var(--text-color-white);
 }
