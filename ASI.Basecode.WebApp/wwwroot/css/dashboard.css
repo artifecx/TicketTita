@@ -1,0 +1,38 @@
+﻿.nav-title {
+    padding: 15px;
+    padding-top: 30px;
+    margin-bottom: 0;
+    border: 1px solid var(--border-color);
+}
+
+.card {
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.card-body-custom {
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+}
+
+.mt-auto-end {
+    margin-top: auto;
+    text-align: end;
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+.notification-container {
+    border-left: 1px solid var(--border-color);
+}
+
+.notification {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+a:hover {
+    color: black;
+    text-decoration: none;
+}
