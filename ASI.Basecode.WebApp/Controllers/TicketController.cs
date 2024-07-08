@@ -41,11 +41,11 @@ namespace ASI.Basecode.WebApp.Controllers
 
         /// <summary>Show all tickets</summary>
         [Authorize]
-        public IActionResult ViewAll()
+        public IActionResult ViewAll(string sortOrder)
         {
             return HandleException(() =>
             {
-                var tickets = _ticketService.GetAll().ToList();
+                var tickets = _ticketService.GetAll();
                 var UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
                 if (User.IsInRole("Employee"))
@@ -56,7 +56,39 @@ namespace ASI.Basecode.WebApp.Controllers
                 {
                     tickets = tickets.Where(x => x.Agent?.UserId == UserId).ToList();
                 }
-                
+
+                ViewData["CurrentSort"] = sortOrder;
+                switch (sortOrder)
+                {
+                    case "status_desc":
+                        tickets = tickets.OrderByDescending(t => t.StatusTypeId).ToList();
+                        break;
+                    case "status":
+                        tickets = tickets.OrderBy(t => t.StatusTypeId).ToList();
+                        break;
+                    case "priority_desc":
+                        tickets = tickets.OrderByDescending(t => t.PriorityTypeId).ToList();
+                        break;
+                    case "priority":
+                        tickets = tickets.OrderBy(t => t.PriorityTypeId).ToList();
+                        break;
+                    case "category_desc":
+                        tickets = tickets.OrderByDescending(t => t.CategoryType.CategoryName).ToList();
+                        break;
+                    case "category":
+                        tickets = tickets.OrderBy(t => t.CategoryType.CategoryName).ToList();
+                        break;
+                    case "user_desc":
+                        tickets = tickets.OrderByDescending(t => t.User.Name);
+                        break;
+                    case "user":
+                        tickets = tickets.OrderBy(t => t.User.Name);
+                        break;
+                    default:
+                        tickets = tickets.OrderBy(t => t.TicketId);
+                        break;
+                }
+
                 return View(tickets);
             }, "ViewAll");
         }
