@@ -41,21 +41,23 @@ namespace ASI.Basecode.WebApp.Controllers
         /// Returns Sample Crud View.
         /// </summary>
         /// <returns> Sample Crud View </returns>
-        public IActionResult Index()
-        {
-            var data = _knowledgeBaseService.RetrieveAll();
-            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
-            return View(data);
-        }
-
         [HttpGet]
-        public IActionResult Search(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder)
+        public IActionResult Index(string searchTerm, List<string> selectedCategories, string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1)
         {
-            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder);
-            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
+            int pageSize = 10;
+
+            var totalArticlesCount = _knowledgeBaseService.CountArticles(searchTerm, selectedCategories);
+            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder, pageNumber, pageSize);
+
+            var viewModel = new PaginatedList<KnowledgeBaseViewModel>(articles, totalArticlesCount, pageNumber, pageSize);
+
+            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories();
             ViewBag.SortBy = sortBy;
             ViewBag.SortOrder = sortOrder;
-            return View("Index", articles);
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.SelectedCategories = selectedCategories;
+
+            return View(viewModel);
         }
 
         /// <summary>
