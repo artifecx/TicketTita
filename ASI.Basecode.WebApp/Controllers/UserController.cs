@@ -25,14 +25,77 @@ namespace ASI.Basecode.WebApp.Controllers
             _userService = userService;
         }
 
-        public IActionResult Index()
+        /// <summary>
+        /// Views all users
+        /// </summary>
+        /// <param name="sortOrder"></param>
+        /// <param name="currentFilter"></param>
+        /// <param name="searchString"></param>
+        /// <returns></returns>
+        public IActionResult Index(string sortOrder, string currentFilter, string searchString)
         {
-            var data = _userService.RetrieveAll();
-            return View(data);
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+
+            var users = _userService.RetrieveAll();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(u => u.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
+                                      || u.Email.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    users = users.OrderByDescending(u => u.Name);
+                    break;
+                case "Email":
+                    users = users.OrderBy(u => u.Email);
+                    break;
+                case "email_desc":
+                    users = users.OrderByDescending(u => u.Email);
+                    break;
+                case "CreatedBy":
+                    users = users.OrderBy(u => u.CreatedByName);
+                    break;
+                case "createdBy_desc":
+                    users = users.OrderByDescending(u => u.CreatedByName);
+                    break;
+                case "CreatedTime":
+                    users = users.OrderBy(u => u.CreatedTime);
+                    break;
+                case "Role":
+                    users = users.OrderBy(u => u.RoleId);
+                    break;
+                case "role_desc":
+                    users = users.OrderByDescending(u => u.RoleId);
+                    break;
+                case "createdTime_desc":
+                    users = users.OrderByDescending(u => u.CreatedTime);
+                    break;
+                case "UpdatedBy":
+                    users = users.OrderBy(u => u.UpdatedByName);
+                    break;
+                case "updatedBy_desc":
+                    users = users.OrderByDescending(u => u.UpdatedByName);
+                    break;
+                case "UpdatedTime":
+                    users = users.OrderBy(u => u.UpdatedTime);
+                    break;
+                case "updatedTime_desc":
+                    users = users.OrderByDescending(u => u.UpdatedTime);
+                    break;
+                default:
+                    users = users.OrderBy(u => u.Name);
+                    break;
+            }
+
+            return View(users);
         }
 
         #region GET methods      
-        
+
         /// <summary>
         /// Transfers the user to the Create Screen.
         /// </summary>
@@ -101,7 +164,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult PostCreate(UserViewModel model)
         {
-            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name);
+            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name || s.Email == model.Email);
             if (Exists) {
                 TempData["DuplicateErr"] = "Duplicate Data";
                 return RedirectToAction("Create", model);
@@ -121,8 +184,15 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult PostUpdate(UserViewModel model)
         {
-            _userService.Update(model);
-             return RedirectToAction("Index");
+            // Check if another user exists with the same name or email, excluding the current user
+            bool Exists = _userService.RetrieveAll().Any(s => (s.Name == model.Name || s.Email == model.Email) && s.UserId != model.UserId);
+            if (Exists)
+            {
+                TempData["DuplicateErr"] = "A user with the same name or email already exists.";
+                return RedirectToAction("Update", new { SelectedUserId = model.UserId });
+            }
+
+            return RedirectToAction("Index");
         }
 
         /// <summary>
@@ -131,7 +201,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="UserId">The user identifier.</param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize] 
+        [Authorize]  
         public IActionResult PostDelete(string id)
         {
             _userService.Delete(id);

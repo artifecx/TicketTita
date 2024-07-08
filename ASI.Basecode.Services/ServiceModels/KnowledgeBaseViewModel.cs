@@ -26,7 +26,7 @@ namespace ASI.Basecode.Services.ServiceModels
         [Required]
         [StringLength(256)]
         public string AuthorId { get; set; }
-        public ArticleCategory ArticleCategory { get; set; }
+        public ArticleCategory Category { get; set; }
         public User Author { get; set; }
 
         // public IEnumerable<KnowledgeBaseViewModel> Articles { get; set; }
