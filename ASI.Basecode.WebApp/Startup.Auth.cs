@@ -57,7 +57,14 @@ namespace ASI.Basecode.WebApp
                 {
                     policy.RequireClaim("Role", "Admin");
                 });
-
+                options.AddPolicy("Employee", policy =>
+                {
+                    policy.RequireClaim("Role", "Employee");
+                });
+                options.AddPolicy("AdminOrAgent", policy =>
+                {
+                    policy.RequireRole("Admin", "Support Agent");
+                });
             });
 
             this._services.AddMvc(options =>

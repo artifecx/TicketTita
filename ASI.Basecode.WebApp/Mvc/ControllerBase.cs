@@ -179,7 +179,7 @@ namespace ASI.Basecode.WebApp.Mvc
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error in {actionName}");
-                return View("Error"); // TODO: Redirect to a common error page
+                return View("Error");
             }
             finally
             {
