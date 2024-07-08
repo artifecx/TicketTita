@@ -10,17 +10,19 @@
 }
 
 :root {
-    --background-color1: #F9FAFC;
-    --background-color2: #ffffff;
-    --background-color3: #ededed;
-    --background-color4: #cad7fda4;
-    --primary-color: #052542;
-    --secondary-color: #073d67;
-    --border-color: #D4D7DC;
-    --one-use-color: #3f0097;
-    --two-use-color: #5500cb;
-    --text-color-gray: #A5A1A1;
-    --text-color-white: #ffffff;
+    --background-color1: #F9FAFC; /* Light Gray */
+    --background-color2: #ffffff; /* White */
+    --background-color3: #ededed; /* Very Light Gray */
+    --background-color4: #cad7fda4; /* Light Blue with Alpha */
+    --background-color5: #F3F4F6; /* Off-White */
+    --background-color6: #A5A1A1; /* Gray */
+    --primary-color: #052542; /* Dark Blue */
+    --secondary-color: #073d67; /* Medium Dark Blue */
+    --border-color: #D4D7DC; /* Light Gray for Borders */
+    --one-use-color: #3f0097; /* Deep Purple */
+    --two-use-color: #5500cb; /* Vibrant Purple */
+    --text-color-gray: #A5A1A1; /* Gray for Text */
+    --text-color-white: #ffffff; /* White for Text */
 }
 
 body {
@@ -376,3 +378,24 @@ header {
 .text-color-white {
     color: var(--text-color-white);
 }
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+    .btn-primary:hover {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+    }
+
+.btn-secondary {
+    background-color: var(--background-color2);
+    color: black;
+    border: none;
+}
+
+    .btn-secondary:hover {
+        background-color: var(--background-color6);
+        color: black;
+    }

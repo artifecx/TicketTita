@@ -50,3 +50,6 @@
     padding: 10px;
 }
 
+.modal-footer {
+    background-color: var(--background-color5) !important;
+}
