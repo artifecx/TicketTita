@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Linq;
+using System.Resources;
 using System.Net.Sockets;
 using System.Security.Claims;
 using static ASI.Basecode.Resources.Constants.Enums;
@@ -24,6 +26,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<TicketService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -31,12 +34,14 @@ namespace ASI.Basecode.Services.Services
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
         public TicketService(ITicketRepository repository, IAdminRepository adminRepository,
-                            IUserRepository userRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+                            IUserRepository userRepository, IMapper mapper, 
+                            ILogger<TicketService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
             _repository = repository;
             _adminRepository = adminRepository;
             _userRepository = userRepository;
+            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -47,22 +52,26 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket.</param>
         public void Add(TicketViewModel ticket, string userId)
         {
-            HandleAttachment(ticket);
-
-            var newTicket = _mapper.Map<Ticket>(ticket);
-            newTicket.CreatedDate = DateTime.Now;
-            newTicket.UpdatedDate = null;
-            newTicket.ResolvedDate = null;
-            newTicket.UserId = userId;
-
-            AssignTicketProperties(newTicket);
-
-            string id = _repository.Add(newTicket);
-            if (ticket.File != null)
+            if(ticket != null)
             {
-                ticket.Attachment.TicketId = id;
-                AddAttachment(ticket.Attachment);
+                HandleAttachment(ticket);
+
+                var newTicket = _mapper.Map<Ticket>(ticket);
+                newTicket.CreatedDate = DateTime.Now;
+                newTicket.UpdatedDate = null;
+                newTicket.ResolvedDate = null;
+                newTicket.UserId = userId;
+
+                AssignTicketProperties(newTicket);
+
+                string id = _repository.Add(newTicket);
+                if (ticket.File != null)
+                {
+                    ticket.Attachment.TicketId = id;
+                    AddAttachment(ticket.Attachment);
+                }
             }
+            LogError("Add", "Invalid ticket passed.");
         }
 
         /// <summary>
@@ -83,12 +92,13 @@ namespace ASI.Basecode.Services.Services
                 SetNavigationProperties(existingTicket);
 
                 string id = _repository.Update(existingTicket);
-                if (ticket.File != null)
+                if (ticket.Attachment != null)
                 {
                     ticket.Attachment.TicketId = id;
                     AddAttachment(ticket.Attachment);
                 }
             }
+            LogError("Update", "Ticket does not exist.");
         }
 
         /// <summary>
@@ -104,6 +114,7 @@ namespace ASI.Basecode.Services.Services
                 RemoveAssignmentByTicketId(ticket.TicketId);
                 _repository.Delete(ticket);
             }
+            LogError("Delete", "Ticket does not exist.");
         }
         #endregion Ticket CRUD Operations
 
@@ -114,8 +125,13 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The attachment.</param>
         public void AddAttachment(Attachment attachment)
         {
-            attachment.Ticket = _repository.FindById(attachment.TicketId);
-            _repository.AddAttachment(attachment);
+            if (attachment != null) {
+                attachment.Ticket = _repository.FindById(attachment.TicketId);
+
+                if (attachment.Ticket != null) _repository.AddAttachment(attachment);
+                LogError("AddAttachment", "Ticket does not exist.");
+            }
+            LogError("AddAttachment", "Invalid Attachment passed.");
         }
 
         /// <summary>
@@ -126,6 +142,8 @@ namespace ASI.Basecode.Services.Services
         {
             var attachment = _repository.FindAttachmentById(attachmentId);
             if (attachment != null) _repository.RemoveAttachment(attachment);
+
+            LogError("RemoveAttachment", "Attachment does not exist.");
         }
         #endregion Ticket Attachment CRUD Operations
 
@@ -142,6 +160,7 @@ namespace ASI.Basecode.Services.Services
                 assignment = CreateTicketAssignment(model);
                 _repository.AssignTicket(assignment);
             }
+            LogError("AddTicketAssignment", "Assignment already exists.");
         }
 
         /// <summary>
@@ -152,6 +171,8 @@ namespace ASI.Basecode.Services.Services
         {
             var assignment = _repository.FindAssignmentByTicketId(id);
             if (assignment != null) _repository.RemoveAssignment(assignment);
+
+            LogError("RemoveAssignment", "Assignment does not exist.");
         }
         #endregion Ticket Assignment CRUD Operations
 
@@ -363,21 +384,32 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket</param>
         private void HandleAttachment(TicketViewModel ticket)
         {
+            _logger.LogInformation("=======Ticket Service : HandleAttachment Started=======");
+            var allowedFileTypesString = Resources.Views.FileValidation.AllowedFileTypes;
+            var allowedFileTypes = new HashSet<string>(allowedFileTypesString.Split(','), StringComparer.OrdinalIgnoreCase);
+            long maxFileSize = Convert.ToInt32(Resources.Views.FileValidation.MaxFileSizeMB) * 1024 * 1024;
+
             if (ticket.File != null && ticket.File.Length > 0)
             {
-                using (var stream = new MemoryStream())
+                /// Check if the file type is allowed and the file size is within the limit
+                if (allowedFileTypes.Contains(ticket.File.ContentType) && !(ticket.File.Length > maxFileSize))
                 {
-                    ticket.File.CopyTo(stream);
-                    ticket.Attachment = new Attachment
+                    using (var stream = new MemoryStream())
                     {
-                        AttachmentId = Guid.NewGuid().ToString(),
-                        Name = ticket.File.FileName,
-                        Content = stream.ToArray(),
-                        Type = ticket.File.ContentType,
-                        UploadedDate = DateTime.Now
-                    };
+                        ticket.File.CopyTo(stream);
+                        ticket.Attachment = new Attachment
+                        {
+                            AttachmentId = Guid.NewGuid().ToString(),
+                            Name = ticket.File.FileName,
+                            Content = stream.ToArray(),
+                            Type = ticket.File.ContentType,
+                            UploadedDate = DateTime.Now
+                        };
+                    }
                 }
+                _logger.LogError("File type not allowed or file size exceeds the limit.");
             }
+            _logger.LogInformation("=======Ticket Service : HandleAttachment Ended=======");
         }
 
         /// <summary>
@@ -429,7 +461,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket.</param>
         private void SetNavigationProperties(Ticket ticket)
         {
-            if (ticket == null) return;
+            if (ticket == null) LogError("SetNavigationProperties", "Ticket is null.");
 
             ticket.CategoryType = GetCategoryTypes().Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
             ticket.PriorityType = GetPriorityTypes().Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
@@ -467,7 +499,10 @@ namespace ASI.Basecode.Services.Services
         private void RemoveAttachmentByTicketId(string id)
         {
             var attachment = GetAttachmentByTicketId(id);
-            if (attachment != null) _repository.RemoveAttachment(attachment);
+            if (attachment == null) 
+                LogError("RemoveAttachmentByTicketId", "Attachment is null.");
+            
+           _repository.RemoveAttachment(attachment);
         }
 
         /// <summary>
@@ -477,7 +512,10 @@ namespace ASI.Basecode.Services.Services
         private void RemoveAssignmentByTicketId(string id)
         {
             var assignment = GetAssignmentByTicketId(id);
-            if (assignment != null) _repository.RemoveAssignment(assignment);
+            if (assignment == null) 
+                LogError("RemoveAssignmentByTicketId", "Assignment is null.");
+
+            _repository.RemoveAssignment(assignment);
         }
 
         /// <summary>
@@ -488,14 +526,32 @@ namespace ASI.Basecode.Services.Services
         {
             var claimsPrincipal = _httpContextAccessor.HttpContext.User;
             if (claimsPrincipal == null || !claimsPrincipal.Identity.IsAuthenticated)
+            {
+                LogError("GetCurrentAdmin", "ClaimsPrincipal is null or not authenticated.");
                 return null;
+            }
 
             var adminId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(adminId))
+            {
+                LogError("GetCurrentAdmin", "AdminId is null or empty.");
                 return null;
+            } 
 
             return _adminRepository.FindById(adminId);
         }
         #endregion Utility Methods
+
+        #region Logging methods
+        /// <summary>
+        /// Log the error message.
+        /// </summary>
+        /// <param name="methodName">Name of the method.</param>
+        /// <param name="errorMessage">The error message.</param>
+        public void LogError(string methodName, string errorMessage)
+        {
+            _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
+        }
+        #endregion
     }
 }
