@@ -32,6 +32,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </Compile>
+    <Compile Update="Views\FileValidation.Designer.cs">
+      <DependentUpon>FileValidation.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="Views\TitleText.Designer.cs">
       <DependentUpon>TitleText.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -63,6 +68,10 @@
     </EmbeddedResource>
     <EmbeddedResource Update="Views\Table.resx">
       <LastGenOutput>Table.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Views\FileValidation.resx">
+      <LastGenOutput>FileValidation.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Views\TitleText.resx">
