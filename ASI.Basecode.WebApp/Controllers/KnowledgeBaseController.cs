@@ -2,6 +2,7 @@
 using ASI.Basecode.Services.ServiceModels;
 using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -42,6 +43,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns> Sample Crud View </returns>
         [HttpGet]
+        [Authorize]
         public IActionResult Index(string searchTerm, List<string> selectedCategories, string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1)
         {
             int pageSize = 10;
@@ -65,6 +67,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize(Policy = "AdminOrAgent")]
         public IActionResult Create()
         {
             var model = new KnowledgeBaseViewModel
@@ -80,6 +83,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize]
         public IActionResult Details(string articleId)
         {
             var article = _knowledgeBaseService.GetArticleById(articleId);
@@ -96,6 +100,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize(Policy = "AdminOrAgent")]
         public IActionResult Edit(string articleId)
         {
             var article = _knowledgeBaseService.GetArticleById(articleId);
@@ -109,6 +114,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public IActionResult Delete(string articleId)
         {
             var data = _knowledgeBaseService.GetArticleById(articleId);
@@ -123,6 +129,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostCreate(KnowledgeBaseViewModel model)
         {
             model.AuthorId = _session.GetString("UserId");
@@ -136,6 +143,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostUpdate(KnowledgeBaseViewModel model)
         {
             _knowledgeBaseService.Update(model);
@@ -148,6 +156,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostDelete(string articleId)
         {
             _knowledgeBaseService.Delete(articleId);
