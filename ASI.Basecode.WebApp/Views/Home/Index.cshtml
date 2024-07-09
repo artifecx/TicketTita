@@ -11,14 +11,16 @@
         <div class="row pb-4">
             <div class="col">
                 <div class="row pb-4">
+                    <!-- Card for Total Tickets -->
                     <div class="col">
-                        <div class="card">
+                        <div class="card card-color">
                             <div class="card-body card-body-custom">
                                 <h5 class="card-title">Total Tickets</h5>
                                 <p class="card-text mt-auto-end">786</p>
                             </div>
                         </div>
                     </div>
+                    <!-- Card for Customers -->
                     <div class="col">
                         <div class="card">
                             <div class="card-body card-body-custom">
@@ -29,6 +31,7 @@
                     </div>
                 </div>
                 <div class="row">
+                    <!-- Card for Agents -->
                     <div class="col">
                         <div class="card">
                             <div class="card-body card-body-custom">
@@ -37,6 +40,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Card for Total Customers -->
                     <div class="col">
                         <div class="card">
                             <div class="card-body card-body-custom">
@@ -47,28 +51,44 @@
                     </div>
                 </div>
             </div>
-
+            <!-- Tickets Statisfaction Ratings -->
             <div class="col-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">All Tickets Satisfaction Ratings</h5>
-                        <p class="card-text">Chart goes here...</p>
+                        <h5 class="card-title">Tickets Statisfaction Ratings</h5>
+                        <p class="m-0">
+                            <span id="average-rating" class="font-weight-bolder display-4"></span>
+                        </p>
+                        <div class="star-rating m-0" aria-label="Star rating">
+                            <span class="star">&#9733;</span>
+                            <span class="star">&#9733;</span>
+                            <span class="star">&#9733;</span>
+                            <span class="star">&#9733;</span>
+                            <span class="star">&#9733;</span>
+                        </div>
+                        <p class="small">
+                            (<span id="total-reviews"></span> Reviews)
+                        </p>
+                        
+                        <canvas id="user-rating-chart" height="250"></canvas>
                     </div>
                 </div>
             </div>
-        </div>
 
+        </div>
+        <!-- Monthly Average Resolution Time bar graph -->
         <div class="row">
             <div class="col">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Monthly Average Resolution Time</h5>
-                        <canvas id="bar-chart-custom-tooltip"></canvas>
+                        <canvas id="bar-chart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Notification Section -->
     <div class="col-3 notification-container">
         <h5 class="card-title mb-3">Notification</h5>
         <div class="notification px-2 py-3 small">
@@ -92,15 +112,17 @@
 
 <!-- Include Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('bar-chart-custom-tooltip').getContext('2d');
+        // Bar Chart
+        const ctxBar = document.getElementById('bar-chart').getContext('2d');
         const dataBarCustomTooltip = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
                 {
-                    label: 'Traffic',
+                    label: 'Time (hour)',
                     data: [30, 15, 62, 65, 61, 65, 40],
                     backgroundColor: '#052542',
                     borderColor: '#052542',
@@ -115,7 +137,7 @@
                     callbacks: {
                         label: function (context) {
                             let label = context.dataset.label || '';
-                            label = `${label}: ${context.raw} users`;
+                            label = `${label}: ${context.raw} hr`;
                             return label;
                         }
                     }
@@ -128,10 +150,80 @@
             }
         };
 
-        new Chart(ctx, {
+        new Chart(ctxBar, {
             type: 'bar',
             data: dataBarCustomTooltip,
             options: optionsBarCustomTooltip
         });
+
+        // User Rating Chart
+        const ctxUserRating = document.getElementById('user-rating-chart').getContext('2d');
+        const rawData = [10000, 50, 2137, 210, 98]; // example raw numbers
+        const totalReviews = rawData.reduce((a, b) => a + b, 0);
+
+        const percentageData = rawData.map(count => (count / totalReviews) * 100);
+
+        const dataUserRating = {
+            labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+            datasets: [
+                {
+                    label: 'Percentage',
+                    data: percentageData,
+                    backgroundColor: '#052542',
+                    borderColor: '#052542',
+                }
+            ]
+        };
+
+        const optionsUserRating = {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.label || '';
+                            let rawValue = rawData[context.dataIndex];
+                            let percentageValue = context.raw.toFixed(2);
+                            return `${label}: ${rawValue} reviews (${percentageValue}%)`;
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctxUserRating, {
+            type: 'bar',
+            data: dataUserRating,
+            options: optionsUserRating
+        });
+
+        // Update rating summary
+        const averageRating = rawData.reduce((sum, count, index) => {
+            return sum + count * (5 - index);
+        }, 0) / totalReviews;
+
+        // Update stars based on averageRating
+        const ratingValue = Math.trunc(averageRating);
+        const stars = document.querySelectorAll('.star-rating .star');
+
+        stars.forEach((star, index) => {
+            if (index < ratingValue) {
+                star.classList.add('selected');
+            }
+        });
+
+        // Update average rating display
+        document.getElementById('average-rating').innerText = averageRating.toFixed(1);
+        document.getElementById('total-reviews').innerText = totalReviews;
     });
 </script>
