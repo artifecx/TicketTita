@@ -2,6 +2,7 @@
 using ASI.Basecode.Services.ServiceModels;
 using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -41,21 +42,24 @@ namespace ASI.Basecode.WebApp.Controllers
         /// Returns Sample Crud View.
         /// </summary>
         /// <returns> Sample Crud View </returns>
-        public IActionResult Index()
-        {
-            var data = _knowledgeBaseService.RetrieveAll();
-            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
-            return View(data);
-        }
-
         [HttpGet]
-        public IActionResult Search(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder)
+        [Authorize]
+        public IActionResult Index(string searchTerm, List<string> selectedCategories, string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1)
         {
-            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder);
-            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories(); // Pass categories to the view
+            int pageSize = 10;
+
+            var totalArticlesCount = _knowledgeBaseService.CountArticles(searchTerm, selectedCategories);
+            var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder, pageNumber, pageSize);
+
+            var viewModel = new PaginatedList<KnowledgeBaseViewModel>(articles, totalArticlesCount, pageNumber, pageSize);
+
+            ViewBag.Categories = _knowledgeBaseService.GetArticleCategories();
             ViewBag.SortBy = sortBy;
             ViewBag.SortOrder = sortOrder;
-            return View("Index", articles);
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.SelectedCategories = selectedCategories;
+
+            return View(viewModel);
         }
 
         /// <summary>
@@ -63,6 +67,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [Authorize(Policy = "AdminOrAgent")]
         public IActionResult Create()
         {
             var model = new KnowledgeBaseViewModel
@@ -78,6 +83,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize]
         public IActionResult Details(string articleId)
         {
             var article = _knowledgeBaseService.GetArticleById(articleId);
@@ -94,6 +100,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize(Policy = "AdminOrAgent")]
         public IActionResult Edit(string articleId)
         {
             var article = _knowledgeBaseService.GetArticleById(articleId);
@@ -107,6 +114,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public IActionResult Delete(string articleId)
         {
             var data = _knowledgeBaseService.GetArticleById(articleId);
@@ -121,6 +129,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostCreate(KnowledgeBaseViewModel model)
         {
             model.AuthorId = _session.GetString("UserId");
@@ -134,6 +143,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostUpdate(KnowledgeBaseViewModel model)
         {
             _knowledgeBaseService.Update(model);
@@ -146,6 +156,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
+        [Authorize]
         public IActionResult PostDelete(string articleId)
         {
             _knowledgeBaseService.Delete(articleId);
