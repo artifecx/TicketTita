@@ -1,8 +1,137 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@section styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+}
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="nav-title display-6">Dashboard</h1>
+<div class="row p-4 bg-gray">
+    <div class="col-9">
+        <div class="row pb-4">
+            <div class="col">
+                <div class="row pb-4">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body card-body-custom">
+                                <h5 class="card-title">Total Tickets</h5>
+                                <p class="card-text mt-auto-end">786</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body card-body-custom">
+                                <h5 class="card-title">Customers</h5>
+                                <p class="card-text mt-auto-end">986</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body card-body-custom">
+                                <h5 class="card-title">Agents</h5>
+                                <p class="card-text mt-auto-end">786</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body card-body-custom">
+                                <h5 class="card-title">Total Customers</h5>
+                                <p class="card-text mt-auto-end">556</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">All Tickets Satisfaction Ratings</h5>
+                        <p class="card-text">Chart goes here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Monthly Average Resolution Time</h5>
+                        <canvas id="bar-chart-custom-tooltip"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3 notification-container">
+        <h5 class="card-title mb-3">Notification</h5>
+        <div class="notification px-2 py-3 small">
+            <div class="d-flex justify-content-between">
+                <p><i class="fa fa-user-circle pr-2"></i>David Czar</p>
+                <p class="text-color-gray">6/24/24</p>
+            </div>
+            <p>Has commented on your feedback chatgpt something chatgpt basta.</p>
+            <a href="#" class="d-flex justify-content-end text-color-gray">View</a>
+        </div>
+        <div class="notification px-2 py-3 small">
+            <div class="d-flex justify-content-between">
+                <p><i class="fa fa-ticket pr-2"></i>Reminder</p>
+                <p class="text-color-gray">6/24/24</p>
+            </div>
+            <p>The ticket has been closed.</p>
+            <a href="#" class="d-flex justify-content-end text-color-gray">View</a>
+        </div>
+    </div>
 </div>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('bar-chart-custom-tooltip').getContext('2d');
+        const dataBarCustomTooltip = {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [
+                {
+                    label: 'Traffic',
+                    data: [30, 15, 62, 65, 61, 65, 40],
+                    backgroundColor: '#052542',
+                    borderColor: '#052542',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        const optionsBarCustomTooltip = {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            label = `${label}: ${context.raw} users`;
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        };
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: dataBarCustomTooltip,
+            options: optionsBarCustomTooltip
+        });
+    });
+</script>
