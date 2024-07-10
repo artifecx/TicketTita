@@ -18,6 +18,7 @@ namespace ASI.Basecode.Services.Services
         private readonly ITicketRepository _repository;
         private readonly IAdminRepository _adminRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IFeedbackRepository _feedbackRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TicketService> _logger;
@@ -28,13 +29,14 @@ namespace ASI.Basecode.Services.Services
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
         public TicketService(ITicketRepository repository, IAdminRepository adminRepository,
-                            IUserRepository userRepository, IMapper mapper, 
+                            IUserRepository userRepository, IFeedbackRepository feedbackRepository, IMapper mapper, 
                             ILogger<TicketService> logger, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
             _repository = repository;
             _adminRepository = adminRepository;
             _userRepository = userRepository;
+            _feedbackRepository = feedbackRepository;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -59,7 +61,7 @@ namespace ASI.Basecode.Services.Services
                 AssignTicketProperties(newTicket);
 
                 string id = _repository.Add(newTicket);
-                if (ticket.Attachment != null)
+                if (ticket.Attachment != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = id;
                     AddAttachment(ticket.Attachment);
@@ -74,19 +76,22 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket.</param>
         public void Update(TicketViewModel ticket)
         {
-            HandleAttachment(ticket);
+            if(ticket.File != null) HandleAttachment(ticket);
 
             var existingTicket = _repository.FindById(ticket.TicketId);
             if (existingTicket != null)
             {
                 ticket.UpdatedDate = DateTime.Now;
-
+                ticket.CategoryType = _repository.FindCategoryById(ticket.CategoryTypeId);
+                ticket.PriorityType = _repository.FindPriorityById(ticket.PriorityTypeId);
+                ticket.StatusType = _repository.FindStatusById(ticket.StatusTypeId);
+                ticket.User = _userRepository.FindById(ticket.UserId);
+                
                 _mapper.Map(ticket, existingTicket);
                 UpdateTicketDate(existingTicket);
-                SetNavigationProperties(existingTicket);
 
                 string id = _repository.Update(existingTicket);
-                if (ticket.Attachment != null)
+                if (ticket.File != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = id;
                     AddAttachment(ticket.Attachment);
@@ -106,6 +111,7 @@ namespace ASI.Basecode.Services.Services
             {
                 RemoveAttachmentByTicketId(ticket.TicketId);
                 RemoveAssignmentByTicketId(ticket.TicketId);
+                RemoveFeedbackByTicketId(ticket.TicketId);
                 _repository.Delete(ticket);
             }
             LogError("Delete", "Ticket does not exist.");
@@ -136,8 +142,6 @@ namespace ASI.Basecode.Services.Services
         {
             var attachment = _repository.FindAttachmentById(attachmentId);
             if (attachment != null) _repository.RemoveAttachment(attachment);
-
-            LogError("RemoveAttachment", "Attachment does not exist.");
         }
         #endregion Ticket Attachment CRUD Operations
 
@@ -151,7 +155,9 @@ namespace ASI.Basecode.Services.Services
             var assignment = GetAssignmentByTicketId(model.TicketId);
             if (assignment == null)
             {
+                var ticket = _repository.FindById(model.TicketId);
                 assignment = CreateTicketAssignment(model);
+                ticket.TicketAssignment = assignment;
                 _repository.AssignTicket(assignment);
             }
             LogError("AddTicketAssignment", "Assignment already exists.");
@@ -163,33 +169,44 @@ namespace ASI.Basecode.Services.Services
         /// <param name="id">The ticket identifier.</param>
         public void RemoveAssignment(string id)
         {
-            var assignment = _repository.FindAssignmentByTicketId(id);
-            if (assignment != null) _repository.RemoveAssignment(assignment);
-
-            LogError("RemoveAssignment", "Assignment does not exist.");
+            var assignment = GetAssignmentByTicketId(id);
+            if (assignment != null)
+            {
+                var ticket = _repository.FindById(id);
+                ticket.TicketAssignment = null;
+                _repository.RemoveAssignment(assignment);
+            }
         }
         #endregion Ticket Assignment CRUD Operations
+
+        #region Ticket Feedback CRUD Operations
+        public void RemoveFeedbackByTicketId(string id)
+        {
+            var feedback = GetFeedBackById(id);
+            if (feedback != null) _feedbackRepository.Delete(feedback);
+        }
+        #endregion Ticket Feedback CRUD Operations
 
         #region Get Methods
         /// <summary>
         /// Calls the repository to get all tickets.
         /// Maps the list of Ticket to a list of TicketViewModel.
         /// </summary>
-        /// <returns>A list of TicketViewModel (IEnumerable)</returns>
-        public IEnumerable<TicketViewModel> GetAll()
+        /// <returns>A list of TicketViewModel (IQueryable)</returns>
+        public IQueryable<TicketViewModel> GetAll()
         {
-            var tickets = _repository.GetAll().ToList();
-            tickets.ForEach(ticket => SetNavigationProperties(ticket));
+            var tickets = _repository.GetAll();
 
-            var ticketViewModels = _mapper.Map<IEnumerable<TicketViewModel>>(tickets).ToList();
-            foreach(var t in ticketViewModels)
+            var ticketViewModels = _mapper.ProjectTo<TicketViewModel>(tickets).ToList();
+            foreach(var t in ticketViewModels) // TODO: clean this up
             {
                 t.Attachment = GetAttachmentByTicketId(t.TicketId);
                 t.TicketAssignment = GetAssignmentByTicketId(t.TicketId);
                 t.Agent = GetAgentById(ExtractAgentId(t.TicketAssignment?.AssignmentId));
+                t.Feedback = GetFeedBackById(t.TicketId);
             }
 
-            return ticketViewModels;
+            return ticketViewModels.AsQueryable();
         }
 
         /// <summary>
@@ -201,15 +218,11 @@ namespace ASI.Basecode.Services.Services
         public TicketViewModel GetTicketById(string id)
         {
             var ticket = _repository.FindById(id);
-            SetNavigationProperties(ticket);
-
-            var mappedTicket = _mapper.Map<TicketViewModel>(ticket);
+            var mappedTicket = _mapper.Map<TicketViewModel>(ticket); // TODO: clean this up
             mappedTicket.Attachment = GetAttachmentByTicketId(id);
             mappedTicket.TicketAssignment = GetAssignmentByTicketId(id);
-            if (mappedTicket.TicketAssignment != null && !string.IsNullOrEmpty(mappedTicket.TicketAssignment.AssignmentId))
-            {
-                mappedTicket.Agent = GetAgentById(ExtractAgentId(mappedTicket.TicketAssignment.AssignmentId));
-            }
+            mappedTicket.Agent = GetAgentById(ExtractAgentId(mappedTicket.TicketAssignment?.AssignmentId));
+            mappedTicket.Feedback = GetFeedBackById(id);
 
             return mappedTicket;
         }
@@ -217,27 +230,24 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to get unresolved tickets (Open, In Progress).
         /// </summary>
-        /// <returns>A list of TicketViewModel (IEnumerable)</returns>
-        public IEnumerable<TicketViewModel> GetUnresolvedTickets()
+        /// <returns>A list of TicketViewModel (IQueryable)</returns>
+        public IQueryable<TicketViewModel> GetUnresolvedTickets()
         {
-            var tickets = GetAll()
-                          .Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress")
-                          .ToList();
-            return _mapper.Map<IEnumerable<TicketViewModel>>(tickets);
+            var tickets = GetAll().Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
+            return tickets;
         }
 
         /// <summary>
         /// Gets the tickets by assignment status.
         /// </summary>
         /// <param name="status">The status, "assigned" or "unassigned"</param>
-        /// <returns>A list of TicketViewModel (IEnumerable)</returns>
-        public IEnumerable<TicketViewModel> GetTicketsByAssignmentStatus(string status)
+        /// <returns>A list of TicketViewModel (IQueryable)</returns>
+        public IQueryable<TicketViewModel> GetTicketsByAssignmentStatus(string status)
         {
             var assignedTicketIds = GetTicketAssignments().Select(ta => ta.TicketId).ToList();
-            var tickets = _repository.GetTickets(status, assignedTicketIds).ToList();
-            tickets.ForEach(ticket => SetNavigationProperties(ticket));
+            var tickets = _repository.GetTickets(status, assignedTicketIds);
 
-            return _mapper.Map<IEnumerable<TicketViewModel>>(tickets);
+            return _mapper.ProjectTo<TicketViewModel>(tickets);
         }
 
         /// <summary>
@@ -258,7 +268,7 @@ namespace ASI.Basecode.Services.Services
                     ticket.StatusTypeId,
                     ticket.CategoryTypeId,
                     ticket.PriorityTypeId,
-                    ticket.Agent
+                    AgentId = ticket.Agent?.UserId,
                 };
             }
             return null;
@@ -295,32 +305,32 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to get all category types.
         /// </summary>
-        /// <returns>A list of CategoryType (IEnumerable)</returns>
-        public IEnumerable<CategoryType> GetCategoryTypes() => _repository.GetCategoryTypes();
+        /// <returns>A list of CategoryType (IQueryable)</returns>
+        public IQueryable<CategoryType> GetCategoryTypes() => _repository.GetCategoryTypes();
 
         /// <summary>
         /// Calls the repository to get all priority types.
         /// </summary>
-        /// <returns>A list of PriorityType (IEnumerable)</returns>
-        public IEnumerable<PriorityType> GetPriorityTypes() => _repository.GetPriorityTypes();
+        /// <returns>A list of PriorityType (IQueryable)</returns>
+        public IQueryable<PriorityType> GetPriorityTypes() => _repository.GetPriorityTypes();
 
         /// <summary>
         /// Calls the repository to get all status types.
         /// </summary>
-        /// <returns>A list of StatusType (IEnumerable)</returns>
-        public IEnumerable<StatusType> GetStatusTypes() => _repository.GetStatusTypes();
+        /// <returns>A list of StatusType (IQueryable)</returns>
+        public IQueryable<StatusType> GetStatusTypes() => _repository.GetStatusTypes();
 
         /// <summary>
         /// Calls the repository to get all support agents.
         /// </summary>
-        /// <returns>A list of User (IEnumerable) with "Support Agent" role</returns>
-        public IEnumerable<User> GetSupportAgents() => _repository.GetSupportAgents();
+        /// <returns>A list of User (IQueryable) with "Support Agent" role</returns>
+        public IQueryable<User> GetSupportAgents() => _repository.GetSupportAgents();
 
         /// <summary>
         /// Calls the repository to get all ticket assignments.
         /// </summary>
-        /// <returns>A list of TicketAssignment (IEnumerable)</returns>
-        public IEnumerable<TicketAssignment> GetTicketAssignments() => _repository.GetTicketAssignments();
+        /// <returns>A list of TicketAssignment (IQueryable)</returns>
+        public IQueryable<TicketAssignment> GetTicketAssignments() => _repository.GetTicketAssignments();
         #endregion Get Methods
 
         #region Utility Methods
@@ -334,16 +344,22 @@ namespace ASI.Basecode.Services.Services
             {
                 "status" => GetAll().Where(ticket => !ticket.StatusType.StatusName.Contains("Resolved")),
                 "assign" => GetTicketsByAssignmentStatus("unassigned"),
-                "assigned" => GetTicketsByAssignmentStatus("reassign"),
+                "reassign" => GetTicketsByAssignmentStatus("assigned"),
                 _ => GetUnresolvedTickets(),
             };
+
+            var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            tickets = userRole.Contains("Support Agent") ? tickets.Where(x => x.Agent != null && x.Agent.UserId == userId) 
+                    : userRole.Contains("Employee") ? tickets = tickets.Where(x => x.UserId == userId) : tickets;
 
             return new TicketViewModel
             {
                 Tickets = tickets,
                 CategoryTypes = GetCategoryTypes(),
-                PriorityTypes = GetPriorityTypes(),
-                StatusTypes = GetStatusTypes(),
+                PriorityTypes =  GetPriorityTypes(),
+                StatusTypes = !userRole.Contains("Employee") ? GetStatusTypes() 
+                            : GetStatusTypes().Where(x => !x.StatusName.Contains("Resolved")),
                 Agents = GetSupportAgents()
             };
         }
@@ -446,21 +462,11 @@ namespace ASI.Basecode.Services.Services
             ticket.TicketId = $"{CC:00}-{CN + 1:00}-{NN + 1:00}";
 
             ticket.StatusTypeId ??= "1";
-            SetNavigationProperties(ticket);
-        }
-
-        /// <summary>
-        /// Sets the navigation properties for a ticket: CategoryType, PriorityType, StatusType
-        /// </summary>
-        /// <param name="ticket">The ticket.</param>
-        private void SetNavigationProperties(Ticket ticket)
-        {
-            if (ticket == null) LogError("SetNavigationProperties", "Ticket is null.");
-
             ticket.CategoryType = GetCategoryTypes().Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
             ticket.PriorityType = GetPriorityTypes().Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
             ticket.StatusType = GetStatusTypes().Single(x => x.StatusTypeId == ticket.StatusTypeId);
             ticket.User = _userRepository.FindById(ticket.UserId);
+            ticket.User.Tickets.Add(ticket);
         }
 
         /// <summary>
@@ -493,10 +499,10 @@ namespace ASI.Basecode.Services.Services
         private void RemoveAttachmentByTicketId(string id)
         {
             var attachment = GetAttachmentByTicketId(id);
-            if (attachment == null) 
-                LogError("RemoveAttachmentByTicketId", "Attachment is null.");
-            
-           _repository.RemoveAttachment(attachment);
+            if (attachment != null)
+            {
+                _repository.RemoveAttachment(attachment);
+            }
         }
 
         /// <summary>
@@ -506,10 +512,10 @@ namespace ASI.Basecode.Services.Services
         private void RemoveAssignmentByTicketId(string id)
         {
             var assignment = GetAssignmentByTicketId(id);
-            if (assignment == null) 
-                LogError("RemoveAssignmentByTicketId", "Assignment is null.");
-
-            _repository.RemoveAssignment(assignment);
+            if (assignment != null)
+            {
+                _repository.RemoveAssignment(assignment);
+            }
         }
 
         /// <summary>
@@ -533,6 +539,12 @@ namespace ASI.Basecode.Services.Services
             } 
 
             return _adminRepository.FindById(adminId);
+        }
+
+        private Feedback GetFeedBackById(string id)
+        {
+            var feedback = _feedbackRepository.FindFeedbackByTicketId(id);
+            return feedback;
         }
         #endregion Utility Methods
 
