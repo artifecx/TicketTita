@@ -1,11 +1,4 @@
-﻿.nav-title {
-    padding: 15px;
-    padding-top: 30px;
-    margin-bottom: 0;
-    border: 1px solid var(--border-color);
-}
-
-.card {
+﻿.card {
     border-radius: 10px;
     border: 1px solid var(--border-color);
 }
