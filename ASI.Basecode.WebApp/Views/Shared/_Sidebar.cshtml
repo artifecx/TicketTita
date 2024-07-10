@@ -16,18 +16,19 @@
         @if (isAdmin)
         {
             <li class="py-2">
+                <a asp-action="Index" asp-controller="Home" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
+                    <i class="fa fa-area-chart px-1"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="py-2">
                 <a asp-action="Index" asp-controller="User" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "User" ? "active" : "")">
                     <i class="fa fa-users px-1"></i>
                     Users
                 </a>
             </li>
         }
-        <li class="py-2">
-            <a asp-action="Index" asp-controller="Home" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
-                <i class="fa fa-area-chart px-1"></i>
-                Dashboard
-            </a>
-        </li>
+
         <li class="py-2">
             <a asp-action="ViewAll" asp-controller="Ticket" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Ticket" ? "active" : "")">
                 <i class="fa fa-ticket px-1"></i>
@@ -52,7 +53,7 @@
                 Settings
             </a>
         <li class="py-2">
-            <a href="#" data-toggle="modal" data-target="#exampleModal">
+            <a href="#" data-toggle="modal" data-target="#logoutModal">
                 <i class="fa fa-sign-out px-1"></i>
                 Log out
             </a>
@@ -61,11 +62,11 @@
 </div>
 
 <!-- Logout Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header border-0">
-                <h5 class="modal-title" id="exampleModalLabel">
+                <h5 class="modal-title" id="logoutModalLabel">
                     <i class="fa fa-hourglass-half px-1"></i>
                     Log out
                 </h5>
