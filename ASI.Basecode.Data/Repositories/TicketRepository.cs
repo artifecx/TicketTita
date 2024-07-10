@@ -1,6 +1,7 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using Basecode.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,17 +17,32 @@ namespace ASI.Basecode.Data.Repositories
 
         #region Ticket Service Methods
         /// <summary>
+        /// Gets all tickets with includes.
+        /// </summary>
+        /// <returns>A list of all tickets Ticket (IQueryable)</returns>
+        private IQueryable<Ticket> GetTicketsWithIncludes()
+        {
+            return this.GetDbSet<Ticket>().Include(t => t.CategoryType)
+                                          .Include(t => t.PriorityType)
+                                          .Include(t => t.StatusType)
+                                          .Include(t => t.User)
+                                          .Include(t => t.Feedback)
+                                          .Include(t => t.TicketAssignment);
+        }
+
+        /// <summary>
         /// Gets all tickets.
         /// </summary>
-        /// <returns>a list of all tickets (IEnumerable)</returns>
-        /// foreach will set the navigation properties for each ticket: CategoryType, PriorityType, StatusType
-        public IQueryable<Ticket> GetAll() => this.GetDbSet<Ticket>();
+        /// <returns>A list of all tickets (IQueryable)</returns>
+        public IQueryable<Ticket> GetAll() => GetTicketsWithIncludes();
 
         public IQueryable<Ticket> GetTickets(string type, List<string> assignedTicketIds)
         {
+            var ticketsQuery = GetTicketsWithIncludes();
+
             return type.Equals("unassigned")
-                ? this.GetDbSet<Ticket>().Where(t => !assignedTicketIds.Contains(t.TicketId))
-                : this.GetDbSet<Ticket>().Where(t => assignedTicketIds.Contains(t.TicketId));
+                ? ticketsQuery.Where(t => !assignedTicketIds.Contains(t.TicketId))
+                : ticketsQuery.Where(t => assignedTicketIds.Contains(t.TicketId));
         }
 
         /// <summary>
@@ -113,7 +129,7 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <param name="id">ticket_ID</param>
         /// <returns>Ticket</returns>
-        public Ticket FindById(string id) => this.GetDbSet<Ticket>().FirstOrDefault(x => x.TicketId == id);
+        public Ticket FindById(string id) => GetTicketsWithIncludes().FirstOrDefault(x => x.TicketId == id);
 
         /// <summary>
         /// Finds an attachment in the database using its identifier.
