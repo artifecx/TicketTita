@@ -114,7 +114,7 @@ namespace ASI.Basecode.Data.Repositories
             return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
         }
 
-        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder)
+        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
             var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
 
@@ -142,15 +142,45 @@ namespace ASI.Basecode.Data.Repositories
                 case "CreatedDate":
                     articles = sortOrder == "asc" ? articles.OrderBy(x => x.CreatedDate) : articles.OrderByDescending(x => x.CreatedDate);
                     break;
-                case "UpdateDate":
-                    articles = sortOrder == "asc" ? articles.OrderBy(x => x.UpdatedDate) : articles.OrderByDescending(x => x.UpdatedDate);
+                case "UpdatedDate":
+                    if (sortOrder == "asc")
+                    {
+                        articles = articles
+                            .OrderBy(x => !x.UpdatedDate.HasValue) // Articles with null UpdatedDate first
+                            .ThenBy(x => x.UpdatedDate) // Sort by UpdatedDate for those that have a value
+                            .ThenBy(x => x.CreatedDate); // Sort by CreatedDate for those with null UpdatedDate
+                    }
+                    else
+                    {
+                        articles = articles
+                            .OrderBy(x => x.UpdatedDate.HasValue) // Articles with null UpdatedDate last
+                            .ThenByDescending(x => x.UpdatedDate) // Sort by UpdatedDate for those that have a value
+                            .ThenByDescending(x => x.CreatedDate); // Sort by CreatedDate for those with null UpdatedDate
+                    }
                     break;
                 default:
                     articles = articles.OrderBy(a => a.CreatedDate);
                     break;
             }
 
-            return articles;
+            return articles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
+
+        public int CountArticles(string searchTerm, List<string> selectedCategories)
+        {
+            var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
+            }
+
+            if (selectedCategories != null && selectedCategories.Any())
+            {
+                articles = articles.Where(x => selectedCategories.Contains(x.CategoryId));
+            }
+
+            return articles.Count();
         }
 
         #region Assign Article Properties

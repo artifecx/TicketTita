@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel>
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel>
 @using ASI.Basecode.Data.Models
 
 @{
@@ -11,12 +11,12 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-<form asp-action="Search" method="get">
-    <input type="text" name="searchTerm" placeholder="Search Articles..." />
+<form asp-action="Index" method="get">
+    <input type="text" name="searchTerm" placeholder="Search Articles..." value="@ViewBag.SearchTerm"/>
     <select id="categories" name="selectedCategories" multiple="multiple">
         @foreach (var category in ViewBag.Categories as IEnumerable<ArticleCategory>)
         {
-            <option value="@category.CategoryId">@category.CategoryName</option>
+            <option value="@category.CategoryId" selected="@(ViewBag.SelectedCategories != null && ((List<string>)ViewBag.SelectedCategories).Contains(category.CategoryId) ? "selected" : null)">@category.CategoryName</option>
         }
     </select>
     <select name="sortBy">
@@ -36,25 +36,25 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.ArticleId)
+                Article ID
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Category.CategoryName)
+                Category
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                Title
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Content)
+                Content
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreatedDate)
+                Date Created
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.UpdatedDate)
+                Date Updated
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Author.Name)
+                Author
             </th>
             <th></th>
         </tr>
@@ -100,6 +100,27 @@
         }
     </tbody>
 </table>
+
+<div>
+    @if (Model.HasPreviousPage)
+    {
+        <a asp-action="Index" 
+            asp-route-searchTerm="@ViewBag.SearchTerm" 
+            asp-route-selectedCategories="@string.Join(",", (List<string>) ViewBag.SelectedCategories)" 
+            asp-route-sortBy="ViewBag.SortBy" 
+            asp-route-sortOrder="ViewBag.SortOrder" 
+            asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+    }
+    @if (Model.HasNextPage)
+    {
+        <a asp-action="Index" 
+            asp-route-searchTerm="@ViewBag.SearchTerm" 
+            asp-route-selectedCategories="@string.Join(",", (List<string>)ViewBag.SelectedCategories)" 
+            asp-route-sortBy="@ViewBag.SortBy" 
+            asp-route-sortOrder="@ViewBag.SortOrder" 
+            asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+    }
+</div>
 
 <div class="modal fade" id="deleteModal">
     <div class="modal-dialog">

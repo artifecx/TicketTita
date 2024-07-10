@@ -6,7 +6,7 @@
 .sidebar {
     position: sticky;
     width: 200px;
-    height: 100vh;
+    min-height: 100vh;
     background-color: var(--background-color1);
     z-index: 100;
     padding: 20px;
@@ -36,10 +36,6 @@
 .content {
     flex-grow: 1;
     display: flex;
-    padding-left: 30px;
-    padding-right: 30px;
-    padding-top: 10px;
-    padding-bottom: 30px;
     flex-direction: column;
 }
 
@@ -50,3 +46,10 @@
     padding: 10px;
 }
 
+.modal-footer {
+    background-color: var(--background-color5) !important;
+}
+
+.bg-gray {
+    background-color: var(--background-color5) !important;
+}

@@ -41,22 +41,65 @@ namespace ASI.Basecode.WebApp.Controllers
 
         /// <summary>Show all tickets</summary>
         [Authorize]
-        public IActionResult ViewAll()
+        public IActionResult ViewAll(string sortBy, string filterBy, string filterValue)
         {
             return HandleException(() =>
             {
-                var tickets = _ticketService.GetAll().ToList();
-                var UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var tickets = _ticketService.GetAll();
+                ViewBag.PriorityTypes = _ticketService.GetPriorityTypes().Select(pt => pt.PriorityName).Distinct().ToList();
+                ViewBag.StatusTypes = _ticketService.GetStatusTypes().Select(st => st.StatusName).Distinct().ToList();
+                ViewBag.CategoryTypes = _ticketService.GetCategoryTypes().Select(ct => ct.CategoryName).Distinct().ToList();
 
                 if (User.IsInRole("Employee"))
                 {
-                    tickets = tickets.Where(x => x.UserId == UserId).ToList();
+                    tickets = tickets.Where(x => x.UserId == UserId);
                 } 
                 else if(User.IsInRole("Support Agent"))
                 {
-                    tickets = tickets.Where(x => x.Agent?.UserId == UserId).ToList();
+                    tickets = tickets.Where(x => x.Agent != null && x.Agent.UserId == UserId);
                 }
-                
+
+                if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
+                {
+                    tickets = filterBy.ToLower() switch
+                    {
+                        "priority" => tickets.Where(t => t.PriorityType.PriorityName == filterValue),
+                        "status" => tickets.Where(t => t.StatusType.StatusName == filterValue),
+                        "category" => tickets.Where(t => t.CategoryType.CategoryName == filterValue),
+                        _ => tickets
+                    };
+                }
+
+                tickets = tickets switch
+                {
+                    not null => sortBy switch
+                    {
+                        "id_desc" => tickets.OrderByDescending(t => t.TicketId),
+                        "subject_desc" => tickets.OrderByDescending(t => t.Subject),
+                        "subject" => tickets.OrderBy(t => t.Subject),
+                        "status_desc" => tickets.OrderByDescending(t => t.StatusTypeId),
+                        "status" => tickets.OrderBy(t => t.StatusTypeId),
+                        "priority_desc" => tickets.OrderByDescending(t => t.PriorityTypeId),
+                        "priority" => tickets.OrderBy(t => t.PriorityTypeId),
+                        "category_desc" => tickets.OrderByDescending(t => t.CategoryType.CategoryName),
+                        "category" => tickets.OrderBy(t => t.CategoryType.CategoryName),
+                        "user_desc" => tickets.OrderByDescending(t => t.User.Name),
+                        "user" => tickets.OrderBy(t => t.User.Name),
+                        "created_desc" => tickets.OrderByDescending(t => t.CreatedDate),
+                        "created" => tickets.OrderBy(t => t.CreatedDate),
+                        "updated_desc" => tickets.OrderByDescending(t => t.UpdatedDate),
+                        "updated" => tickets.OrderBy(t => t.UpdatedDate),
+                        "resolved_desc" => tickets.OrderByDescending(t => t.ResolvedDate),
+                        "resolved" => tickets.OrderBy(t => t.ResolvedDate),
+                        _ => tickets.OrderBy(t => t.TicketId),
+                    },
+                    _ => tickets
+                };
+
+                ViewData["FilterBy"] = filterBy;
+                ViewData["FilterValue"] = filterValue;
+                ViewData["SortBy"] = sortBy;
+
                 return View(tickets);
             }, "ViewAll");
         }
