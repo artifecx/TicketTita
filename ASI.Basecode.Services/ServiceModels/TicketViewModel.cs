@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace ASI.Basecode.Services.ServiceModels
 {
@@ -61,7 +62,9 @@ namespace ASI.Basecode.Services.ServiceModels
         #endregion
 
 
-        #region Relationships        
+        #region Relationships
+        public string AgentId { get; set; }
+
         /// <summary>The agent assigned to the ticket.</summary>
         [Display(Name = "Assignee")]
         public User Agent { get; set; }
@@ -77,6 +80,9 @@ namespace ASI.Basecode.Services.ServiceModels
         /// <summary>The file uploaded taken when create/edit is submitted.</summary>
         [Display(Name = "File")]
         public IFormFile File { get; set; }
+
+        [Display(Name = "Feedback")]
+        public Feedback Feedback { get; set; }
         #endregion
 
 

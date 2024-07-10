@@ -12,7 +12,10 @@ namespace ASI.Basecode.Data.Migrations
             migrationBuilder.InsertData(
                 table: "Admin",
                 columns: new[] { "admin_ID", "name", "email", "password", "isSuper" },
-                values: new object[] { "D56F556E-50A4-4240-A0FF-9A6898B3A03B", "Joel", "joel@example.com", "securepassword", true }
+                values: new object[,] { 
+                    { "D56F556E-50A4-4240-A0FF-9A6898B3A03B", "Joel", "joel@example.com", "securepassword", true },
+                    { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", true },
+                }
             );
 
             migrationBuilder.InsertData(
@@ -36,6 +39,10 @@ namespace ASI.Basecode.Data.Migrations
                     { "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", "Agent A", "agenta@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
                     { "71e6123f-641d-42fe-937f-07a5cd27977f", "Agent B", "agentb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
+                        "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
+                    { "9d6b7566-8c39-4027-a1dd-e96411cdb907", "Employee A", "employeea@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
+                        "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
+                    { "ddcd70c8-9939-4159-9f09-5377c6478167", "Employee B", "employeeb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" }
                 }
             );
@@ -94,6 +101,24 @@ namespace ASI.Basecode.Data.Migrations
                 {
                     { "33e3e490-cf80-428b-b1d6-67c3455ac462", "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", null },
                     { "0ee1f465-9b7d-4199-b384-121990d92f9d", "71e6123f-641d-42fe-937f-07a5cd27977f", null }
+                }
+            );
+
+            migrationBuilder.InsertData(
+                table: "ArticleCategory",
+                columns: new[] { "category_ID", "categoryName", "description" },
+                values: new object[,]
+                {
+                    { "1", "Getting Started", "Articles on how to get started." },
+                    { "2", "Troubleshooting", "Articles on troubleshooting." },
+                    { "3", "Product Features", "Articles on features of a product." },
+                    { "4", "How-to Guides", "Articles on processes." },
+                    { "5", "FAQs", "Articles on frequently asked questions." },
+                    { "6", "Best Practices", "Articles on the best practices." },
+                    { "7", "Release Notes", "Articles on release notes." },
+                    { "8", "Policies and Procedures", "Articles on policies and procedures." },
+                    { "9", "Technical Documentation", "Articles on technical documentations." },
+                    { "10", "Account Management", "Articles on the management of accounts." }
                 }
             );
         }

@@ -2,6 +2,7 @@
 using ASI.Basecode.Services.ServiceModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ASI.Basecode.Services.Interfaces
 {
@@ -14,19 +15,20 @@ namespace ASI.Basecode.Services.Interfaces
         void RemoveAttachment(string attachmentId);
         void AddTicketAssignment(TicketViewModel model);
         void RemoveAssignment(string id);
-        IEnumerable<TicketViewModel> GetAll();
+        IQueryable<TicketViewModel> GetAll();
         TicketViewModel GetTicketById(string id);
-        IEnumerable<TicketViewModel> GetUnresolvedTickets();
-        IEnumerable<TicketViewModel> GetTicketsByAssignmentStatus(string status);
+        IQueryable<TicketViewModel> GetUnresolvedTickets();
+        IQueryable<TicketViewModel> GetTicketsByAssignmentStatus(string status);
         Object GetTicketDetails(string id);
         Attachment GetAttachmentByTicketId(string id);
         TicketAssignment GetAssignmentByTicketId(string id);
         Team GetTeamByUserId(string id);
         User GetAgentById(string id);
-        IEnumerable<CategoryType> GetCategoryTypes();
-        IEnumerable<StatusType> GetStatusTypes();
-        IEnumerable<User> GetSupportAgents();
-        IEnumerable<TicketAssignment> GetTicketAssignments();
+        IQueryable<CategoryType> GetCategoryTypes();
+        IQueryable<StatusType> GetStatusTypes();
+        IQueryable<PriorityType> GetPriorityTypes();
+        IQueryable<User> GetSupportAgents();
+        IQueryable<TicketAssignment> GetTicketAssignments();
         TicketViewModel InitializeModel(string type);
         string ExtractAgentId(string id);
     }
