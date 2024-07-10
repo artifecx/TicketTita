@@ -7,6 +7,7 @@ namespace ASI.Basecode.Data.Models
     {
         public string FeedbackId { get; set; }
         public DateTime CreatedDate { get; set; }
+        public int FeedbackRating { get; set; }
         public string FeedbackContent { get; set; }
         public string TicketId { get; set; }
         public string UserId { get; set; }

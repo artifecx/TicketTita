@@ -40,8 +40,7 @@ namespace ASI.Basecode.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Addr=localhost;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True");
+                optionsBuilder.UseSqlServer("Addr=localhost;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True;MultipleActiveResultSets=True;");
             }
         }
 
@@ -52,6 +51,14 @@ namespace ASI.Basecode.Data
                 entity.HasKey(e => e.ActivityId);
 
                 entity.ToTable("ActivityLog");
+
+                entity.HasIndex(e => e.ActivityDate, "IX_ActivityLog_ActivityDate");
+
+                entity.HasIndex(e => e.ActivityType, "IX_ActivityLog_ActivityType");
+
+                entity.HasIndex(e => e.TicketId, "IX_ActivityLog_TicketID");
+
+                entity.HasIndex(e => e.UserId, "IX_ActivityLog_UserID");
 
                 entity.Property(e => e.ActivityId)
                     .HasMaxLength(256)
@@ -96,6 +103,12 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("Admin");
 
+                entity.HasIndex(e => e.Email, "IX_Admin_Email");
+
+                entity.HasIndex(e => e.IsSuper, "IX_Admin_IsSuper");
+
+                entity.HasIndex(e => e.Name, "IX_Admin_Name");
+
                 entity.Property(e => e.AdminId)
                     .HasMaxLength(256)
                     .HasColumnName("admin_ID");
@@ -124,6 +137,8 @@ namespace ASI.Basecode.Data
 
                 entity.ToTable("ArticleCategory");
 
+                entity.HasIndex(e => e.CategoryName, "IX_ArticleCategory_Name");
+
                 entity.Property(e => e.CategoryId)
                     .HasMaxLength(256)
                     .HasColumnName("category_ID");
@@ -141,6 +156,12 @@ namespace ASI.Basecode.Data
             modelBuilder.Entity<Attachment>(entity =>
             {
                 entity.ToTable("Attachment");
+
+                entity.HasIndex(e => e.Name, "IX_Attachment_Name");
+
+                entity.HasIndex(e => e.TicketId, "IX_Attachment_TicketID");
+
+                entity.HasIndex(e => e.UploadedDate, "IX_Attachment_UploadedDate");
 
                 entity.Property(e => e.AttachmentId)
                     .HasMaxLength(256)
@@ -181,6 +202,8 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("CategoryType");
 
+                entity.HasIndex(e => e.CategoryName, "IX_CategoryType_Name");
+
                 entity.Property(e => e.CategoryTypeId)
                     .HasMaxLength(256)
                     .HasColumnName("categoryType_ID");
@@ -199,6 +222,17 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("Feedback");
 
+                entity.HasIndex(e => e.CreatedDate, "IX_Feedback_CreatedDate");
+
+                entity.HasIndex(e => e.FeedbackRating, "IX_Feedback_Rating");
+
+                entity.HasIndex(e => e.TicketId, "IX_Feedback_TicketID");
+
+                entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
+
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD622FF19777")
+                    .IsUnique();
+
                 entity.Property(e => e.FeedbackId)
                     .HasMaxLength(256)
                     .HasColumnName("feedback_ID");
@@ -212,6 +246,8 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasColumnName("feedbackContent");
 
+                entity.Property(e => e.FeedbackRating).HasColumnName("feedbackRating");
+
                 entity.Property(e => e.TicketId)
                     .IsRequired()
                     .HasMaxLength(256)
@@ -223,8 +259,8 @@ namespace ASI.Basecode.Data
                     .HasColumnName("user_ID");
 
                 entity.HasOne(d => d.Ticket)
-                    .WithMany(p => p.Feedbacks)
-                    .HasForeignKey(d => d.TicketId)
+                    .WithOne(p => p.Feedback)
+                    .HasForeignKey<Feedback>(d => d.TicketId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Feedback_Ticket");
 
@@ -240,6 +276,16 @@ namespace ASI.Basecode.Data
                 entity.HasKey(e => e.ArticleId);
 
                 entity.ToTable("KnowledgeBaseArticle");
+
+                entity.HasIndex(e => e.AuthorId, "IX_KnowledgeBaseArticle_AuthorID");
+
+                entity.HasIndex(e => e.CategoryId, "IX_KnowledgeBaseArticle_CategoryID");
+
+                entity.HasIndex(e => e.CreatedDate, "IX_KnowledgeBaseArticle_CreatedDate");
+
+                entity.HasIndex(e => e.Title, "IX_KnowledgeBaseArticle_Title");
+
+                entity.HasIndex(e => e.UpdatedDate, "IX_KnowledgeBaseArticle_UpdatedDate");
 
                 entity.Property(e => e.ArticleId)
                     .HasMaxLength(256)
@@ -290,6 +336,12 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("Notification");
 
+                entity.HasIndex(e => e.NotificationDate, "IX_Notification_Date");
+
+                entity.HasIndex(e => e.TicketId, "IX_Notification_TicketID");
+
+                entity.HasIndex(e => e.NotificationTypeId, "IX_Notification_TypeID");
+
                 entity.Property(e => e.NotificationId)
                     .HasMaxLength(256)
                     .HasColumnName("notification_ID");
@@ -326,6 +378,8 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("NotificationType");
 
+                entity.HasIndex(e => e.Title, "IX_NotificationType_Title");
+
                 entity.Property(e => e.NotificationTypeId)
                     .HasMaxLength(256)
                     .HasColumnName("notificationType_ID");
@@ -346,6 +400,12 @@ namespace ASI.Basecode.Data
 
                 entity.ToTable("PerformanceReport");
 
+                entity.HasIndex(e => e.AssignedDate, "IX_PerformanceReport_AssignedDate");
+
+                entity.HasIndex(e => e.AverageResolutionTime, "IX_PerformanceReport_AvgResolutionTime");
+
+                entity.HasIndex(e => e.ResolvedTickets, "IX_PerformanceReport_ResolvedTickets");
+
                 entity.Property(e => e.ReportId)
                     .HasMaxLength(256)
                     .HasColumnName("report_ID");
@@ -363,6 +423,8 @@ namespace ASI.Basecode.Data
             modelBuilder.Entity<PriorityType>(entity =>
             {
                 entity.ToTable("PriorityType");
+
+                entity.HasIndex(e => e.PriorityName, "IX_PriorityType_Name");
 
                 entity.Property(e => e.PriorityTypeId)
                     .HasMaxLength(256)
@@ -382,6 +444,8 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("Role");
 
+                entity.HasIndex(e => e.RoleName, "IX_Role_Name");
+
                 entity.Property(e => e.RoleId)
                     .HasMaxLength(256)
                     .HasColumnName("role_ID");
@@ -400,6 +464,8 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("StatusType");
 
+                entity.HasIndex(e => e.StatusName, "IX_StatusType_Name");
+
                 entity.Property(e => e.StatusTypeId)
                     .HasMaxLength(256)
                     .HasColumnName("statusType_ID");
@@ -417,6 +483,8 @@ namespace ASI.Basecode.Data
             modelBuilder.Entity<Team>(entity =>
             {
                 entity.ToTable("Team");
+
+                entity.HasIndex(e => e.Name, "IX_Team_Name");
 
                 entity.Property(e => e.TeamId)
                     .HasMaxLength(256)
@@ -437,6 +505,13 @@ namespace ASI.Basecode.Data
                 entity.HasKey(e => new { e.TeamId, e.UserId });
 
                 entity.ToTable("TeamMember");
+
+                entity.HasIndex(e => e.ReportId, "IX_TeamMember_ReportID");
+
+                entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
+
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306834A3C45")
+                    .IsUnique();
 
                 entity.Property(e => e.TeamId)
                     .HasMaxLength(256)
@@ -462,8 +537,8 @@ namespace ASI.Basecode.Data
                     .HasConstraintName("FK_TeamMember_Team");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.TeamMembers)
-                    .HasForeignKey(d => d.UserId)
+                    .WithOne(p => p.TeamMember)
+                    .HasForeignKey<TeamMember>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TeamMember_User");
             });
@@ -471,6 +546,22 @@ namespace ASI.Basecode.Data
             modelBuilder.Entity<Ticket>(entity =>
             {
                 entity.ToTable("Ticket");
+
+                entity.HasIndex(e => e.CategoryTypeId, "IX_Ticket_CategoryTypeID");
+
+                entity.HasIndex(e => e.CreatedDate, "IX_Ticket_CreatedDate");
+
+                entity.HasIndex(e => e.PriorityTypeId, "IX_Ticket_PriorityTypeID");
+
+                entity.HasIndex(e => e.ResolvedDate, "IX_Ticket_ResolvedDate");
+
+                entity.HasIndex(e => e.StatusTypeId, "IX_Ticket_StatusTypeID");
+
+                entity.HasIndex(e => e.Subject, "IX_Ticket_Subject");
+
+                entity.HasIndex(e => e.UpdatedDate, "IX_Ticket_UpdatedDate");
+
+                entity.HasIndex(e => e.UserId, "IX_Ticket_UserID");
 
                 entity.Property(e => e.TicketId)
                     .HasMaxLength(256)
@@ -550,6 +641,17 @@ namespace ASI.Basecode.Data
 
                 entity.ToTable("TicketAssignment");
 
+                entity.HasIndex(e => e.AdminId, "IX_TicketAssignment_AdminID");
+
+                entity.HasIndex(e => e.AssignedDate, "IX_TicketAssignment_AssignedDate");
+
+                entity.HasIndex(e => e.TeamId, "IX_TicketAssignment_TeamID");
+
+                entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
+
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD628C657268")
+                    .IsUnique();
+
                 entity.Property(e => e.AssignmentId)
                     .HasMaxLength(256)
                     .HasColumnName("assignment_ID");
@@ -587,8 +689,8 @@ namespace ASI.Basecode.Data
                     .HasConstraintName("FK_TicketAssignment_Team");
 
                 entity.HasOne(d => d.Ticket)
-                    .WithMany(p => p.TicketAssignments)
-                    .HasForeignKey(d => d.TicketId)
+                    .WithOne(p => p.TicketAssignment)
+                    .HasForeignKey<TicketAssignment>(d => d.TicketId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TicketAssignment_Ticket");
             });
@@ -596,6 +698,20 @@ namespace ASI.Basecode.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
+
+                entity.HasIndex(e => e.CreatedBy, "IX_User_CreatedBy");
+
+                entity.HasIndex(e => e.CreatedTime, "IX_User_CreatedTime");
+
+                entity.HasIndex(e => e.Email, "IX_User_Email");
+
+                entity.HasIndex(e => e.Name, "IX_User_Name");
+
+                entity.HasIndex(e => e.RoleId, "IX_User_RoleID");
+
+                entity.HasIndex(e => e.UpdatedBy, "IX_User_UpdatedBy");
+
+                entity.HasIndex(e => e.UpdatedTime, "IX_User_UpdatedTime");
 
                 entity.Property(e => e.UserId)
                     .HasMaxLength(256)
