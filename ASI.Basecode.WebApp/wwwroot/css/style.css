@@ -18,10 +18,12 @@
     --background-color6: #A5A1A1; /* Gray */
     --primary-color: #052542; /* Dark Blue */
     --secondary-color: #073d67; /* Medium Dark Blue */
+    --danger-color: #AE1B1E; /* Danger color: Red */
     --border-color: #D4D7DC; /* Light Gray for Borders */
     --one-use-color: #3f0097; /* Deep Purple */
     --two-use-color: #5500cb; /* Vibrant Purple */
     --text-color-gray: #A5A1A1; /* Gray for Text */
+    --text-color-gray-2: #696060; /* Gray for Text 2 */
     --text-color-white: #ffffff; /* White for Text */
 }
 
@@ -375,8 +377,25 @@ header {
     color: var(--text-color-gray);
 }
 
+.text-color-gray-2 {
+    color: var(--text-color-gray-2);
+}
+
 .text-color-white {
     color: var(--text-color-white);
+}
+
+.nav-header {
+    padding: 15px;
+    padding-top: 30px;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-control:hover, .form-control:active, .form-control:focus {
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 5px 2px rgba(5, 37, 66, 0.2) !important;
 }
 
 .btn-primary {
@@ -398,4 +417,61 @@ header {
     .btn-secondary:hover {
         background-color: var(--background-color6);
         color: black;
+    }
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+}
+
+    .btn-danger:hover {
+        background-color: #C23235;
+        color: white;
+    }
+
+.btn-radius {
+    border-radius: 20px;
+}
+
+.btn-radius-r {
+    border-radius: 20px;
+}
+
+a.btn {
+    color: white;
+}
+
+    a.btn:hover {
+        color: white;
+    }
+
+a.text-black {
+    color: black;
+}
+
+    a.text-black:hover {
+        color: black;
+        text-decoration: none;
+    }
+
+a.text-gray {
+    color: var(--text-color-gray);
+}
+
+.table-white {
+    border: 1px solid var(--border-color);
+}
+
+.action-icon {
+    color: var(--background-color6);
+    padding: 5px;
+    text-decoration: none;
+}
+
+    .action-icon:hover {
+        background-color: var(--background-color6); 
+        color: black;
+        border-radius: 4px;
+        text-decoration: none;
     }
