@@ -40,7 +40,8 @@ namespace ASI.Basecode.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Addr=localhost;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True;MultipleActiveResultSets=True;");
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Addr=FRIESDEVOURER;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True;MultipleActiveResultSets=True;");
             }
         }
 
@@ -230,7 +231,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD622FF19777")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD625CA3EFC7")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -510,7 +511,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306834A3C45")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF330613093DC2")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -649,7 +650,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD628C657268")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD6243D1B6DB")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)
