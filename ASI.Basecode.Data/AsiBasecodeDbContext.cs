@@ -41,7 +41,9 @@ namespace ASI.Basecode.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Addr=FRIESDEVOURER;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True;MultipleActiveResultSets=True;");
+
+                optionsBuilder.UseSqlServer("Addr=localhost;database=AsiBasecodeDb;Integrated Security=False;Trusted_Connection=True;MultipleActiveResultSets=True;");
+
             }
         }
 
@@ -232,6 +234,7 @@ namespace ASI.Basecode.Data
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
                 entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD625CA3EFC7")
+
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -347,6 +350,13 @@ namespace ASI.Basecode.Data
                     .HasMaxLength(256)
                     .HasColumnName("notification_ID");
 
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .HasColumnName("description");
+
+                entity.Property(e => e.IsRead).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.NotificationDate)
                     .HasColumnType("datetime")
                     .HasColumnName("notificationDate")
@@ -361,6 +371,16 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnName("ticket_ID");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .HasColumnName("title");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("userId");
 
                 entity.HasOne(d => d.NotificationType)
                     .WithMany(p => p.Notifications)
@@ -649,8 +669,8 @@ namespace ASI.Basecode.Data
                 entity.HasIndex(e => e.TeamId, "IX_TicketAssignment_TeamID");
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
-
                 entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD6243D1B6DB")
+
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)
