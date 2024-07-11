@@ -22,13 +22,14 @@ namespace ASI.Basecode.Services.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TicketService> _logger;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
-        public TicketService(ITicketRepository repository, IAdminRepository adminRepository,
+        public TicketService(ITicketRepository repository, IAdminRepository adminRepository, INotificationService notificationService,
                             IUserRepository userRepository, IFeedbackRepository feedbackRepository, IMapper mapper, 
                             ILogger<TicketService> logger, IHttpContextAccessor httpContextAccessor)
         {
@@ -39,6 +40,7 @@ namespace ASI.Basecode.Services.Services
             _feedbackRepository = feedbackRepository;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _notificationService = notificationService;
         }
 
         #region Ticket CRUD Operations
@@ -155,13 +157,29 @@ namespace ASI.Basecode.Services.Services
             var assignment = GetAssignmentByTicketId(model.TicketId);
             if (assignment == null)
             {
-                var ticket = _repository.FindById(model.TicketId);
                 assignment = CreateTicketAssignment(model);
-                ticket.TicketAssignment = assignment;
                 _repository.AssignTicket(assignment);
+
+                string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
+                string userNotificationTitle = $"Ticket #{model.TicketId} has been assigned to an agent.";
+
+                var ticket = _repository.FindById(model.TicketId);
+                if (ticket == null)
+                {
+                    LogError("AddTicketAssignment", "Ticket not found.");
+                    return;
+                }
+
+                // Use the UserId from the retrieved ticket
+                _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
+                _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, userNotificationTitle);
             }
-            LogError("AddTicketAssignment", "Assignment already exists.");
+            else
+            {
+                LogError("AddTicketAssignment", "Assignment already exists.");
+            }
         }
+
 
         /// <summary>
         /// Removes a ticket assignment.
