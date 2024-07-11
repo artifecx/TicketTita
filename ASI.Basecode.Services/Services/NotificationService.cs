@@ -63,7 +63,7 @@ namespace ASI.Basecode.Services.Services
 
         public void AddNotification(string ticketId, string description, string notificationTypeId, string userId, string title)
         {
-            var ticket = _ticketRepository.FindById(ticketId);
+            var ticket = _ticketRepository.FindByIdAsync(ticketId);
             if (ticket != null)
             {
                 var notification = new Notification

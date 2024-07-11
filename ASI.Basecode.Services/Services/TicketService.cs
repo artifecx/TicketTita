@@ -240,10 +240,9 @@ namespace ASI.Basecode.Services.Services
                 assignment.Ticket = ticket;
                 await _repository.AssignTicketAsync(assignment);
                 
-                          string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
+                string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
                 string userNotificationTitle = $"Ticket #{model.TicketId} has been assigned to an agent.";
 
-                var ticket = _repository.FindById(model.TicketId);
                 if (ticket == null)
                 {
                     LogError("AddTicketAssignment", "Ticket not found.");
