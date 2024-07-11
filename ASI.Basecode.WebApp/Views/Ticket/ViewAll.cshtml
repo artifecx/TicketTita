@@ -128,6 +128,14 @@
             <th></th>
         </tr>
     </thead>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            No tickets found matching criteria.
+        </div>
+    }
+    else
+    {
     <tbody>
         @foreach (var item in Model)
         {
@@ -217,6 +225,7 @@
             </tr>
         }
     </tbody>
+    }
 </table>
 
 <div class="modal fade" id="deleteModal">
@@ -246,6 +255,11 @@
             itemId = id;
             $('#deleteModal').modal('show');
         }
+
+        $('#deleteModal').on('hidden.bs.modal', function () {
+            toastr.info("Deletion cancelled, no changes were made");
+        });
+
         $('#confirmDeleteBtn').on('click', function () {
             $.ajax({
                 url: '@Url.Action("Delete", "Ticket")',

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -86,6 +87,18 @@ namespace ASI.Basecode.Services.Services
             var existingTicket = await _repository.FindByIdAsync(ticket.TicketId);
             if (existingTicket != null)
             {
+                bool hasChanges = existingTicket.CategoryTypeId != ticket.CategoryTypeId ||
+                          existingTicket.PriorityTypeId != ticket.PriorityTypeId ||
+                          existingTicket.IssueDescription != ticket.IssueDescription ||
+                          existingTicket.StatusTypeId != ticket.StatusTypeId ||
+                          existingTicket.Subject != ticket.Subject ||
+                          (existingTicket.Attachments?.FirstOrDefault()?.AttachmentId != ticket.Attachment?.AttachmentId);
+
+                if (!hasChanges)
+                {
+                    throw new NoChangesException("No changes were made to the ticket.", ticket.TicketId);
+                }
+
                 ticket.UpdatedDate = DateTime.Now;
                 ticket.CategoryType = await _repository.FindCategoryByIdAsync(ticket.CategoryTypeId);
                 ticket.PriorityType = await _repository.FindPriorityByIdAsync(ticket.PriorityTypeId);
@@ -588,7 +601,7 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                    _logger.LogError("File type not allowed or file size exceeds the limit."); 
+                    throw new InvalidFileException("File type not allowed or file size exceeds the limit.", ticket.TicketId);
                 }
             }
             _logger.LogInformation("=======Ticket Service : HandleAttachmentAsync Ended=======");

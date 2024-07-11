@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Build.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using ASI.Basecode.Services.Exceptions;
+using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -231,6 +234,18 @@ namespace ASI.Basecode.WebApp.Mvc
             {
                 StartLog(actionName);
                 return await action();
+            }
+            catch (NoChangesException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return RedirectToAction(actionName, new { id = ex.Id });
+            }
+            catch (InvalidFileException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return actionName == "Create" ? RedirectToAction(actionName) : RedirectToAction(actionName, new { id = ex.Id });
             }
             catch (Exception ex)
             {
