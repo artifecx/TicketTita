@@ -49,6 +49,12 @@ namespace ASI.Basecode.Services.Services
         /// <param name="userId">User identifier</param>
         public async Task AddAsync(TicketViewModel ticket, string userId)
         {
+            if (await IsDuplicateTicketAsync(ticket, userId))
+            {
+                LogError("AddAsync", "Duplicate ticket detected.");
+                throw new DuplicateTicketException("A similar ticket already exists.");
+            }
+
             if (ticket != null)
             {
                 if (ticket.File != null)
@@ -69,10 +75,6 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _repository.AddAsync(newTicket);
                 }
-            }
-            else
-            {
-                LogError("AddAsync", "Invalid ticket passed.");
             }
         }
 
@@ -122,6 +124,19 @@ namespace ASI.Basecode.Services.Services
             {
                 LogError("UpdateAsync", "Ticket does not exist.");
             }
+        }
+
+        /// <summary>
+        /// Calls the repository to check if a ticket is a duplicate.
+        /// </summary>
+        /// <param name="ticket">The new ticket</param>
+        /// <param name="userId">User identifier</param>
+        /// <returns>true or false</returns>
+        private async Task<bool> IsDuplicateTicketAsync(TicketViewModel ticket, string userId)
+        {
+            var duplicateTickets = await _repository.FindByUserIdAsync(userId);
+            return duplicateTickets.Any(t => t.Subject.ToLower() == ticket.Subject.ToLower() &&
+                                             t.CategoryTypeId == ticket.CategoryTypeId);
         }
 
         /// <summary>
