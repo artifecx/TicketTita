@@ -63,9 +63,6 @@ namespace ASI.Basecode.Services.Services
 
         public void AddNotification(string ticketId, string description, string notificationTypeId, string userId, string title)
         {
-            var ticket = _ticketRepository.FindByIdAsync(ticketId).Result;
-            if (ticket != null)
-            {
                 var notification = new Notification
                 {
                     NotificationId = Guid.NewGuid().ToString(),
@@ -77,11 +74,7 @@ namespace ASI.Basecode.Services.Services
                     NotificationTypeId = notificationTypeId
                 };
                 _notificationRepository.Add(notification);
-            }
-            else
-            {
-                throw new ArgumentException("Invalid ticket ID");
-            }
+           
         }
         public bool HasUnreadNotifications(string userId)
         {

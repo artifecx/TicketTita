@@ -76,9 +76,9 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                 string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
-                _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
                     await _repository.AddAsync(newTicket);
+                    string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
+                    _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
                 }
             }
         }

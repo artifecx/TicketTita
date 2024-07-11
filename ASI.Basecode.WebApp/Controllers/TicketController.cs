@@ -42,7 +42,7 @@ namespace ASI.Basecode.WebApp.Controllers
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             _ticketService = ticketService;
-             this._notificationService = notificationService;
+            _notificationService = notificationService;
         }
 
         #region GET methods
