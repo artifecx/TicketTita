@@ -124,7 +124,7 @@ namespace ASI.Basecode.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "NotificationType",
-                columns: new[] { "NotificationTypeId", "TypeName", "Description" },
+                columns: new[] { "notificationType_ID", "title", "description" },
                 values: new object[,]
                 {
                     { "1", "Ticket Created", "Sends Notification upon Ticket Creation" },
