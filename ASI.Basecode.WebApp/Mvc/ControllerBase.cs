@@ -235,6 +235,12 @@ namespace ASI.Basecode.WebApp.Mvc
                 StartLog(actionName);
                 return await action();
             }
+            catch (DuplicateTicketException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return RedirectToAction(actionName);
+            }
             catch (NoChangesException ex)
             {
                 TempData["ErrorMessage"] = ex.Message.ToString();
