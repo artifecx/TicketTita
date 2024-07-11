@@ -41,6 +41,14 @@ namespace ASI.Basecode.WebApp.Controllers
             _ticketService = ticketService;
         }
 
+        #region GET methods
+        /// <summary>
+        /// Shows all tickets
+        /// </summary>
+        /// <param name="sortBy">User defined, taken from the page</param>
+        /// <param name="filterBy">User defined, taken from the page</param>
+        /// <param name="filterValue">User defined, taken from the page</param>
+        /// <returns>ViewAll page</returns>
         [Authorize]
         public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue)
         {
@@ -57,6 +65,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "ViewAll");
         }
 
+        /// <summary>
+        /// Shows a specific ticket
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
+        /// <returns>ViewTicket page</returns>
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> ViewTicket(string id)
@@ -70,6 +83,10 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "ViewTicket");
         }
 
+        /// <summary>
+        /// Shows the page to create a ticket
+        /// </summary>
+        /// <returns>Create page</returns>
         [HttpGet]
         [Authorize(Policy = "Employee")]
         public async Task<IActionResult> Create()
@@ -77,6 +94,10 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("default")), "Create");
         }
 
+        /// <summary>
+        /// Shows the page to update the status of a ticket
+        /// </summary>
+        /// <returns>UpdateStatus page</returns>
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> UpdateStatus()
@@ -84,6 +105,10 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("status")), "UpdateStatus");
         }
 
+        /// <summary>
+        /// Shows the page to update the priority of a ticket
+        /// </summary>
+        /// <returns>UpdatePriority page</returns>
         [HttpGet]
         [Authorize(Policy = "AdminOrAgent")]
         public async Task<IActionResult> UpdatePriority()
@@ -91,6 +116,10 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("priority")), "UpdatePriority");
         }
 
+        /// <summary>
+        /// Shows the page to assign a ticket
+        /// </summary>
+        /// <returns>AssignTicket page</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AssignTicket()
@@ -98,6 +127,10 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("assign")), "AssignTicket");
         }
 
+        /// <summary>
+        /// Shows the page to reassign a ticket
+        /// </summary>
+        /// <returns>ReassignTicket page</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ReassignTicket()
@@ -105,6 +138,11 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("reassign")), "ReassignTicket");
         }
 
+        /// <summary>
+        /// Shows the page to edit a ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Edit page</returns>
         [HttpGet]
         [Authorize(Policy = "Employee")]
         public async Task<IActionResult> Edit(string id)
@@ -118,6 +156,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Edit");
         }
 
+        /// <summary>
+        /// Fetches the ticket details to be used in the view
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Json containing ticket details</returns>
         [HttpGet]
         [Authorize]
         public async Task<JsonResult> GetTicketDetails(string id)
@@ -131,6 +174,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "GetTicketDetails");
         }
 
+        /// <summary>
+        /// Allows the user to download the attachment
+        /// </summary>
+        /// <param name="id">Attachment identifier</param>
+        /// <returns>The file to download</returns>
         [HttpGet]
         [Authorize]
         public async Task<FileResult> DownloadAttachment(string id)
@@ -143,7 +191,14 @@ namespace ASI.Basecode.WebApp.Controllers
                 return File(attachment.Content, "application/octet-stream", attachment.Name);
             }, "DownloadAttachment");
         }
+        #endregion GET methods
 
+        #region POST methods
+        /// <summary>
+        /// Allows the user to create a ticket
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>ViewAll page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create(TicketViewModel model)
@@ -160,6 +215,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Create");
         }
 
+        /// <summary>
+        /// Allows the user to edit a ticket
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>ViewAll page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Edit(TicketViewModel model)
@@ -172,6 +232,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Edit");
         }
 
+        /// <summary>
+        /// Allows the user to update the ticket status
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>ViewTicket page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> UpdateStatus(TicketViewModel model)
@@ -187,6 +252,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "UpdateStatus");
         }
 
+        /// <summary>
+        /// Allows the user to update the ticket priority
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>ViewTicket page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> UpdatePriority(TicketViewModel model)
@@ -202,6 +272,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "UpdatePriority");
         }
 
+        /// <summary>
+        /// Allows the user to delete a ticket
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Delete(string id)
@@ -214,6 +289,12 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Delete");
         }
 
+        /// <summary>
+        /// Allows the user to remove an attachment from a ticket
+        /// </summary>
+        /// <param name="ticketId">Ticket identifier</param>
+        /// <param name="attachmentId">Attachment identifier</param>
+        /// <returns>Edit page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> RemoveAttachment(string ticketId, string attachmentId)
@@ -231,6 +312,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "RemoveAttachment");
         }
 
+        /// <summary>
+        /// Allows the user to assign a ticket to another user
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <returns>ViewTicket page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> AssignTicket(TicketViewModel model)
@@ -243,6 +329,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "AssignTicket");
         }
 
+        /// <summary>
+        /// Allows the user to reassign a ticket to another user
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <returns>ViewTicket page</returns>
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> ReassignTicket(TicketViewModel model)
@@ -262,7 +353,12 @@ namespace ASI.Basecode.WebApp.Controllers
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "ReassignTicket");
         }
+        #endregion POST methods
 
+        /// <summary>
+        /// Populates the view bag with the priority, status, category types and users
+        /// Used for dropdowns in the view
+        /// </summary>
         private async Task PopulateViewBagAsync()
         {
             var usersWithTickets = await _ticketService.GetUserIdsWithTicketsAsync();

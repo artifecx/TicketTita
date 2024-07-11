@@ -17,34 +17,35 @@ namespace ASI.Basecode.Services.Services
     public class TicketService : ITicketService
     {
         private readonly ITicketRepository _repository;
-        private readonly IAdminRepository _adminRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IFeedbackRepository _feedbackRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TicketService> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketService"/> class.
+        /// </summary>
+        /// <param name="repository">The repository</param>
+        /// <param name="mapper">The mapper</param>
+        /// <param name="logger">The logger</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor</param>
         public TicketService(
             ITicketRepository repository,
-            IAdminRepository adminRepository,
-            IUserRepository userRepository,
-            IFeedbackRepository feedbackRepository,
             IMapper mapper,
             ILogger<TicketService> logger,
             IHttpContextAccessor httpContextAccessor)
         {
             _repository = repository;
-            _adminRepository = adminRepository;
-            _userRepository = userRepository;
-            _feedbackRepository = feedbackRepository;
             _mapper = mapper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() => await _repository.GetUserIdsWithTicketsAsync();
-
         #region Ticket CRUD Operations
+        /// <summary>
+        /// Calls the repository to add a new ticket.
+        /// </summary>
+        /// <param name="ticket">Ticket identifier</param>
+        /// <param name="userId">User identifier</param>
         public async Task AddAsync(TicketViewModel ticket, string userId)
         {
             if (ticket != null)
@@ -74,6 +75,10 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Calls the repository to update an existing ticket.
+        /// </summary>
+        /// <param name="ticket">The ticket</param>
         public async Task UpdateAsync(TicketViewModel ticket)
         {
             if (ticket.File != null) await HandleAttachmentAsync(ticket);
@@ -106,6 +111,11 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Calls the repository to delete a ticket.
+        /// Deletes all attachments, assignments, and feedback associated with the ticket.
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
         public async Task DeleteAsync(string id)
         {
             var ticket = await _repository.FindByIdAsync(id);
@@ -124,6 +134,11 @@ namespace ASI.Basecode.Services.Services
         #endregion Ticket CRUD Operations
 
         #region Ticket Attachment CRUD Operations
+        /// <summary>
+        /// Calls the repository to add a new attachment.
+        /// </summary>
+        /// <param name="attachment">The attachment</param>
+        /// <param name="ticket">The ticket</param>
         public async Task AddAttachmentAsync(Attachment attachment, Ticket ticket)
         {
             if (attachment != null)
@@ -140,6 +155,10 @@ namespace ASI.Basecode.Services.Services
             LogError("AddAttachmentAsync", "No attachment passed.");
         }
 
+        /// <summary>
+        /// Calls the repository to remove an attachment.
+        /// </summary>
+        /// <param name="attachmentId"></param>
         public async Task RemoveAttachmentAsync(string attachmentId)
         {
             var attachment = await _repository.FindAttachmentByIdAsync(attachmentId);
@@ -153,6 +172,10 @@ namespace ASI.Basecode.Services.Services
         #endregion Ticket Attachment CRUD Operations
 
         #region Ticket Assignment CRUD Operations
+        /// <summary>
+        /// Calls the repository to add a new ticket assignment.
+        /// </summary>
+        /// <param name="model">The model</param>
         public async Task AddTicketAssignmentAsync(TicketViewModel model)
         {
             var assignment = await GetAssignmentByTicketIdAsync(model.TicketId);
@@ -170,26 +193,10 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
-        private async Task<TicketAssignment> CreateTicketAssignmentAsync(TicketViewModel model)
-        {
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-            var randomNumber = new Random().Next(1000, 9999);
-            var assignmentId = $"{model.Agent.UserId}-{timestamp}-{randomNumber}";
-            var currentAdmin = await GetCurrentAdminAsync();
-            var teamId = await GetTeamByUserIdAsync(model.Agent.UserId);
-
-            return new TicketAssignment
-            {
-                AssignmentId = assignmentId,
-                TeamId = teamId.TeamId,
-                TicketId = model.TicketId,
-                AssignedDate = DateTime.Now,
-                AdminId = currentAdmin.AdminId,
-                Team = await _repository.FindTeamByUserIdAsync(model.Agent.UserId),
-                Admin = currentAdmin
-            };
-        }
-
+        /// <summary>
+        /// Calls the repository to remove a ticket assignment.
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
         public async Task RemoveAssignmentAsync(string id)
         {
             var assignment = await GetAssignmentByTicketIdAsync(id);
@@ -203,6 +210,10 @@ namespace ASI.Basecode.Services.Services
         #endregion Ticket Assignment CRUD Operations
 
         #region Ticket Feedback CRUD Operations
+        /// <summary>
+        /// Calls the repository to remove a feedback.
+        /// </summary>
+        /// <param name="id">Feedback identifier</param>
         private async Task RemoveFeedbackByTicketIdAsync(string id)
         {
             var feedback = await GetFeedBackByIdAsync(id);
@@ -211,6 +222,10 @@ namespace ASI.Basecode.Services.Services
         #endregion Ticket Feedback CRUD Operations
 
         #region Get Methods
+        /// <summary>
+        /// Calls the repository to get all tickets.
+        /// </summary>
+        /// <returns>IEnumerable TicketViewModel</returns>
         public async Task<IEnumerable<TicketViewModel>> GetAllAsync()
         {
             var tickets = await _repository.GetAllAsync();
@@ -219,6 +234,11 @@ namespace ASI.Basecode.Services.Services
             return ticketViewModels;
         }
 
+        /// <summary>
+        /// Calls the repository to get a ticket by its identifier.
+        /// </summary>
+        /// <param name="id">The identifier</param>
+        /// <returns>TicketViewModel</returns>
         public async Task<TicketViewModel> GetTicketByIdAsync(string id)
         {
             var ticket = await _repository.FindByIdAsync(id);
@@ -227,12 +247,22 @@ namespace ASI.Basecode.Services.Services
             return mappedTicket;
         }
 
+        /// <summary>
+        /// Calls the repository to get all unresolved tickets.
+        /// </summary>
+        /// <returns>IEnumerable TicketViewModel</returns>
         public async Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync()
         {
             var tickets = (await GetAllAsync()).Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
             return tickets;
         }
 
+        /// <summary>
+        /// Calls GetUnresolvedTicketsAsync and filters the result based on status: "assigned" or "unassigned".
+        /// </summary>
+        /// <param name="status">The status</param>
+        /// <param name="assignedTicketIds">The list of ticketIds with an assignment</param>
+        /// <returns>IEnumerable TicketViewModel</returns>
         public async Task<IEnumerable<TicketViewModel>> GetTicketsByAssignmentStatusAsync(string status, List<string> assignedTicketIds)
         {
             var tickets = await GetUnresolvedTicketsAsync();
@@ -244,6 +274,13 @@ namespace ASI.Basecode.Services.Services
             return filteredTickets;
         }
 
+        /// <summary>
+        /// Calls GetAllAsync and filters the result based on sortBy, filterBy, and filterValue.
+        /// </summary>
+        /// <param name="sortBy">User defined sort order</param>
+        /// <param name="filterBy">User defined filter category</param>
+        /// <param name="filterValue">User defined filter value</param>
+        /// <returns>IEnumerable TicketViewModel</returns>
         public async Task<IEnumerable<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue)
         {
             var tickets = await GetAllAsync();
@@ -296,7 +333,11 @@ namespace ASI.Basecode.Services.Services
             return tickets.AsQueryable();
         }
 
-
+        /// <summary>
+        /// Call GetTicketByIdAsync and return a subset of the ticket properties.
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
+        /// <returns>Json containing ticket details</returns>
         public async Task<object> GetTicketDetailsAsync(string id)
         {
             var ticket = await GetTicketByIdAsync(id);
@@ -316,26 +357,114 @@ namespace ASI.Basecode.Services.Services
             return null;
         }
 
+        /// <summary>
+        /// Calls the repository to get an attachment by ticket identifier.
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
+        /// <returns>Attachment</returns>
         public async Task<Attachment> GetAttachmentByTicketIdAsync(string id) => await _repository.FindAttachmentByTicketIdAsync(id);
 
+        /// <summary>
+        /// Calls the repository to get a ticket assignment by ticket identifier.
+        /// </summary>
+        /// <param name="id">Ticket identifier</param>
+        /// <returns>TicketAssignment</returns>
         public async Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id) => await _repository.FindAssignmentByTicketIdAsync(id);
 
+        /// <summary>
+        /// Calls the repository to get a team by user identifier.
+        /// </summary>
+        /// <param name="id">User identifier</param>
+        /// <returns>Team</returns>
         public async Task<Team> GetTeamByUserIdAsync(string id) => await _repository.FindTeamByUserIdAsync(id);
 
+        /// <summary>
+        /// Calls the repository to get a user with role "Agent" by user identifier.
+        /// </summary>
+        /// <param name="id">User identifier</param>
+        /// <returns>User</returns>
         public async Task<User> GetAgentByIdAsync(string id) => await _repository.FindAgentByUserIdAsync(id);
 
+        /// <summary>
+        /// Calls the repository to get all categories.
+        /// </summary>
+        /// <returns>IEnumerable CategoryType</returns>
         public async Task<IEnumerable<CategoryType>> GetCategoryTypesAsync() => await _repository.GetCategoryTypesAsync();
 
+        /// <summary>
+        /// Calls the repository to get all priority types.
+        /// </summary>
+        /// <returns>IEnumerable PriorityType</returns>
         public async Task<IEnumerable<PriorityType>> GetPriorityTypesAsync() => await _repository.GetPriorityTypesAsync();
 
+        /// <summary>
+        /// Calls the repository to get all status types.
+        /// </summary>
+        /// <returns>IEnumerable StatusType</returns>
         public async Task<IEnumerable<StatusType>> GetStatusTypesAsync() => await _repository.GetStatusTypesAsync();
 
+        /// <summary>
+        /// Calls the repository to get all users with role "Support Aagent".
+        /// </summary>
+        /// <returns>IEnumerable User</returns>
         public async Task<IEnumerable<User>> GetSupportAgentsAsync() => await _repository.GetSupportAgentsAsync();
 
+        /// <summary>
+        /// Calls the repository to get all ticket assignments.
+        /// </summary>
+        /// <returns>IEnumerable Ticket Assignment</returns>
         public async Task<IEnumerable<TicketAssignment>> GetTicketAssignmentsAsync() => await _repository.GetTicketAssignmentsAsync();
+        
+        /// <summary>
+        /// Get feedback by ticket identifier.
+        /// </summary>
+        /// <param name="id">The ticket identifier</param>
+        /// <returns>Feedback</returns>
+        private async Task<Feedback> GetFeedBackByIdAsync(string id) => await _repository.FeedbackFindByTicketIdAsync(id);
+
+        /// <summary>
+        /// Calls the repository to get all users with tickets.
+        /// </summary>
+        /// <returns>IEnumerable string</returns>
+        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() => await _repository.GetUserIdsWithTicketsAsync();
+
+        /// <summary>
+        /// Calls the repository to get all users.
+        /// </summary>
+        /// <returns>IEnumerable user</returns>
+        public async Task<IEnumerable<User>> UserGetAllAsync() => await _repository.UserGetAllAsync();
+
+        /// <summary>
+        /// Gets the current logged in admin.
+        /// </summary>
+        /// <returns>Admin</returns>
+        private async Task<Admin> GetCurrentAdminAsync()
+        {
+            var claimsPrincipal = _httpContextAccessor.HttpContext.User;
+            if (claimsPrincipal == null || !claimsPrincipal.Identity.IsAuthenticated)
+            {
+                LogError("GetCurrentAdminAsync", "ClaimsPrincipal is null or not authenticated.");
+                return null;
+            }
+
+            var adminId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(adminId))
+            {
+                LogError("GetCurrentAdminAsync", "AdminId is null or empty.");
+                return null;
+            }
+
+            return await _repository.AdminFindByIdAsync(adminId);
+        }
         #endregion Get Methods
 
         #region Utility Methods
+        /// <summary>
+        /// Initializes the TicketViewModel with the appropriate data based on the type.
+        /// Types: "status", "assign", "priority", "reassign", or "default".
+        /// </summary>
+        /// <param name="type">The type of model to initialize</param>
+        /// <returns>TicketViewModel</returns>
         public async Task<TicketViewModel> InitializeModelAsync(string type)
         {
             var assignedTicketIds = (await GetTicketAssignmentsAsync()).Select(ta => ta.TicketId).ToList();
@@ -357,16 +486,44 @@ namespace ASI.Basecode.Services.Services
                         : userRole.Contains("Employee") ? tickets.Where(x => x.UserId == userId) : tickets;
             }
 
+            var statusTypes = await GetStatusTypesAsync();
+
             return new TicketViewModel
             {
                 Tickets = !type.Contains("default") ? tickets : null,
                 CategoryTypes = await GetCategoryTypesAsync(),
                 PriorityTypes = await GetPriorityTypesAsync(),
-                StatusTypes = !userRole.Contains("Employee") ? await GetStatusTypesAsync() : (await GetStatusTypesAsync()).Where(x => !x.StatusName.Contains("Resolved")),
+                StatusTypes = !userRole.Contains("Employee") ? statusTypes : statusTypes.Where(x => !x.StatusName.Contains("Resolved")),
                 Agents = !type.Contains("default") ? await GetSupportAgentsAsync() : null
             };
         }
 
+        /// <summary>
+        /// Helper method to assign ticket properties.
+        /// </summary>
+        /// <param name="ticket">The ticket</param>
+        private void AssignTicketProperties(Ticket ticket)
+        {
+            var tickets = GetAllAsync().Result;
+            string CC = ticket.CategoryTypeId;
+            int CN = tickets.Count(t => t.CategoryTypeId == ticket.CategoryTypeId);
+            int NN = tickets.Count();
+
+            ticket.TicketId = $"{CC}-{CN + 1:00}-{NN + 1:00}";
+
+            ticket.StatusTypeId ??= "S1";
+            ticket.CategoryType = GetCategoryTypesAsync().Result.Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
+            ticket.PriorityType = GetPriorityTypesAsync().Result.Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
+            ticket.StatusType = GetStatusTypesAsync().Result.Single(x => x.StatusTypeId == ticket.StatusTypeId);
+            ticket.User = _repository.UserFindByIdAsync(ticket.UserId).Result;
+            ticket.User.Tickets.Add(ticket);
+        }
+
+        /// <summary>
+        /// Extracts the agent identifier from the assignment identifier.
+        /// </summary>
+        /// <param name="assignmentId">The assignment identifier</param>
+        /// <returns>string UserId</returns>
         public string ExtractAgentId(string assignmentId)
         {
             if (string.IsNullOrEmpty(assignmentId)) return string.Empty;
@@ -375,6 +532,36 @@ namespace ASI.Basecode.Services.Services
             return parts.Length >= 5 ? string.Join("-", parts.Take(5)) : assignmentId;
         }
 
+        /// <summary>
+        /// Helper method to create a new ticket assignment.
+        /// </summary>
+        /// <param name="model">The model</param>
+        /// <returns>TicketAssignment</returns>
+        /// AssignmentId format: {AgentId}-{Timestamp}-{RandomNumber}
+        private async Task<TicketAssignment> CreateTicketAssignmentAsync(TicketViewModel model)
+        {
+            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+            var randomNumber = new Random().Next(1000, 9999);
+            var assignmentId = $"{model.Agent.UserId}-{timestamp}-{randomNumber}";
+            var currentAdmin = await GetCurrentAdminAsync();
+            var teamId = await GetTeamByUserIdAsync(model.Agent.UserId);
+
+            return new TicketAssignment
+            {
+                AssignmentId = assignmentId,
+                TeamId = teamId.TeamId,
+                TicketId = model.TicketId,
+                AssignedDate = DateTime.Now,
+                AdminId = currentAdmin.AdminId,
+                Team = await _repository.FindTeamByUserIdAsync(model.Agent.UserId),
+                Admin = currentAdmin
+            };
+        }
+
+        /// <summary>
+        /// Helper method to create a new ticket attachment.
+        /// </summary>
+        /// <param name="ticket">The ticket</param>
         private async Task HandleAttachmentAsync(TicketViewModel ticket)
         {
             _logger.LogInformation("=======Ticket Service : HandleAttachmentAsync Started=======");
@@ -407,6 +594,10 @@ namespace ASI.Basecode.Services.Services
             _logger.LogInformation("=======Ticket Service : HandleAttachmentAsync Ended=======");
         }
 
+        /// <summary>
+        /// Helper method to update the ticket resolved date based on status.
+        /// </summary>
+        /// <param name="ticket">The ticket</param>
         private async Task UpdateTicketDate(Ticket ticket)
         {
             var status = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
@@ -420,24 +611,11 @@ namespace ASI.Basecode.Services.Services
                 ticket.ResolvedDate = null;
             }
         }
-
-        private void AssignTicketProperties(Ticket ticket)
-        {
-            var tickets = GetAllAsync().Result;
-            string CC = ticket.CategoryTypeId;
-            int CN = tickets.Count(t => t.CategoryTypeId == ticket.CategoryTypeId);
-            int NN = tickets.Count();
-
-            ticket.TicketId = $"{CC}-{CN + 1:00}-{NN + 1:00}";
-
-            ticket.StatusTypeId ??= "S1";
-            ticket.CategoryType = GetCategoryTypesAsync().Result.Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
-            ticket.PriorityType = GetPriorityTypesAsync().Result.Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
-            ticket.StatusType = GetStatusTypesAsync().Result.Single(x => x.StatusTypeId == ticket.StatusTypeId);
-            ticket.User = _repository.UserFindByIdAsync(ticket.UserId).Result;
-            ticket.User.Tickets.Add(ticket);
-        }
         
+        /// <summary>
+        /// Remove attachment by ticket identifier.
+        /// </summary>
+        /// <param name="id">The ticket identifier</param>
         private async Task RemoveAttachmentByTicketIdAsync(string id)
         {
             var attachment = await GetAttachmentByTicketIdAsync(id);
@@ -447,6 +625,10 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Remove assignment by ticket identifier.
+        /// </summary>
+        /// <param name="id">The ticket identifier</param>
         private async Task RemoveAssignmentByTicketIdAsync(string id)
         {
             var assignment = await GetAssignmentByTicketIdAsync(id);
@@ -455,42 +637,18 @@ namespace ASI.Basecode.Services.Services
                 await _repository.RemoveAssignmentAsync(assignment);
             }
         }
-
-        private async Task<Admin> GetCurrentAdminAsync()
-        {
-            var claimsPrincipal = _httpContextAccessor.HttpContext.User;
-            if (claimsPrincipal == null || !claimsPrincipal.Identity.IsAuthenticated)
-            {
-                LogError("GetCurrentAdminAsync", "ClaimsPrincipal is null or not authenticated.");
-                return null;
-            }
-
-            var adminId = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(adminId))
-            {
-                LogError("GetCurrentAdminAsync", "AdminId is null or empty.");
-                return null;
-            }
-
-            return await _repository.AdminFindByIdAsync(adminId);
-        }
-
-        private async Task<Feedback> GetFeedBackByIdAsync(string id)
-        {
-            return await _repository.FeedbackFindByTicketIdAsync(id);
-        }
         #endregion Utility Methods
 
         #region Logging methods
+        /// <summary>
+        /// Logs an error message.
+        /// </summary>
+        /// <param name="methodName">The method where this error was logged</param>
+        /// <param name="errorMessage">The error message</param>
         private void LogError(string methodName, string errorMessage)
         {
             _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
         }
         #endregion
-
-        public async Task<IEnumerable<User>> UserGetAllAsync()
-        {
-            return await _repository.UserGetAllAsync();
-        }
     }
 }
