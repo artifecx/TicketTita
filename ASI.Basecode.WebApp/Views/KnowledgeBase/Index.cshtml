@@ -7,9 +7,13 @@
 
 <h1>View Article List</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
 
 <form asp-action="Index" method="get">
     <input type="text" name="searchTerm" placeholder="Search Articles..." value="@ViewBag.SearchTerm"/>
@@ -91,10 +95,16 @@
                 @Html.DisplayFor(modelItem => item.Author.Name)
             </td>
             <td>
-                    @Html.ActionLink("Edit", "Edit", new { articleId = item.ArticleId }) |
-                    @Html.ActionLink("Details", "Details", new { articleId = item.ArticleId }) |
-                    @* @Html.ActionLink("Delete", "Delete", new { articleId = item.ArticleId }) *@
+                @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+                {
+                        @Html.ActionLink("Edit", "Edit", new { articleId = item.ArticleId })
+                } | 
+                @Html.ActionLink("Details", "Details", new { articleId = item.ArticleId }) |
+                @* @Html.ActionLink("Delete", "Delete", new { articleId = item.ArticleId }) *@
+                @if (User.IsInRole("Admin"))
+                {
                     <a href="javascript:void(0);" onclick="displayDeleteModal('@item.ArticleId')">Delete</a>
+                }
             </td>
         </tr>
         }

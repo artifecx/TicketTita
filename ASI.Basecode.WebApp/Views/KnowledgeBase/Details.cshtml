@@ -62,9 +62,17 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { articleId = Model.ArticleId }) |
-    <a asp-action="Index">Back to List</a> | 
-    <a href="javascript:void(0);" onclick="displayDeleteModal('@Model.ArticleId')">Delete</a>
+    @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+    {
+        @Html.ActionLink("Edit", "Edit", new { articleId = Model.ArticleId })
+    } 
+    | <a asp-action="Index">Back to List</a> |
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="javascript:void(0);" onclick="displayDeleteModal('@Model.ArticleId')">Delete</a>
+    }
+    
+    
 </div>
 
 @*this is the modal section*@
