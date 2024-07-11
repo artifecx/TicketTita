@@ -13,119 +13,120 @@
     string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between nav-header">
+    <h1 class=" display-6">Registered Users</h1>
 
-<form method="get" asp-action="Index">
-    <div class="form-group">
-        <input type="text" name="searchString" class="form-control" placeholder="Search by name or email" value="@currentFilter" />
-        <button type="submit" class="btn btn-primary">Search</button>
-        <a asp-action="Index" class="btn btn-secondary">Clear Filters</a>
+    <div class="d-flex justify-content-between">
+        <form method="get" asp-action="Index">
+            <div class="form-group input-group">
+                <input type="text" name="searchString" class="form-control btn-radius px-3" placeholder="Search by name or email" value="@currentFilter" />
+                <span class="input-group-append">
+                    <button type="submit" class="btn btn-primary btn-radius-r px-3">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+                @* <a asp-action="Index" class="btn btn-secondary">Clear Filters</a> *@
+            </div>
+        </form>
+        <div class="mx-3">
+                <a asp-action="Create" class="btn btn-primary btn-radius px-3">
+                    <i class="fa fa-plus"></i>
+                    New User
+                </a>
+        </div>
     </div>
-</form>
 
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@nameSortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.Name)
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@emailSortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.Email)
-                </a>
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Password)
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.RoleId)
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@createdBySortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.CreatedByName)
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@createdTimeSortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.CreatedTime)
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@updatedBySortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.UpdatedByName)
-                </a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@updatedTimeSortParm" asp-route-currentFilter="@currentFilter">
-                    @Html.DisplayNameFor(model => model.UpdatedTime)
-                </a>
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="container-fluid my-3">
+    <table class="table table-white">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Password)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RoleId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedByName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CreatedTime)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UpdatedByName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UpdatedTime)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Update", new { SelectedUserId = item.UserId }) |
-                    @Html.ActionLink("Details", "Details", new { SelectedUserId = item.UserId }) |
-                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')">Delete</a>
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.UserId)
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@nameSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
+                        @Html.DisplayNameFor(model => model.Name)
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@emailSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
+                        @Html.DisplayNameFor(model => model.Email)
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
+                        @Html.DisplayNameFor(model => model.RoleId)
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@createdTimeSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
+                        @Html.DisplayNameFor(model => model.CreatedTime)
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@updatedTimeSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
+                        @Html.DisplayNameFor(model => model.UpdatedTime)
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RoleId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CreatedTime)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UpdatedTime)
+                    </td>
+                    <td>
+                        @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon" })
+                        @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon" })
+                        <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
+                    </td>
 
-<div class="modal fade" id="deleteModal">
-    <div class="modal-dialog">
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
+            <div class="modal-header border-0">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="fa fa-exclamation-triangle px-1" style="color: var(--danger-color);"></i>
+                    Confirm Delete
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                Are you sure you want to delete this item?
+            <div class="modal-body pl-4 py-1">
+                <p>Are you sure you want to delete this user? All of their data will permanently removed. This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

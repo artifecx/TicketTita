@@ -156,7 +156,7 @@ namespace ASI.Basecode.WebApp.Controllers
         ///   <br />
         /// </returns>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         public IActionResult PostDelete(string articleId)
         {
             _knowledgeBaseService.Delete(articleId);

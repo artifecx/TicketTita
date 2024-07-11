@@ -3,33 +3,40 @@ using ASI.Basecode.Services.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ASI.Basecode.Services.Interfaces
 {
     public interface ITicketService
     {
-        void Add(TicketViewModel ticket, string userId);
-        void Update(TicketViewModel ticket, int UpdateType);
-        void Delete(string id);
-        void AddAttachment(Attachment attachment);
-        void RemoveAttachment(string attachmentId);
-        void AddTicketAssignment(TicketViewModel model, bool Reassign);
-        void RemoveAssignment(string id);
-        IQueryable<TicketViewModel> GetAll();
-        TicketViewModel GetTicketById(string id);
-        IQueryable<TicketViewModel> GetUnresolvedTickets();
-        IQueryable<TicketViewModel> GetTicketsByAssignmentStatus(string status);
-        Object GetTicketDetails(string id);
-        Attachment GetAttachmentByTicketId(string id);
-        TicketAssignment GetAssignmentByTicketId(string id);
-        Team GetTeamByUserId(string id);
-        User GetAgentById(string id);
-        IQueryable<CategoryType> GetCategoryTypes();
-        IQueryable<StatusType> GetStatusTypes();
-        IQueryable<PriorityType> GetPriorityTypes();
-        IQueryable<User> GetSupportAgents();
-        IQueryable<TicketAssignment> GetTicketAssignments();
-        TicketViewModel InitializeModel(string type);
+
+        Task AddAsync(TicketViewModel ticket, string userId);
+        Task UpdateAsync(TicketViewModel ticket,  int UpdateType);
+        Task DeleteAsync(string id);
+        Task AddAttachmentAsync(Attachment attachment, Ticket ticket);
+        Task RemoveAttachmentAsync(string attachmentId);
+        Task AddTicketAssignmentAsync(TicketViewModel model,  bool Reassign);
+        Task RemoveAssignmentAsync(string id);
+        Task<IEnumerable<TicketViewModel>> GetAllAsync();
+        Task<TicketViewModel> GetTicketByIdAsync(string id);
+        Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync();
+        Task<IEnumerable<TicketViewModel>> GetTicketsByAssignmentStatusAsync(string status, List<string> assignedTicketIds);
+        Task<object> GetTicketDetailsAsync(string id);
+        Task<Attachment> GetAttachmentByTicketIdAsync(string id);
+        Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id);
+        Task<Team> GetTeamByUserIdAsync(string id);
+        Task<User> GetAgentByIdAsync(string id);
+        Task<IEnumerable<CategoryType>> GetCategoryTypesAsync();
+        Task<IEnumerable<PriorityType>> GetPriorityTypesAsync();
+        Task<IEnumerable<StatusType>> GetStatusTypesAsync();
+        Task<IEnumerable<User>> GetSupportAgentsAsync();
+        Task<IEnumerable<TicketAssignment>> GetTicketAssignmentsAsync();
+        Task<TicketViewModel> InitializeModelAsync(string type);
         string ExtractAgentId(string id);
+
+        Task<IEnumerable<string>> GetUserIdsWithTicketsAsync();
+        Task<IEnumerable<User>> UserGetAllAsync();
+
+        Task<IEnumerable<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue);
     }
 }

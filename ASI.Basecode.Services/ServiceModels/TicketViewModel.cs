@@ -104,6 +104,8 @@ namespace ASI.Basecode.Services.ServiceModels
         #region Dropdown Population
         [Display(Name = "Support Agents")]
         public IEnumerable<User> Agents { get; set; }
+        [Display(Name = "Users")]
+        public IEnumerable<User> Users { get; set; }
 
         public IEnumerable<TicketViewModel> Tickets { get; set; }
 

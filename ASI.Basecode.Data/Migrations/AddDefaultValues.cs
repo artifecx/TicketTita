@@ -52,10 +52,10 @@ namespace ASI.Basecode.Data.Migrations
                 columns: new[] { "priorityType_ID", "priorityName", "description" },
                 values: new object[,] 
                 { 
-                    { "1", "Low", "Ticket with low priority." },
-                    { "2", "Medium", "Ticket with medium priority." },
-                    { "3", "High", "Ticket with high priority." },
-                    { "4", "Severe", "Ticket with the highest priority." },
+                    { "P1", "Critical", "Ticket with the highest priority." },
+                    { "P2", "High", "Ticket with high priority." },
+                    { "P3", "Medium", "Ticket with medium priority." },
+                    { "P4", "Low", "Ticket with low priority." },
                 }
             );
 
@@ -64,10 +64,10 @@ namespace ASI.Basecode.Data.Migrations
                 columns: new[] { "statusType_ID", "statusName", "description" },
                 values: new object[,]
                 {
-                    { "1", "Open", "Ticket is open." },
-                    { "2", "In Progress", "Ticket is in progress." },
-                    { "3", "Resolved", "Ticket is marked as resolved." },
-                    { "4", "Closed", "Ticket is closed with or without resolution." },
+                    { "S1", "Open", "Ticket is open." },
+                    { "S2", "In Progress", "Ticket is in progress." },
+                    { "S3", "Resolved", "Ticket is marked as resolved." },
+                    { "S4", "Closed", "Ticket is closed with or without resolution." },
                 }
             );
 
@@ -76,11 +76,11 @@ namespace ASI.Basecode.Data.Migrations
                 columns: new[] { "categoryType_ID", "categoryName", "description" },
                 values: new object[,]
                 {
-                    { "1", "Software", "Software related issues." },
-                    { "2", "Hardware", "Hardware related issues." },
-                    { "3", "Network", "Network related issues." },
-                    { "4", "Account", "Account related issues." },
-                    { "5", "Other", "Other issues not categorized." }
+                    { "C1", "Software", "Software related issues." },
+                    { "C2", "Hardware", "Hardware related issues." },
+                    { "C3", "Network", "Network related issues." },
+                    { "C4", "Account", "Account related issues." },
+                    { "C5", "Other", "Other issues not categorized." }
                 }
             );
 
