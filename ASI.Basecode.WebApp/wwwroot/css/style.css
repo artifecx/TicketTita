@@ -470,7 +470,7 @@ a.text-gray {
 }
 
     .action-icon:hover {
-        background-color: var(--background-color6); 
+        background-color: var(--background-color6);
         color: black;
         border-radius: 4px;
         text-decoration: none;
