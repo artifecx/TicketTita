@@ -72,6 +72,13 @@
 </div>
 
 @section Scripts {
+    <script>
+        var errMessage = '@TempData["ErrorMessage"]';
+        if (errMessage) {
+            toastr.error(errMessage);
+        }
+    </script>
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

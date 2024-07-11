@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Build.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,9 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using ASI.Basecode.Services.Exceptions;
+using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -222,5 +226,74 @@ namespace ASI.Basecode.WebApp.Mvc
             }
         }
         #endregion Exception Handlers
+
+        #region Async Exception Handlers
+        public async Task<IActionResult> HandleExceptionAsync(Func<Task<IActionResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (NoChangesException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return RedirectToAction(actionName, new { id = ex.Id });
+            }
+            catch (InvalidFileException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return actionName == "Create" ? RedirectToAction(actionName) : RedirectToAction(actionName, new { id = ex.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return View("Error");
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        public async Task<JsonResult> HandleExceptionAsync(Func<Task<JsonResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return new JsonResult(new { success = false, error = "An error occurred. Please try again later." });
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        public async Task<FileResult> HandleExceptionAsync(Func<Task<FileResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return null;
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        #endregion Async Exception Handlers
     }
 }
