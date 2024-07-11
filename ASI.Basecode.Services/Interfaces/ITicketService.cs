@@ -9,12 +9,13 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface ITicketService
     {
+
         Task AddAsync(TicketViewModel ticket, string userId);
-        Task UpdateAsync(TicketViewModel ticket);
+        Task UpdateAsync(TicketViewModel ticket,  int UpdateType);
         Task DeleteAsync(string id);
         Task AddAttachmentAsync(Attachment attachment, Ticket ticket);
         Task RemoveAttachmentAsync(string attachmentId);
-        Task AddTicketAssignmentAsync(TicketViewModel model);
+        Task AddTicketAssignmentAsync(TicketViewModel model,  bool Reassign);
         Task RemoveAssignmentAsync(string id);
         Task<IEnumerable<TicketViewModel>> GetAllAsync();
         Task<TicketViewModel> GetTicketByIdAsync(string id);

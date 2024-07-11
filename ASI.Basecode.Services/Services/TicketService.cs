@@ -21,6 +21,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TicketService> _logger;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -32,6 +33,7 @@ namespace ASI.Basecode.Services.Services
         public TicketService(
             ITicketRepository repository,
             IMapper mapper,
+            INotificationService notificationService,
             ILogger<TicketService> logger,
             IHttpContextAccessor httpContextAccessor)
         {
@@ -39,6 +41,7 @@ namespace ASI.Basecode.Services.Services
             _mapper = mapper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _notificationService = notificationService;
         }
 
         #region Ticket CRUD Operations
@@ -73,6 +76,8 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
+                 string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
+                _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
                     await _repository.AddAsync(newTicket);
                 }
             }
@@ -81,8 +86,10 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to update an existing ticket.
         /// </summary>
+
         /// <param name="ticket">The ticket</param>
-        public async Task UpdateAsync(TicketViewModel ticket)
+        public async Task UpdateAsync(TicketViewModel ticket,int UpdateType)
+
         {
             if (ticket.File != null) await HandleAttachmentAsync(ticket);
 
@@ -109,13 +116,30 @@ namespace ASI.Basecode.Services.Services
                 
                 _mapper.Map(ticket, existingTicket);
                 await UpdateTicketDate(existingTicket);
-
+                switch (UpdateType) {
+                    case 1:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Description Updated", "7", ticket.UserId, $"Ticket #{ticket.TicketId} Description has been updated.");
+                        break;
+                    case 2:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
+                        break;
+                    case 3:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
+                        break;
+                    case 4:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
+                        break;
+                }
                 if (ticket.Attachment != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = existingTicket.TicketId;
                     await AddAttachmentAsync(ticket.Attachment, existingTicket);
                 }
                 else
+
                 {
                     await _repository.UpdateAsync(existingTicket);
                 }
@@ -203,8 +227,9 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to add a new ticket assignment.
         /// </summary>
+
         /// <param name="model">The model</param>
-        public async Task AddTicketAssignmentAsync(TicketViewModel model)
+        public async Task AddTicketAssignmentAsync(TicketViewModel model, bool Reassigned)
         {
             var assignment = await GetAssignmentByTicketIdAsync(model.TicketId);
             if (assignment == null)
@@ -214,12 +239,31 @@ namespace ASI.Basecode.Services.Services
                 ticket.TicketAssignment = assignment;
                 assignment.Ticket = ticket;
                 await _repository.AssignTicketAsync(assignment);
+                
+                string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
+                string userNotificationTitle = $"Ticket #{model.TicketId} has been assigned to an agent.";
+
+                if (ticket == null)
+                {
+                    LogError("AddTicketAssignment", "Ticket not found.");
+                    return;
+                }
+                if (!Reassigned)
+                {
+                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
+                    _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Assigned to an agent.");
+                }
+                else {
+                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
+                    _notificationService.AddNotification(model.TicketId, "Ticket Reassigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Reassigned to an agent.");
+                }
             }
             else
             {
                 LogError("AddTicketAssignmentAsync", "Assignment already exists.");
             }
         }
+
 
         /// <summary>
         /// Calls the repository to remove a ticket assignment.

@@ -18,6 +18,7 @@ namespace ASI.Basecode.WebApp.Controllers
     public class TicketController : ControllerBase<TicketController>
     {
         private readonly ITicketService _ticketService;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketController"/> class.
@@ -30,15 +31,18 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
         /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
         public TicketController(
+
             IHttpContextAccessor httpContextAccessor,
             ILoggerFactory loggerFactory,
             IConfiguration configuration,
             IMapper mapper,
             ITicketService ticketService,
+            INotificationService notificationService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             _ticketService = ticketService;
+             this._notificationService = notificationService;
         }
 
         #region GET methods
@@ -72,16 +76,25 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>ViewTicket page</returns>
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> ViewTicket(string id)
+
+        public async Task<IActionResult> ViewTicket(string id, string notificationId)
+
         {
             return await HandleExceptionAsync(async () =>
             {
                 if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
                 var ticket = await _ticketService.GetTicketByIdAsync(id);
                 if (ticket == null) return RedirectToAction("ViewAll");
+
+                if (!string.IsNullOrEmpty(notificationId))
+                {
+                    _notificationService.MarkNotificationAsRead(notificationId);
+                }
+
                 return View(ticket);
             }, "ViewTicket");
         }
+
 
         /// <summary>
         /// Shows the page to create a ticket
@@ -227,7 +240,8 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () =>
             {
                 if (model == null) return RedirectToAction("ViewAll");
-                await _ticketService.UpdateAsync(model);
+
+                await _ticketService.UpdateAsync(model,1);
                 return RedirectToAction("ViewAll");
             }, "Edit");
         }
@@ -247,7 +261,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.StatusTypeId = model.StatusTypeId;
-                await _ticketService.UpdateAsync(ticket);
+                await _ticketService.UpdateAsync(ticket, 2);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdateStatus");
         }
@@ -267,7 +281,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.PriorityTypeId = model.PriorityTypeId;
-                await _ticketService.UpdateAsync(ticket);
+                await _ticketService.UpdateAsync(ticket, 3);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdatePriority");
         }
@@ -307,7 +321,8 @@ namespace ASI.Basecode.WebApp.Controllers
 
                 await _ticketService.RemoveAttachmentAsync(attachmentId);
                 ticket.Attachment = null;
-                await _ticketService.UpdateAsync(ticket);
+
+                await _ticketService.UpdateAsync(ticket, 4);
                 return RedirectToAction("Edit", new { id = ticketId });
             }, "RemoveAttachment");
         }
@@ -324,7 +339,7 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () =>
             {
                 if (model == null || model.Agent == null) return RedirectToAction("ViewAll");
-                await _ticketService.AddTicketAssignmentAsync(model);
+                await _ticketService.AddTicketAssignmentAsync(model, false);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "AssignTicket");
         }
@@ -347,7 +362,7 @@ namespace ASI.Basecode.WebApp.Controllers
                     await _ticketService.RemoveAssignmentAsync(assignment.TicketId);
                     if (model.Agent != null && !model.Agent.UserId.Equals("remove"))
                     {
-                        await _ticketService.AddTicketAssignmentAsync(model);
+                        await _ticketService.AddTicketAssignmentAsync(model, true);
                     }
                 }
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
