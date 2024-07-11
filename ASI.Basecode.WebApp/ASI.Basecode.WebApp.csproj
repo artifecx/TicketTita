@@ -44,4 +44,11 @@
   <ItemGroup>
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Ticket\ViewAll.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

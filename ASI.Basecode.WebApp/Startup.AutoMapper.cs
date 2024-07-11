@@ -3,6 +3,7 @@ using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.ServiceModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ASI.Basecode.WebApp
 {
@@ -26,20 +27,16 @@ namespace ASI.Basecode.WebApp
         {
             public AutoMapperProfileConfiguration()
             {
-                
                 CreateMap<UserViewModel, User>();
                 CreateMap<User, UserViewModel>();
                 CreateMap<TicketViewModel, Ticket>();
-                /*.ForMember(dest => dest.CategoryType, opt => opt.MapFrom(src => src.CategoryType))
-                .ForMember(dest => dest.PriorityType, opt => opt.MapFrom(src => src.PriorityType))
-                .ForMember(dest => dest.StatusType, opt => opt.MapFrom(src => src.StatusType))
-                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));*/
-                CreateMap<Ticket, TicketViewModel>();
-                        /*.ForMember(dest => dest.CategoryType, opt => opt.MapFrom(src => src.CategoryType))
-                        .ForMember(dest => dest.PriorityType, opt => opt.MapFrom(src => src.PriorityType))
-                        .ForMember(dest => dest.StatusType, opt => opt.MapFrom(src => src.StatusType))
-                        .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));*/
-                //CreateMap<TicketViewModel, TicketViewModel>();
+                CreateMap<Ticket, TicketViewModel>()
+                        .ForMember(dest => dest.Attachment, opt => opt.MapFrom(src => src.Attachments.FirstOrDefault()))
+                        .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.TicketAssignment != null
+                            ? src.TicketAssignment.Team.TeamMembers.FirstOrDefault(tm => tm.User.RoleId == "Support Agent").User
+                            : null))
+                        .ForMember(dest => dest.TicketAssignment, opt => opt.MapFrom(src => src.TicketAssignment))
+                        .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback));
                 CreateMap<Feedback, FeedbackViewModel>();
                 CreateMap<FeedbackViewModel, Feedback>();
                 CreateMap<KnowledgeBaseViewModel, KnowledgeBaseArticle>();
