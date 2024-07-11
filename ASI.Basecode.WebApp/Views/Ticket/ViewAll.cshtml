@@ -19,6 +19,7 @@
     var priorityTypes = ViewBag.PriorityTypes as List<string>;
     var statusTypes = ViewBag.StatusTypes as List<string>;
     var categoryTypes = ViewBag.CategoryTypes as List<string>;
+    var users = ViewBag.Users as List<string>;
 }
 
 <h1>View All</h1>
@@ -47,10 +48,11 @@
 <form method="get" asp-action="ViewAll">
     <label for="filterBy">Filter By: </label>
     <select asp-for="@filterBy" id="filterBy" name="filterBy">
-        <option value="">No Filter</option>
+        <option value="" >No Filter</option>
         <option value="priority">Priority</option>
         <option value="status">Status</option>
         <option value="category">Category</option>
+        <option value="user">User</option>
     </select>
     <select id="filterValue" name="filterValue" style="display: none;"></select>
     <button type="submit">Apply Filter</button>
@@ -60,15 +62,16 @@
     <thead>
         <tr>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                
+                <a asp-action="ViewAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.TicketId)
-                    @(sortBy == "id_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : "")
+                    @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "id_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.Subject)
-                    @(sortBy == "subject" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "subject_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "subject" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "subject_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
@@ -77,46 +80,46 @@
             @if (!User.IsInRole("Employee"))
             {
                 <th>
-                    <a asp-action="ViewAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                         @Html.DisplayNameFor(model => model.User)
-                        @(sortBy == "user" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "user_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                        @(sortBy == "user" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "user_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
             }
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByCreatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByCreatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.CreatedDate)
-                    @(sortBy == "created" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "created_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "created" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "created_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.UpdatedDate)
-                    @(sortBy == "updated" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "updated_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "updated" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "updated_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.ResolvedDate)
-                    @(sortBy == "resolved" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "resolved_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "resolved" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "resolved_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.CategoryType)
-                    @(sortBy == "category" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "category_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "category" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "category_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.PriorityType)
-                    @(sortBy == "priority" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "priority_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "priority" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "priority_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
-                <a asp-action="ViewAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">
+                <a asp-action="ViewAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
                     @Html.DisplayNameFor(model => model.StatusType)
-                    @(sortBy == "status" ? Html.Raw("<i class='fa fa-arrow-up'></i>") : (sortBy == "status_desc" ? Html.Raw("<i class='fa fa-arrow-down'></i>") : ""))
+                    @(sortBy == "status" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "status_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                 </a>
             </th>
             <th>
@@ -125,6 +128,14 @@
             <th></th>
         </tr>
     </thead>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            No tickets found matching criteria.
+        </div>
+    }
+    else
+    {
     <tbody>
         @foreach (var item in Model)
         {
@@ -214,6 +225,7 @@
             </tr>
         }
     </tbody>
+    }
 </table>
 
 <div class="modal fade" id="deleteModal">
@@ -243,6 +255,11 @@
             itemId = id;
             $('#deleteModal').modal('show');
         }
+
+        $('#deleteModal').on('hidden.bs.modal', function () {
+            toastr.info("Deletion cancelled, no changes were made");
+        });
+
         $('#confirmDeleteBtn').on('click', function () {
             $.ajax({
                 url: '@Url.Action("Delete", "Ticket")',
@@ -282,6 +299,7 @@
             const priorityOptions = @Html.Raw(Json.Serialize(priorityTypes));
             const statusOptions = @Html.Raw(Json.Serialize(statusTypes));
             const categoryOptions = @Html.Raw(Json.Serialize(categoryTypes));
+            const userOptions = @Html.Raw(Json.Serialize(users));
 
             function populateOptions(options) {
                 filterValueSelect.innerHTML = "";
@@ -311,6 +329,9 @@
                             break;
                         case "category":
                             populateOptions(categoryOptions);
+                            break;
+                        case "user":
+                            populateOptions(userOptions);
                             break;
                         default:
                             filterValueSelect.innerHTML = "";
