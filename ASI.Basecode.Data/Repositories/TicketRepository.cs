@@ -145,6 +145,14 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
+        /// Find a ticket by user id
+        /// </summary>
+        /// <param name="id">User identifier</param>
+        /// <returns>Ticket</returns>
+        public async Task<IEnumerable<Ticket>> FindByUserIdAsync(string id) =>
+            await GetTicketsWithIncludes().Where(t => t.UserId == id).ToListAsync();
+
+        /// <summary>
         /// Find an attachment by its identifier
         /// </summary>
         /// <param name="id">Attachment identifier</param>

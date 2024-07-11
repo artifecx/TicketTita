@@ -25,5 +25,10 @@ namespace ASI.Basecode.Services.Exceptions
                 Id = id;
             }
         }
+
+        public class DuplicateTicketException : Exception
+        {
+            public DuplicateTicketException(string message) : base(message) { }
+        }
     }
 }
