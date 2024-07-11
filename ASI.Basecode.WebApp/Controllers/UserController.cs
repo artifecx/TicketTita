@@ -191,6 +191,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 TempData["DuplicateErr"] = "A user with the same name or email already exists.";
                 return RedirectToAction("Update", new { SelectedUserId = model.UserId });
             }
+            else
+            {
+                _userService.Update(model);
+            }
 
             return RedirectToAction("Index");
         }
