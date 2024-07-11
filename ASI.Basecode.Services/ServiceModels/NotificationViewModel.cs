@@ -1,9 +1,13 @@
-﻿using System;
+﻿using ASI.Basecode.Data.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ASI.Basecode.Data.Models
+namespace ASI.Basecode.Services.ServiceModels
 {
-    public partial class Notification
+    public class NotificationViewModel
     {
         public string NotificationId { get; set; }
         public DateTime NotificationDate { get; set; }
@@ -13,7 +17,6 @@ namespace ASI.Basecode.Data.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public string UserId { get; set; }
-
         public virtual NotificationType NotificationType { get; set; }
         public virtual Ticket Ticket { get; set; }
     }

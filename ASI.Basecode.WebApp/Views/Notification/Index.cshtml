@@ -1,0 +1,72 @@
+﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.NotificationViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>View</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NotificationId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NotificationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NotificationTypeId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TicketId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsRead)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NotificationId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NotificationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NotificationTypeId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsRead)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.NotificationId }) |
+                    @Html.ActionLink("Details", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, null) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.NotificationId })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
