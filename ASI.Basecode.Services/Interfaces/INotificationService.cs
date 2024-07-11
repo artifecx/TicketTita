@@ -10,6 +10,8 @@ namespace ASI.Basecode.Services.Interfaces
         void MarkAllNotificationsAsRead(string ticketId);
         void AddNotification(string ticketId, string description, string notificationTypeId,string UserId, string title);
         void GetUnreadNotifications(string userId);
+
+        bool HasUnreadNotifications(string userId);
         void UpdateNotification(string notificationId);
         void DeleteNotification(string notificationId);
     }

@@ -9,11 +9,11 @@ namespace ASI.Basecode.Services.Interfaces
     public interface ITicketService
     {
         void Add(TicketViewModel ticket, string userId);
-        void Update(TicketViewModel ticket);
+        void Update(TicketViewModel ticket, int UpdateType);
         void Delete(string id);
         void AddAttachment(Attachment attachment);
         void RemoveAttachment(string attachmentId);
-        void AddTicketAssignment(TicketViewModel model);
+        void AddTicketAssignment(TicketViewModel model, bool Reassign);
         void RemoveAssignment(string id);
         IQueryable<TicketViewModel> GetAll();
         TicketViewModel GetTicketById(string id);

@@ -63,6 +63,8 @@ namespace ASI.Basecode.Services.Services
                 AssignTicketProperties(newTicket);
 
                 string id = _repository.Add(newTicket);
+                string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
+                _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
                 if (ticket.Attachment != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = id;
@@ -76,7 +78,7 @@ namespace ASI.Basecode.Services.Services
         /// Update an existing ticket
         /// </summary>
         /// <param name="ticket">The ticket.</param>
-        public void Update(TicketViewModel ticket)
+        public void Update(TicketViewModel ticket, int UpdateType)
         {
             if(ticket.File != null) HandleAttachment(ticket);
 
@@ -91,6 +93,24 @@ namespace ASI.Basecode.Services.Services
                 
                 _mapper.Map(ticket, existingTicket);
                 UpdateTicketDate(existingTicket);
+
+                switch (UpdateType) {
+                    case 1:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Description Updated", "7", ticket.UserId, $"Ticket #{ticket.TicketId} Description has been updated.");
+                        break;
+                    case 2:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
+                        break;
+                    case 3:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
+                        break;
+                    case 4:
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
+                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
+                        break;
+                }
 
                 string id = _repository.Update(existingTicket);
                 if (ticket.File != null && ticket.File != null)
@@ -152,7 +172,7 @@ namespace ASI.Basecode.Services.Services
         /// Assigns the ticket to agent.
         /// </summary>
         /// <param name="model">The model.</param>
-        public void AddTicketAssignment(TicketViewModel model)
+        public void AddTicketAssignment(TicketViewModel model, bool Reassigned)
         {
             var assignment = GetAssignmentByTicketId(model.TicketId);
             if (assignment == null)
@@ -169,10 +189,18 @@ namespace ASI.Basecode.Services.Services
                     LogError("AddTicketAssignment", "Ticket not found.");
                     return;
                 }
+                if (!Reassigned)
+                {
+                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
+                    _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Assigned to an agent.");
+                }
+                else {
+                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
+                    _notificationService.AddNotification(model.TicketId, "Ticket Reassigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Reassigned to an agent.");
+                }
 
                 // Use the UserId from the retrieved ticket
-                _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
-                _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, userNotificationTitle);
+              
             }
             else
             {

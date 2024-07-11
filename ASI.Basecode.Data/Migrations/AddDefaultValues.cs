@@ -121,6 +121,20 @@ namespace ASI.Basecode.Data.Migrations
                     { "10", "Account Management", "Articles on the management of accounts." }
                 }
             );
+
+            migrationBuilder.InsertData(
+                table: "NotificationType",
+                columns: new[] { "NotificationTypeId", "TypeName", "Description" },
+                values: new object[,]
+                {
+                    { "1", "Ticket Created", "Sends Notification upon Ticket Creation" },
+                    { "2", "Ticket Priority Updated", "Sends Notification upon Ticket Priority Update" },
+                    { "3", "Ticket Status Update", "Sends Notification upon Ticket Status Update" },
+                    { "4", "Ticket Attachment Update", "Sends Notification upon Ticket Attachment Update" },
+                    { "5", "Ticket Assignment", "Sends Notification to user and support agent upon Ticket assignment" },
+                    { "6", "Ticket Reassignment", "Sends Notification upon Ticket Reassignment" }
+                }
+            );
         }
     }
 }

@@ -14,7 +14,6 @@ namespace ASI.Basecode.Services.Services
         private readonly IMapper _mapper;
         private readonly INotificationRepository _notificationRepository;
         private readonly ITicketRepository _ticketRepository;
-        private readonly List<string> titles = new List<string>();
 
         public NotificationService(IMapper mapper, INotificationRepository notificationRepository, ITicketRepository ticketRepository)
         {
@@ -83,6 +82,10 @@ namespace ASI.Basecode.Services.Services
             {
                 throw new ArgumentException("Invalid ticket ID");
             }
+        }
+        public bool HasUnreadNotifications(string userId)
+        {
+            return _notificationRepository.RetrieveAll().Any(n => n.UserId == userId && !n.IsRead);
         }
 
         public void UpdateNotification(string notificationId)

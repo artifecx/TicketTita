@@ -42,7 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\Notification\" />
     <Folder Include="wwwroot\img\" />
   </ItemGroup>
 </Project>

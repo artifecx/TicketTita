@@ -16,6 +16,7 @@ namespace ASI.Basecode.WebApp.Controllers
     public class TicketController : ControllerBase<TicketController>
     {
         private readonly ITicketService _ticketService;
+        private readonly INotificationService _notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketController"/> class.
@@ -33,10 +34,12 @@ namespace ASI.Basecode.WebApp.Controllers
                             IConfiguration configuration,
                             IMapper mapper,
                             ITicketService ticketService,
+                            INotificationService notificationService,
                             TokenValidationParametersFactory tokenValidationParametersFactory,
                             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._ticketService = ticketService;
+            this._notificationService = notificationService;
         }
 
         /// <summary>Show all tickets</summary>
@@ -111,19 +114,26 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="id">Ticket identifier.</param>
         [HttpGet]
         [Authorize]
-        public IActionResult ViewTicket(string id)
+        public IActionResult ViewTicket(string id, string notificationId)
         {
             return HandleException(() =>
             {
                 if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
                 var ticket = _ticketService.GetTicketById(id);
                 if (ticket == null) return RedirectToAction("ViewAll");
+
+                if (!string.IsNullOrEmpty(notificationId))
+                {
+                    _notificationService.MarkNotificationAsRead(notificationId);
+                }
+
                 return View(ticket);
             }, "ViewTicket");
         }
 
-        /// <summary>Get method for creating tickets</summary>
-        [HttpGet]
+
+    /// <summary>Get method for creating tickets</summary>
+    [HttpGet]
         [Authorize(Policy = "Employee")]
         public IActionResult Create() => HandleException(() => View(_ticketService.InitializeModel("default")), "Create");
 
@@ -234,7 +244,7 @@ namespace ASI.Basecode.WebApp.Controllers
             return HandleException(() =>
             {
                 if (model == null) return RedirectToAction("ViewAll");
-                _ticketService.Update(model);
+                _ticketService.Update(model, 1);
                 return RedirectToAction("ViewAll");
             }, "Edit");
         }
@@ -254,7 +264,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.StatusTypeId = model.StatusTypeId;
-                _ticketService.Update(ticket);
+                _ticketService.Update(ticket, 2);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdateStatus");
         }
@@ -274,7 +284,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.PriorityTypeId = model.PriorityTypeId;
-                _ticketService.Update(ticket);
+                _ticketService.Update(ticket, 3);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdatePriority");
         }
@@ -314,7 +324,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
                 _ticketService.RemoveAttachment(attachmentId);
                 ticket.Attachment = null;
-                _ticketService.Update(ticket);
+                _ticketService.Update(ticket, 4);
                 return RedirectToAction("Edit", new { id = ticketId });
             }, "RemoveAttachment");
         }
@@ -331,7 +341,7 @@ namespace ASI.Basecode.WebApp.Controllers
             return HandleException(() =>
             {
                 if (model == null || model.Agent == null) return RedirectToAction("ViewAll");
-                _ticketService.AddTicketAssignment(model);
+                _ticketService.AddTicketAssignment(model, false);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "AssignTicket");
         }
@@ -354,7 +364,7 @@ namespace ASI.Basecode.WebApp.Controllers
                     _ticketService.RemoveAssignment(assignment.TicketId);
                     if (model.Agent != null && !model.Agent.UserId.Equals("remove"))
                     {
-                        _ticketService.AddTicketAssignment(model);
+                        _ticketService.AddTicketAssignment(model, true);
                     }
                 }
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });

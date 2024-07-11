@@ -9,7 +9,7 @@ namespace ASI.Basecode.Data.Models
         public DateTime NotificationDate { get; set; }
         public string NotificationTypeId { get; set; }
         public string TicketId { get; set; }
-        public bool? IsRead { get; set; }
+        public bool IsRead { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string UserId { get; set; }
