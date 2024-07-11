@@ -16,6 +16,7 @@ namespace ASI.Basecode.Data.Interfaces
         Task AssignTicketAsync(TicketAssignment assignment);
         Task RemoveAssignmentAsync(TicketAssignment assignment);
         Task<Ticket> FindByIdAsync(string id);
+        Task<IEnumerable<Ticket>> FindByUserIdAsync(string id);
         Task<Attachment> FindAttachmentByIdAsync(string id);
         Task<Attachment> FindAttachmentByTicketIdAsync(string id);
         Task<TicketAssignment> FindAssignmentByTicketIdAsync(string id);
