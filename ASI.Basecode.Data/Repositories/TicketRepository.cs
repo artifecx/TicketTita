@@ -4,22 +4,16 @@ using Basecode.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
     public class TicketRepository : BaseRepository, ITicketRepository
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TicketRepository"/> class.
-        /// </summary>
-        /// <param name="unitOfWork">The unit of work.</param>
         public TicketRepository(IUnitOfWork unitOfWork) : base(unitOfWork) { }
 
         #region Ticket Service Methods
-        /// <summary>
-        /// Gets all tickets with includes.
-        /// </summary>
-        /// <returns>A list of all tickets Ticket (IQueryable)</returns>
         private IQueryable<Ticket> GetTicketsWithIncludes()
         {
             return this.GetDbSet<Ticket>().Include(t => t.CategoryType)
@@ -27,199 +21,119 @@ namespace ASI.Basecode.Data.Repositories
                                           .Include(t => t.StatusType)
                                           .Include(t => t.User)
                                           .Include(t => t.Feedback)
-                                          .Include(t => t.TicketAssignment);
+                                          .Include(t => t.Attachments)
+                                          .Include(t => t.TicketAssignment)
+                                            .ThenInclude(ta => ta.Team)
+                                            .ThenInclude(team => team.TeamMembers)
+                                            .ThenInclude(tm => tm.User);
         }
 
-        /// <summary>
-        /// Gets all tickets.
-        /// </summary>
-        /// <returns>A list of all tickets (IQueryable)</returns>
-        public IQueryable<Ticket> GetAll() => GetTicketsWithIncludes();
-
-        public IQueryable<Ticket> GetTickets(string type, List<string> assignedTicketIds)
+        public async Task<List<Ticket>> GetAllAsync()
         {
-            var ticketsQuery = GetTicketsWithIncludes();
-
-            return type.Equals("unassigned")
-                ? ticketsQuery.Where(t => !assignedTicketIds.Contains(t.TicketId))
-                : ticketsQuery.Where(t => assignedTicketIds.Contains(t.TicketId));
+            var tickets = await GetTicketsWithIncludes().ToListAsync();
+            return tickets;
         }
 
-        /// <summary>
-        /// Adds a new ticket to the database.
-        /// </summary>
-        /// <param name="ticket">The ticket.</param>
-        public string Add(Ticket ticket)
+        public async Task AddAsync(Ticket ticket)
         {
-            this.GetDbSet<Ticket>().Add(ticket);
-            UnitOfWork.SaveChanges();
-            return ticket.TicketId;
+            await this.GetDbSet<Ticket>().AddAsync(ticket);
+            await UnitOfWork.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Updates an existing ticket in the database.
-        /// </summary>
-        /// <param name="ticket">The ticket.</param>
-        public string Update(Ticket ticket)
+        public async Task UpdateAsync(Ticket ticket)
         {
             this.GetDbSet<Ticket>().Update(ticket);
-            UnitOfWork.SaveChanges();
-            return ticket.TicketId;
+            await UnitOfWork.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Deletes the specified ticket found in the database using the identifier.
-        /// </summary>
-        /// <param name="id">The ticket identifier.</param>
-        public void Delete(Ticket ticket)
+        public async Task DeleteAsync(Ticket ticket)
         {
             this.GetDbSet<Ticket>().Remove(ticket);
-            UnitOfWork.SaveChanges();
+            await UnitOfWork.SaveChangesAsync();
         }
         #endregion Ticket Service Methods
 
         #region Attachment Service Methods
-        /// <summary>
-        /// Adds a new attachment to the database.
-        /// </summary>
-        /// <param name="ticket">The ticket.</param>
-        public void AddAttachment(Attachment attachment)
+        public async Task AddAttachmentAsync(Attachment attachment)
         {
-            this.GetDbSet<Attachment>().Add(attachment);
-            UnitOfWork.SaveChanges();
+            await this.GetDbSet<Attachment>().AddAsync(attachment);
+            await UnitOfWork.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Removes the ticket attachment from the database.
-        /// </summary>
-        /// <param name="attachment">The attachment.</param>
-        public void RemoveAttachment(Attachment attachment)
+        public async Task RemoveAttachmentAsync(Attachment attachment)
         {
             this.GetDbSet<Attachment>().Remove(attachment);
-            UnitOfWork.SaveChanges();
+            await UnitOfWork.SaveChangesAsync();
         }
         #endregion Attachment Service Methods
 
         #region Ticket Assignment Service Methods        
-        /// <summary>
-        /// Adds a new TicketAssignment to the database.
-        /// </summary>
-        /// <param name="assignment">The assignment.</param>
-        public void AssignTicket(TicketAssignment assignment)
+        public async Task AssignTicketAsync(TicketAssignment assignment)
         {
-            this.GetDbSet<TicketAssignment>().Add(assignment);
-            UnitOfWork.SaveChanges();
+            await this.GetDbSet<TicketAssignment>().AddAsync(assignment);
+            await UnitOfWork.SaveChangesAsync();
         }
 
-        /// <summary>
-        /// Removes the TicketAssignment from the database.
-        /// </summary>
-        /// <param name="assignment">The assignment.</param>
-        public void RemoveAssignment(TicketAssignment assignment)
+        public async Task RemoveAssignmentAsync(TicketAssignment assignment)
         {
             this.GetDbSet<TicketAssignment>().Remove(assignment);
-            UnitOfWork.SaveChanges();
+            await UnitOfWork.SaveChangesAsync();
         }
         #endregion Ticket Assignment Service Methods
 
-
         #region Find Methods
-        /// <summary>
-        /// Finds a ticket in the database using its identifier.
-        /// </summary>
-        /// <param name="id">ticket_ID</param>
-        /// <returns>Ticket</returns>
-        public Ticket FindById(string id) => GetTicketsWithIncludes().FirstOrDefault(x => x.TicketId == id);
-
-        /// <summary>
-        /// Finds an attachment in the database using its identifier.
-        /// </summary>
-        /// <param name="id">The attachment identifier.</param>
-        /// <returns>Attachment</returns>
-        public Attachment FindAttachmentById(string id) => this.GetDbSet<Attachment>().FirstOrDefault(x => x.AttachmentId == id);
-
-        /// <summary>
-        /// Finds an attachment in the database using the ticket identifier.
-        /// </summary>
-        /// <param name="id">ticket_ID</param>
-        /// <returns>Attachment</returns>
-        public Attachment FindAttachmentByTicketId(string id) => this.GetDbSet<Attachment>().FirstOrDefault(x => x.TicketId == id);
-
-        /// <summary>
-        /// Finds an assignment in the database using the ticket identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>TicketAssignment</returns>
-        public TicketAssignment FindAssignmentByTicketId(string id) => this.GetDbSet<TicketAssignment>().FirstOrDefault(x => x.TicketId == id);
-
-        /// <summary>
-        /// Finds the Team through the user identifier of a TeamMember.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>Team</returns>
-        public Team FindTeamByUserId(string id)
+        public async Task<Ticket> FindByIdAsync(string id)
         {
-            var memberOf = this.GetDbSet<TeamMember>().FirstOrDefault(x => x.UserId == id);
-            return this.GetDbSet<Team>().FirstOrDefault(x => x.TeamId == memberOf.TeamId);
+            var ticket = await GetTicketsWithIncludes()
+                .Include(t => t.Attachments)
+                .FirstOrDefaultAsync(t => t.TicketId == id);
+
+            return ticket;
         }
 
-        /// <summary>
-        /// Finds the agent by user identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>User</returns>
-        public User FindAgentByUserId(string id) => this.GetDbSet<User>().FirstOrDefault(x => x.UserId == id);
+        public async Task<Attachment> FindAttachmentByIdAsync(string id) => await this.GetDbSet<Attachment>().FirstOrDefaultAsync(x => x.AttachmentId == id);
 
-        /// <summary>
-        /// Finds the category by its identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>CategoryType</returns>
-        public CategoryType FindCategoryById(string id) => this.GetDbSet<CategoryType>().FirstOrDefault(x => x.CategoryTypeId == id);
+        public async Task<Attachment> FindAttachmentByTicketIdAsync(string id) => await this.GetDbSet<Attachment>().FirstOrDefaultAsync(x => x.TicketId == id);
 
-        /// <summary>
-        /// Finds the priority by itsidentifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>PriorityType</returns>
-        public PriorityType FindPriorityById(string id) => this.GetDbSet<PriorityType>().FirstOrDefault(x => x.PriorityTypeId == id);
+        public async Task<TicketAssignment> FindAssignmentByTicketIdAsync(string id) => await this.GetDbSet<TicketAssignment>().FirstOrDefaultAsync(x => x.TicketId == id);
 
-        /// <summary>
-        /// Finds the status by identifier.
-        /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>StatusType</returns>
-        public StatusType FindStatusById(string id) => this.GetDbSet<StatusType>().FirstOrDefault(x => x.StatusTypeId == id);
+        public async Task<Team> FindTeamByUserIdAsync(string id)
+        {
+            var memberOf = await this.GetDbSet<TeamMember>().FirstOrDefaultAsync(x => x.UserId == id);
+            return await this.GetDbSet<Team>().FirstOrDefaultAsync(x => x.TeamId == memberOf.TeamId);
+        }
 
-        /// <summary>
-        /// Gets all category types.
-        /// </summary>
-        /// <returns>A collection of all CategoryType (IQueryable)</returns>
-        public IQueryable<CategoryType> GetCategoryTypes() => this.GetDbSet<CategoryType>();
+        public async Task<User> FindAgentByUserIdAsync(string id) => await this.GetDbSet<User>().FirstOrDefaultAsync(x => x.UserId == id);
 
-        /// <summary>
-        /// Gets all priority types.
-        /// </summary>
-        /// <returns>A collection of all PriorityType (IQueryable)</returns>
-        public IQueryable<PriorityType> GetPriorityTypes() => this.GetDbSet<PriorityType>();
+        public async Task<CategoryType> FindCategoryByIdAsync(string id) => await this.GetDbSet<CategoryType>().FirstOrDefaultAsync(x => x.CategoryTypeId == id);
 
-        /// <summary>
-        /// Gets all status types.
-        /// </summary>
-        /// <returns>A collection of all StatusType (IQueryable)</returns>
-        public IQueryable<StatusType> GetStatusTypes() => this.GetDbSet<StatusType>();
+        public async Task<PriorityType> FindPriorityByIdAsync(string id) => await this.GetDbSet<PriorityType>().FirstOrDefaultAsync(x => x.PriorityTypeId == id);
 
-        /// <summary>
-        /// Gets the support agents.
-        /// </summary>
-        /// <returns>User with support agent role</returns>
-        public IQueryable<User> GetSupportAgents() => this.GetDbSet<User>().Where(x => x.RoleId == "Support Agent");
+        public async Task<StatusType> FindStatusByIdAsync(string id) => await this.GetDbSet<StatusType>().FirstOrDefaultAsync(x => x.StatusTypeId == id);
 
-        /// <summary>
-        /// Gets the ticket assignments.
-        /// </summary>
-        /// <returns>A TicketAssignment</returns>
-        public IQueryable<TicketAssignment> GetTicketAssignments() => this.GetDbSet<TicketAssignment>();
+        public async Task<IQueryable<CategoryType>> GetCategoryTypesAsync() => await Task.FromResult(this.GetDbSet<CategoryType>());
+
+        public async Task<IQueryable<PriorityType>> GetPriorityTypesAsync() => await Task.FromResult(this.GetDbSet<PriorityType>());
+
+        public async Task<IQueryable<StatusType>> GetStatusTypesAsync() => await Task.FromResult(this.GetDbSet<StatusType>());
+
+        public async Task<IQueryable<User>> GetSupportAgentsAsync() => await Task.FromResult(this.GetDbSet<User>().Where(x => x.RoleId == "Support Agent"));
+
+        public async Task<IQueryable<TicketAssignment>> GetTicketAssignmentsAsync() => await Task.FromResult(this.GetDbSet<TicketAssignment>());
+
+        public async Task<IQueryable<string>> GetUserIdsWithTicketsAsync() => await Task.FromResult(this.GetDbSet<Ticket>().Select(x => x.UserId).Distinct());
         #endregion
+
+        public async Task<IQueryable<User>> UserGetAllAsync() => await Task.FromResult(this.GetDbSet<User>());
+        public async Task<User> UserFindByIdAsync (string id) => await this.GetDbSet<User>().FirstOrDefaultAsync(x => x.UserId == id);
+
+        public async Task FeedbackDeleteAsync(Feedback feedback)
+        {
+            this.GetDbSet<Feedback>().Remove(feedback);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<Feedback> FeedbackFindByTicketIdAsync(string id) => await this.GetDbSet<Feedback>().FirstOrDefaultAsync(x => x.TicketId == id);
+        public async Task<Admin> AdminFindByIdAsync(string id) => await this.GetDbSet<Admin>().FirstOrDefaultAsync(x => x.AdminId == id);
     }
 }

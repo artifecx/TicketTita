@@ -70,7 +70,7 @@ namespace ASI.Basecode.Services.Services
         public void SetNavigationProperties(FeedbackViewModel feedback)
         {
             feedback.User = _userService.RetrieveUser(feedback.UserId);
-            feedback.Ticket = _ticketService.GetTicketById(feedback.TicketId);
+            feedback.Ticket = _ticketService.GetTicketByIdAsync(feedback.TicketId).Result;
         }
 
         public void Add(FeedbackViewModel feedback)
@@ -78,7 +78,7 @@ namespace ASI.Basecode.Services.Services
             var existingFeedback = _repository.FindFeedbackByTicketId(feedback.TicketId);
             if(existingFeedback == null)
             {
-                var ticket = _mapper.Map<Ticket>(_ticketService.GetTicketById(feedback.TicketId));
+                var ticket = _mapper.Map<Ticket>(_ticketService.GetTicketByIdAsync(feedback.TicketId).Result);
                 var user = _mapper.Map<User>(_userService.RetrieveUser(feedback.UserId));
 
                 if (ticket != null && user != null)
@@ -106,7 +106,7 @@ namespace ASI.Basecode.Services.Services
                 UserId = userId,
                 User = _userService.RetrieveUser(userId),
                 TicketId = id,
-                Ticket = _ticketService.GetTicketById(id)
+                Ticket = _ticketService.GetTicketByIdAsync(id).Result
             };
         }
 

@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -222,5 +223,62 @@ namespace ASI.Basecode.WebApp.Mvc
             }
         }
         #endregion Exception Handlers
+
+        #region Async Exception Handlers
+        public async Task<IActionResult> HandleExceptionAsync(Func<Task<IActionResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return View("Error");
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        public async Task<JsonResult> HandleExceptionAsync(Func<Task<JsonResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return new JsonResult(new { success = false, error = "An error occurred. Please try again later." });
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        public async Task<FileResult> HandleExceptionAsync(Func<Task<FileResult>> action, string actionName)
+        {
+            try
+            {
+                StartLog(actionName);
+                return await action();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in {actionName}");
+                return null;
+            }
+            finally
+            {
+                EndLog(actionName);
+            }
+        }
+
+        #endregion Async Exception Handlers
     }
 }
