@@ -129,7 +129,8 @@ namespace ASI.Basecode.Services.Services
         /// <param name="model">The model.</param>
         public void Update(UserViewModel model)
         {
-            var updatedUser = _mapper.Map<User>(model);
+            var updatedUser = _userRepository.FindById(model.UserId);
+            _mapper.Map(model, updatedUser);
             updatedUser.UpdatedTime = DateTime.Now;
 
             var currentAdmin = GetCurrentAdmin();
