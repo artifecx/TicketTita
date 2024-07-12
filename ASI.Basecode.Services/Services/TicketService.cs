@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
@@ -77,8 +78,7 @@ namespace ASI.Basecode.Services.Services
                 else
                 {
                     await _repository.AddAsync(newTicket);
-                    string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
-                    _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
+                    CreateNotification(newTicket, 1, null);
                 }
             }
         }
@@ -86,10 +86,9 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to update an existing ticket.
         /// </summary>
-
         /// <param name="ticket">The ticket</param>
-        public async Task UpdateAsync(TicketViewModel ticket,int UpdateType)
-
+        /// <param name="updateType">The update type</param>
+        public async Task UpdateAsync(TicketViewModel ticket, int updateType)
         {
             if (ticket.File != null) await HandleAttachmentAsync(ticket);
 
@@ -113,40 +112,71 @@ namespace ASI.Basecode.Services.Services
                 ticket.PriorityType = await _repository.FindPriorityByIdAsync(ticket.PriorityTypeId);
                 ticket.StatusType = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
                 ticket.User = await _repository.UserFindByIdAsync(ticket.UserId);
+
+                if (existingTicket.TicketAssignment != null)
+                    ticket.TicketAssignment = existingTicket.TicketAssignment; 
                 
                 _mapper.Map(ticket, existingTicket);
                 await UpdateTicketDate(existingTicket);
-                switch (UpdateType) {
-                    case 1:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Description Updated", "7", ticket.UserId, $"Ticket #{ticket.TicketId} Description has been updated.");
-                        break;
-                    case 2:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
-                        break;
-                    case 3:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
-                        break;
-                    case 4:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
-                        break;
-                }
+                
                 if (ticket.Attachment != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = existingTicket.TicketId;
                     await AddAttachmentAsync(ticket.Attachment, existingTicket);
+                    CreateNotification(existingTicket, updateType, null, ticket.Agent?.UserId);
                 }
                 else
-
                 {
                     await _repository.UpdateAsync(existingTicket);
+                    CreateNotification(existingTicket, updateType, null, ticket.Agent?.UserId);
                 }
             }
             else
             {
                 LogError("UpdateAsync", "Ticket does not exist.");
+            }
+        }
+
+        /// <summary>
+        /// Helper method to create a notification.
+        /// </summary>
+        /// <param name="ticket"></param>
+        /// <param name="updateType"></param>
+        /// <param name="isReassigned"></param>
+        /// <param name="agentId"></param>
+        private void CreateNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null)
+        {
+            var userId = ticket.UserId;
+            var ticketId = ticket.TicketId;
+
+            var (title, type, message) = updateType switch
+            {
+                1 => ("New Ticket Created Successfully", "1", $"Ticket #{ticketId} Successfully Added"),
+                2 => ("Ticket Priority Updated", "2", $"Ticket #{ticketId} Priority has been updated."),
+                3 => ("Ticket Status Updated", "3", $"Ticket #{ticketId} Status has been updated."),
+                4 => ("Ticket Attachment Updated", "4", $"Ticket #{ticketId} Details have been updated."), // attachment to details, need to update db notif type
+                5 => (string.Empty, string.Empty, string.Empty), // ticket assignment
+                6 => (string.Empty, string.Empty, string.Empty), // ticket reassignment
+                7 => ("Ticket Description Updated", "7", $"Ticket #{ticketId} Description has been updated."), // DANGER: no entry in NotificationType
+                _ => (string.Empty, string.Empty, string.Empty)
+            };
+
+            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(type))
+            {
+                if (agentId != null && (updateType == 3 || updateType == 4 || updateType == 5))
+                {
+                    _notificationService.AddNotification(ticketId, title, type, agentId, message);
+                }
+                _notificationService.AddNotification(ticketId, title, type, userId, message);
+            }
+            else if (isReassigned.HasValue)
+            {
+                string agentNotificationTitle = "Ticket Assigned";
+                string userNotificationTitle = isReassigned.Value ? "Ticket Reassigned to an Agent" : "Ticket Assigned to an Agent";
+                string notificationType = isReassigned.Value ? "6" : "5";
+
+                _notificationService.AddNotification(ticketId, agentNotificationTitle, "5", agentId, $"Ticket #{ticketId} has been assigned to you.");
+                _notificationService.AddNotification(ticketId, userNotificationTitle, notificationType, userId, $"Ticket #{ticketId} has been assigned to an agent.");
             }
         }
 
@@ -227,9 +257,9 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to add a new ticket assignment.
         /// </summary>
-
         /// <param name="model">The model</param>
-        public async Task AddTicketAssignmentAsync(TicketViewModel model, bool Reassigned)
+        /// <param name="isReassigned">True or false</param>
+        public async Task AddTicketAssignmentAsync(TicketViewModel model, bool isReassigned)
         {
             var assignment = await GetAssignmentByTicketIdAsync(model.TicketId);
             if (assignment == null)
@@ -239,31 +269,14 @@ namespace ASI.Basecode.Services.Services
                 ticket.TicketAssignment = assignment;
                 assignment.Ticket = ticket;
                 await _repository.AssignTicketAsync(assignment);
-                
-                string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
-                string userNotificationTitle = $"Ticket #{model.TicketId} has been assigned to an agent.";
 
-                if (ticket == null)
-                {
-                    LogError("AddTicketAssignment", "Ticket not found.");
-                    return;
-                }
-                if (!Reassigned)
-                {
-                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
-                    _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Assigned to an agent.");
-                }
-                else {
-                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
-                    _notificationService.AddNotification(model.TicketId, "Ticket Reassigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Reassigned to an agent.");
-                }
+                CreateNotification(ticket, null, isReassigned, model.Agent.UserId);
             }
             else
             {
                 LogError("AddTicketAssignmentAsync", "Assignment already exists.");
             }
         }
-
 
         /// <summary>
         /// Calls the repository to remove a ticket assignment.
