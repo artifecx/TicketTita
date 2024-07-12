@@ -241,7 +241,7 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 if (model == null) return RedirectToAction("ViewAll");
 
-                await _ticketService.UpdateAsync(model,1);
+                await _ticketService.UpdateAsync(model,4);
                 return RedirectToAction("ViewAll");
             }, "Edit");
         }
@@ -261,7 +261,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.StatusTypeId = model.StatusTypeId;
-                await _ticketService.UpdateAsync(ticket, 2);
+                await _ticketService.UpdateAsync(ticket, 3);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdateStatus");
         }
@@ -281,7 +281,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ticket == null) return RedirectToAction("ViewAll");
 
                 ticket.PriorityTypeId = model.PriorityTypeId;
-                await _ticketService.UpdateAsync(ticket, 3);
+                await _ticketService.UpdateAsync(ticket, 2);
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "UpdatePriority");
         }

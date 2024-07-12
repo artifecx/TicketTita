@@ -30,7 +30,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
             var userId = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var notifications = _notificationService.RetrieveAll(userId);
+            var notifications = _notificationService.RetrieveAll(userId).OrderByDescending(x => x.NotificationDate);
 
             return View(notifications);
         }
