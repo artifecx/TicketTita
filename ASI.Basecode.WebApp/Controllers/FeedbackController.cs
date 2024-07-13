@@ -11,17 +11,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
     public class FeedbackController : ControllerBase<FeedbackController>
     {
         private readonly IFeedbackService _feedbackService;
-        private readonly ITicketService _ticketService;
-        private readonly IUserService _userService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TicketController"/> class.
+        /// Initializes a new instance of the <see cref="FeedbackController"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         /// <param name="loggerFactory">The logger factory.</param>
@@ -31,28 +30,24 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
         /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
         public FeedbackController(
-                            IHttpContextAccessor httpContextAccessor,
-                            ILoggerFactory loggerFactory,
-                            IConfiguration configuration,
-                            IMapper mapper,
-                            IFeedbackService feedbackService,
-                            ITicketService ticketService,
-                            IUserService userService,
-                            TokenValidationParametersFactory tokenValidationParametersFactory,
-                            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+            IHttpContextAccessor httpContextAccessor,
+            ILoggerFactory loggerFactory,
+            IConfiguration configuration,
+            IMapper mapper,
+            IFeedbackService feedbackService,
+            TokenValidationParametersFactory tokenValidationParametersFactory,
+            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._feedbackService = feedbackService;
-            this._ticketService = ticketService;
-            this._userService = userService;
         }
 
         /// <summary>Show all feedback</summary>
         [Authorize]
-        public IActionResult ViewAll(string sortOrder)
+        public async Task<IActionResult> ViewAllAsync(string sortOrder)
         {
-            return HandleException(() =>
+            return await HandleExceptionAsync(async () =>
             {
-                var feedbacks = _feedbackService.GetAll();
+                var feedbacks = await _feedbackService.GetAllAsync();
                 if (User.IsInRole("Employee"))
                     feedbacks = feedbacks.Where(x => x.UserId == UserId);
 
@@ -63,12 +58,12 @@ namespace ASI.Basecode.WebApp.Controllers
         #region GET Methods
         [Authorize]
         [HttpGet]
-        public IActionResult ViewFeedback(string id)
+        public async Task<IActionResult> ViewFeedbackAsync(string id)
         {
-            return HandleException(() =>
+            return await HandleExceptionAsync(async () =>
             {
                 if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
-                var feedback = _feedbackService.GetFeedbackByTicketId(id);
+                var feedback = await _feedbackService.GetFeedbackByTicketIdAsync(id);
                 if (feedback == null) return RedirectToAction("ViewAll");
                 return View(feedback);
             }, "ViewFeedback");
@@ -76,15 +71,15 @@ namespace ASI.Basecode.WebApp.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult ProvideFeedback(string id)
+        public async Task<IActionResult> ProvideFeedbackAsync(string id)
         {
-            return HandleException(() =>
+            return await HandleExceptionAsync(async () =>
             {
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(userId)) 
+                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(userId))
                     return RedirectToAction("ViewAll");
 
-                var feedback = _feedbackService.InitializeModel(userId, id);
+                var feedback = await _feedbackService.InitializeModelAsync(userId, id);
                 if (feedback == null) return RedirectToAction("ViewAll");
 
                 return View(feedback);
@@ -95,14 +90,14 @@ namespace ASI.Basecode.WebApp.Controllers
         #region POST Methods
         [HttpPost]
         [Authorize]
-        public IActionResult ProvideFeedback(FeedbackViewModel model)
+        public async Task<IActionResult> ProvideFeedbackAsync(FeedbackViewModel model)
         {
-            return HandleException(() =>
+            return await HandleExceptionAsync(async () =>
             {
                 if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.TicketId))
                     return RedirectToAction("ViewAll");
 
-                _feedbackService.Add(model);
+                await _feedbackService.AddAsync(model);
 
                 TempData["CreateMessage"] = "Created Successfully";
                 return RedirectToAction("ViewAll");
