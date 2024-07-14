@@ -43,6 +43,8 @@
             <a asp-action="ReassignTicket">Reassign</a>
         }
     }
+    |
+    @Html.ActionLink("View Feedbacks", "ViewAll", "Feedback")
 </p>
 
 <form method="get" asp-action="ViewAll">
@@ -209,11 +211,11 @@
                                 <text> | </text>
                                 @if (item.Feedback == null)
                                 {
-                                    @Html.ActionLink("Provide Feedback", "ProvideFeedback", "Feedback", new { id = item.TicketId }, null)
+                                    @Html.ActionLink("Provide Feedback", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" })
                                 }
                                 else
                                 {
-                                    @Html.ActionLink("View Feedback", "ViewFeedback", "Feedback", new { id = item.TicketId }, null)
+                                    @Html.ActionLink("View Feedback", "ViewTicket", new { id = item.TicketId })
                                 }
                             }
                             else

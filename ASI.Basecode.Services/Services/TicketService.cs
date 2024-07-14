@@ -337,11 +337,8 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all unresolved tickets.
         /// </summary>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync()
-        {
-            var tickets = (await GetAllAsync()).Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
-            return tickets;
-        }
+        public async Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync() 
+            => (await GetAllAsync()).Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
 
         /// <summary>
         /// Calls GetUnresolvedTicketsAsync and filters the result based on status: "assigned" or "unassigned".
@@ -448,52 +445,60 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="id">Ticket identifier</param>
         /// <returns>Attachment</returns>
-        public async Task<Attachment> GetAttachmentByTicketIdAsync(string id) => await _repository.FindAttachmentByTicketIdAsync(id);
+        public async Task<Attachment> GetAttachmentByTicketIdAsync(string id) 
+            => await _repository.FindAttachmentByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a ticket assignment by ticket identifier.
         /// </summary>
         /// <param name="id">Ticket identifier</param>
         /// <returns>TicketAssignment</returns>
-        public async Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id) => await _repository.FindAssignmentByTicketIdAsync(id);
+        public async Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id) 
+            => await _repository.FindAssignmentByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a team by user identifier.
         /// </summary>
         /// <param name="id">User identifier</param>
         /// <returns>Team</returns>
-        public async Task<Team> GetTeamByUserIdAsync(string id) => await _repository.FindTeamByUserIdAsync(id);
+        public async Task<Team> GetTeamByUserIdAsync(string id) 
+            => await _repository.FindTeamByUserIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a user with role "Agent" by user identifier.
         /// </summary>
         /// <param name="id">User identifier</param>
         /// <returns>User</returns>
-        public async Task<User> GetAgentByIdAsync(string id) => await _repository.FindAgentByUserIdAsync(id);
+        public async Task<User> GetAgentByIdAsync(string id) 
+            => await _repository.FindAgentByUserIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get all categories.
         /// </summary>
         /// <returns>IEnumerable CategoryType</returns>
-        public async Task<IEnumerable<CategoryType>> GetCategoryTypesAsync() => await _repository.GetCategoryTypesAsync();
+        public async Task<IEnumerable<CategoryType>> GetCategoryTypesAsync() 
+            => await _repository.GetCategoryTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all priority types.
         /// </summary>
         /// <returns>IEnumerable PriorityType</returns>
-        public async Task<IEnumerable<PriorityType>> GetPriorityTypesAsync() => await _repository.GetPriorityTypesAsync();
+        public async Task<IEnumerable<PriorityType>> GetPriorityTypesAsync() 
+            => await _repository.GetPriorityTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all status types.
         /// </summary>
         /// <returns>IEnumerable StatusType</returns>
-        public async Task<IEnumerable<StatusType>> GetStatusTypesAsync() => await _repository.GetStatusTypesAsync();
+        public async Task<IEnumerable<StatusType>> GetStatusTypesAsync() 
+            => await _repository.GetStatusTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all users with role "Support Aagent".
         /// </summary>
         /// <returns>IEnumerable User</returns>
-        public async Task<IEnumerable<User>> GetSupportAgentsAsync() => await _repository.GetSupportAgentsAsync();
+        public async Task<IEnumerable<User>> GetSupportAgentsAsync() 
+            => await _repository.GetSupportAgentsAsync();
 
         /// <summary>
         /// Calls the repository to get all ticket assignments.
@@ -518,19 +523,22 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="id">The ticket identifier</param>
         /// <returns>Feedback</returns>
-        private async Task<Feedback> GetFeedBackByIdAsync(string id) => await _repository.FeedbackFindByTicketIdAsync(id);
+        private async Task<Feedback> GetFeedBackByIdAsync(string id)
+            => await _repository.FeedbackFindByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get all users with tickets.
         /// </summary>
         /// <returns>IEnumerable string</returns>
-        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() => await _repository.GetUserIdsWithTicketsAsync();
+        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() 
+            => await _repository.GetUserIdsWithTicketsAsync();
 
         /// <summary>
         /// Calls the repository to get all users.
         /// </summary>
         /// <returns>IEnumerable user</returns>
-        public async Task<IEnumerable<User>> UserGetAllAsync() => await _repository.UserGetAllAsync();
+        public async Task<IEnumerable<User>> UserGetAllAsync() 
+            => await _repository.UserGetAllAsync();
 
         /// <summary>
         /// Gets the current logged in admin.
