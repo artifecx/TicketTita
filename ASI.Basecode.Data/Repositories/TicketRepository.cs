@@ -46,6 +46,14 @@ namespace ASI.Basecode.Data.Repositories
             var tickets = await GetTicketsWithIncludes().ToListAsync();
             return tickets;
         }
+        /// <summary>
+        /// Retrieves all Non Asycn.
+        /// </summary>
+        /// <returns></returns>
+        public IQueryable<Ticket> RetrieveAll() { 
+            var tickets = GetTicketsWithIncludes();
+            return tickets;
+        }
 
         /// <summary>
         /// Add a ticket

@@ -1,5 +1,6 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
+using ASI.Basecode.Data.Repositories;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
@@ -499,7 +500,19 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <returns>IEnumerable Ticket Assignment</returns>
         public async Task<IEnumerable<TicketAssignment>> GetTicketAssignmentsAsync() => await _repository.GetTicketAssignmentsAsync();
-        
+
+
+        public IEnumerable<TicketViewModel> GetUnresolvedTicketsOlderThan(TimeSpan timeSpan)
+        {
+            var cutoffTime = DateTime.Now.Subtract(timeSpan);
+            var unresolvedTickets = _repository.RetrieveAll()
+                .Where(t => (t.ResolvedDate == null) && t.CreatedDate <= cutoffTime && (t.User.UserId != null))
+                .ToList();
+
+            return unresolvedTickets.Select(ticket => _mapper.Map<TicketViewModel>(ticket));
+        }
+
+
         /// <summary>
         /// Get feedback by ticket identifier.
         /// </summary>
