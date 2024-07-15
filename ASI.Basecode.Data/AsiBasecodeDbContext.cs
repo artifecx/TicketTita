@@ -230,9 +230,6 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Comment_UserID");
 
-                entity.HasIndex(e => e.ParentId, "UQ__Comment__F2D9141065EE51C6")
-                    .IsUnique();
-
                 entity.Property(e => e.CommentId)
                     .HasMaxLength(256)
                     .HasColumnName("comment_ID");
@@ -266,8 +263,8 @@ namespace ASI.Basecode.Data
                     .HasColumnName("user_ID");
 
                 entity.HasOne(d => d.Parent)
-                    .WithOne(p => p.InverseParent)
-                    .HasForeignKey<Comment>(d => d.ParentId)
+                    .WithMany(p => p.InverseParent)
+                    .HasForeignKey(d => d.ParentId)
                     .HasConstraintName("FK_Comment_Parent");
 
                 entity.HasOne(d => d.Ticket)
@@ -295,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62707BCE1E")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62336A0FB4")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -415,8 +412,6 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(500)
                     .HasColumnName("description");
-
-                entity.Property(e => e.IsRead).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.NotificationDate)
                     .HasColumnType("datetime")
@@ -594,7 +589,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF330698FCA7A3")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33060B072ACA")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -733,7 +728,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62610D59EC")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62F0009DB8")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)

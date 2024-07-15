@@ -5,6 +5,11 @@ namespace ASI.Basecode.Data.Models
 {
     public partial class Comment
     {
+        public Comment()
+        {
+            InverseParent = new HashSet<Comment>();
+        }
+
         public string CommentId { get; set; }
         public string UserId { get; set; }
         public string TicketId { get; set; }
@@ -16,6 +21,6 @@ namespace ASI.Basecode.Data.Models
         public virtual Comment Parent { get; set; }
         public virtual Ticket Ticket { get; set; }
         public virtual User User { get; set; }
-        public virtual Comment InverseParent { get; set; }
+        public virtual ICollection<Comment> InverseParent { get; set; }
     }
 }
