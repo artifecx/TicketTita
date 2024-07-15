@@ -9,6 +9,7 @@ namespace ASI.Basecode.Data.Models
         {
             ActivityLogs = new HashSet<ActivityLog>();
             Attachments = new HashSet<Attachment>();
+            Comments = new HashSet<Comment>();
             Notifications = new HashSet<Notification>();
         }
 
@@ -31,6 +32,7 @@ namespace ASI.Basecode.Data.Models
         public virtual TicketAssignment TicketAssignment { get; set; }
         public virtual ICollection<ActivityLog> ActivityLogs { get; set; }
         public virtual ICollection<Attachment> Attachments { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Notification> Notifications { get; set; }
     }
 }
