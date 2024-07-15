@@ -11,8 +11,6 @@ namespace ASI.Basecode.Data.Interfaces
         Task AddAsync(Ticket ticket);
         Task UpdateAsync(Ticket ticket);
         Task DeleteAsync(Ticket ticket);
-
-        IQueryable<Ticket> RetrieveAll();
         Task AddAttachmentAsync(Attachment attachment);
         Task RemoveAttachmentAsync(Attachment attachment);
         Task AssignTicketAsync(TicketAssignment assignment);
