@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
@@ -76,9 +77,8 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                 string Title = $"Ticket #{newTicket.TicketId} Successfully Added";
-                _notificationService.AddNotification(newTicket.TicketId, "New Ticket Created Succesfully", "1", userId, Title);
                     await _repository.AddAsync(newTicket);
+                    CreateNotification(newTicket, 1, null);
                 }
             }
         }
@@ -86,10 +86,9 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to update an existing ticket.
         /// </summary>
-
         /// <param name="ticket">The ticket</param>
-        public async Task UpdateAsync(TicketViewModel ticket,int UpdateType)
-
+        /// <param name="updateType">The update type</param>
+        public async Task UpdateAsync(TicketViewModel ticket, int updateType)
         {
             if (ticket.File != null) await HandleAttachmentAsync(ticket);
 
@@ -113,40 +112,71 @@ namespace ASI.Basecode.Services.Services
                 ticket.PriorityType = await _repository.FindPriorityByIdAsync(ticket.PriorityTypeId);
                 ticket.StatusType = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
                 ticket.User = await _repository.UserFindByIdAsync(ticket.UserId);
+
+                if (existingTicket.TicketAssignment != null)
+                    ticket.TicketAssignment = existingTicket.TicketAssignment; 
                 
                 _mapper.Map(ticket, existingTicket);
                 await UpdateTicketDate(existingTicket);
-                switch (UpdateType) {
-                    case 1:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Description Updated", "7", ticket.UserId, $"Ticket #{ticket.TicketId} Description has been updated.");
-                        break;
-                    case 2:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Status Updated", "3", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Status has been updated.");
-                        break;
-                    case 3:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Priority Updated", "2", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Priority has been updated.");
-                        break;
-                    case 4:
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
-                        _notificationService.AddNotification(ticket.TicketId, "Ticket Attachment Updated", "4", ticket.Agent.UserId, $"Ticket #{ticket.TicketId} Attachment has been updated.");
-                        break;
-                }
+                
                 if (ticket.Attachment != null && ticket.File != null)
                 {
                     ticket.Attachment.TicketId = existingTicket.TicketId;
                     await AddAttachmentAsync(ticket.Attachment, existingTicket);
+                    CreateNotification(existingTicket, updateType, null, ticket.Agent?.UserId);
                 }
                 else
-
                 {
                     await _repository.UpdateAsync(existingTicket);
+                    CreateNotification(existingTicket, updateType, null, ticket.Agent?.UserId);
                 }
             }
             else
             {
                 LogError("UpdateAsync", "Ticket does not exist.");
+            }
+        }
+
+        /// <summary>
+        /// Helper method to create a notification.
+        /// </summary>
+        /// <param name="ticket"></param>
+        /// <param name="updateType"></param>
+        /// <param name="isReassigned"></param>
+        /// <param name="agentId"></param>
+        private void CreateNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null)
+        {
+            var userId = ticket.UserId;
+            var ticketId = ticket.TicketId;
+
+            var (title, type, message) = updateType switch
+            {
+                1 => ("New Ticket Created Successfully", "1", $"Ticket #{ticketId} Successfully Added"),
+                2 => ("Ticket Priority Updated", "2", $"Ticket #{ticketId} Priority has been updated."),
+                3 => ("Ticket Status Updated", "3", $"Ticket #{ticketId} Status has been updated."),
+                4 => ("Ticket Attachment Updated", "4", $"Ticket #{ticketId} Details have been updated."), // attachment to details, need to update db notif type
+                5 => (string.Empty, string.Empty, string.Empty), // ticket assignment
+                6 => (string.Empty, string.Empty, string.Empty), // ticket reassignment
+                7 => ("Ticket Description Updated", "7", $"Ticket #{ticketId} Description has been updated."), // DANGER: no entry in NotificationType
+                _ => (string.Empty, string.Empty, string.Empty)
+            };
+
+            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(type))
+            {
+                if (agentId != null && (updateType == 3 || updateType == 4 || updateType == 5))
+                {
+                    _notificationService.AddNotification(ticketId, title, type, agentId, message);
+                }
+                _notificationService.AddNotification(ticketId, title, type, userId, message);
+            }
+            else if (isReassigned.HasValue)
+            {
+                string agentNotificationTitle = "Ticket Assigned";
+                string userNotificationTitle = isReassigned.Value ? "Ticket Reassigned to an Agent" : "Ticket Assigned to an Agent";
+                string notificationType = isReassigned.Value ? "6" : "5";
+
+                _notificationService.AddNotification(ticketId, agentNotificationTitle, "5", agentId, $"Ticket #{ticketId} has been assigned to you.");
+                _notificationService.AddNotification(ticketId, userNotificationTitle, notificationType, userId, $"Ticket #{ticketId} has been assigned to an agent.");
             }
         }
 
@@ -227,9 +257,9 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Calls the repository to add a new ticket assignment.
         /// </summary>
-
         /// <param name="model">The model</param>
-        public async Task AddTicketAssignmentAsync(TicketViewModel model, bool Reassigned)
+        /// <param name="isReassigned">True or false</param>
+        public async Task AddTicketAssignmentAsync(TicketViewModel model, bool isReassigned)
         {
             var assignment = await GetAssignmentByTicketIdAsync(model.TicketId);
             if (assignment == null)
@@ -239,31 +269,14 @@ namespace ASI.Basecode.Services.Services
                 ticket.TicketAssignment = assignment;
                 assignment.Ticket = ticket;
                 await _repository.AssignTicketAsync(assignment);
-                
-                string agentNotificationTitle = $"Ticket #{model.TicketId} has been assigned to you.";
-                string userNotificationTitle = $"Ticket #{model.TicketId} has been assigned to an agent.";
 
-                if (ticket == null)
-                {
-                    LogError("AddTicketAssignment", "Ticket not found.");
-                    return;
-                }
-                if (!Reassigned)
-                {
-                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
-                    _notificationService.AddNotification(model.TicketId, "Ticket Assigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Assigned to an agent.");
-                }
-                else {
-                    _notificationService.AddNotification(model.TicketId, "Ticket assigned", "1", model.Agent.UserId, agentNotificationTitle);
-                    _notificationService.AddNotification(model.TicketId, "Ticket Reassigned to an Agent", "7", ticket.UserId, $"Ticket #{model.TicketId} has been Reassigned to an agent.");
-                }
+                CreateNotification(ticket, null, isReassigned, model.Agent.UserId);
             }
             else
             {
                 LogError("AddTicketAssignmentAsync", "Assignment already exists.");
             }
         }
-
 
         /// <summary>
         /// Calls the repository to remove a ticket assignment.
@@ -323,11 +336,8 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all unresolved tickets.
         /// </summary>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync()
-        {
-            var tickets = (await GetAllAsync()).Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
-            return tickets;
-        }
+        public async Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync() 
+            => (await GetAllAsync()).Where(ticket => ticket.StatusType.StatusName == "Open" || ticket.StatusType.StatusName == "In Progress");
 
         /// <summary>
         /// Calls GetUnresolvedTicketsAsync and filters the result based on status: "assigned" or "unassigned".
@@ -434,77 +444,89 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="id">Ticket identifier</param>
         /// <returns>Attachment</returns>
-        public async Task<Attachment> GetAttachmentByTicketIdAsync(string id) => await _repository.FindAttachmentByTicketIdAsync(id);
+        public async Task<Attachment> GetAttachmentByTicketIdAsync(string id) 
+            => await _repository.FindAttachmentByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a ticket assignment by ticket identifier.
         /// </summary>
         /// <param name="id">Ticket identifier</param>
         /// <returns>TicketAssignment</returns>
-        public async Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id) => await _repository.FindAssignmentByTicketIdAsync(id);
+        public async Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id) 
+            => await _repository.FindAssignmentByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a team by user identifier.
         /// </summary>
         /// <param name="id">User identifier</param>
         /// <returns>Team</returns>
-        public async Task<Team> GetTeamByUserIdAsync(string id) => await _repository.FindTeamByUserIdAsync(id);
+        public async Task<Team> GetTeamByUserIdAsync(string id) 
+            => await _repository.FindTeamByUserIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get a user with role "Agent" by user identifier.
         /// </summary>
         /// <param name="id">User identifier</param>
         /// <returns>User</returns>
-        public async Task<User> GetAgentByIdAsync(string id) => await _repository.FindAgentByUserIdAsync(id);
+        public async Task<User> GetAgentByIdAsync(string id) 
+            => await _repository.FindAgentByUserIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get all categories.
         /// </summary>
         /// <returns>IEnumerable CategoryType</returns>
-        public async Task<IEnumerable<CategoryType>> GetCategoryTypesAsync() => await _repository.GetCategoryTypesAsync();
+        public async Task<IEnumerable<CategoryType>> GetCategoryTypesAsync() 
+            => await _repository.GetCategoryTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all priority types.
         /// </summary>
         /// <returns>IEnumerable PriorityType</returns>
-        public async Task<IEnumerable<PriorityType>> GetPriorityTypesAsync() => await _repository.GetPriorityTypesAsync();
+        public async Task<IEnumerable<PriorityType>> GetPriorityTypesAsync() 
+            => await _repository.GetPriorityTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all status types.
         /// </summary>
         /// <returns>IEnumerable StatusType</returns>
-        public async Task<IEnumerable<StatusType>> GetStatusTypesAsync() => await _repository.GetStatusTypesAsync();
+        public async Task<IEnumerable<StatusType>> GetStatusTypesAsync() 
+            => await _repository.GetStatusTypesAsync();
 
         /// <summary>
         /// Calls the repository to get all users with role "Support Aagent".
         /// </summary>
         /// <returns>IEnumerable User</returns>
-        public async Task<IEnumerable<User>> GetSupportAgentsAsync() => await _repository.GetSupportAgentsAsync();
+        public async Task<IEnumerable<User>> GetSupportAgentsAsync() 
+            => await _repository.GetSupportAgentsAsync();
 
         /// <summary>
         /// Calls the repository to get all ticket assignments.
         /// </summary>
         /// <returns>IEnumerable Ticket Assignment</returns>
-        public async Task<IEnumerable<TicketAssignment>> GetTicketAssignmentsAsync() => await _repository.GetTicketAssignmentsAsync();
+        public async Task<IEnumerable<TicketAssignment>> GetTicketAssignmentsAsync() 
+            => await _repository.GetTicketAssignmentsAsync();
         
         /// <summary>
         /// Get feedback by ticket identifier.
         /// </summary>
         /// <param name="id">The ticket identifier</param>
         /// <returns>Feedback</returns>
-        private async Task<Feedback> GetFeedBackByIdAsync(string id) => await _repository.FeedbackFindByTicketIdAsync(id);
+        private async Task<Feedback> GetFeedBackByIdAsync(string id)
+            => await _repository.FeedbackFindByTicketIdAsync(id);
 
         /// <summary>
         /// Calls the repository to get all users with tickets.
         /// </summary>
         /// <returns>IEnumerable string</returns>
-        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() => await _repository.GetUserIdsWithTicketsAsync();
+        public async Task<IEnumerable<string>> GetUserIdsWithTicketsAsync() 
+            => await _repository.GetUserIdsWithTicketsAsync();
 
         /// <summary>
         /// Calls the repository to get all users.
         /// </summary>
         /// <returns>IEnumerable user</returns>
-        public async Task<IEnumerable<User>> UserGetAllAsync() => await _repository.UserGetAllAsync();
+        public async Task<IEnumerable<User>> UserGetAllAsync() 
+            => await _repository.UserGetAllAsync();
 
         /// <summary>
         /// Gets the current logged in admin.
