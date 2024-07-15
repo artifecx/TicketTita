@@ -518,3 +518,66 @@ a.text-gray {
         border-radius: 4px;
         text-decoration: none;
     }
+
+/*Ticket Priority Color*/
+.priority-critical {
+    background-color: #F44336; /* Red */
+    color: white;
+}
+
+.priority-high {
+    background-color: #ff9800; /* Orange */
+    color: white;
+}
+
+.priority-medium {
+    background-color: #FC9F32; /* Yellow */
+    color: white;
+}
+
+.priority-low {
+    background-color: #0A541F; /* Green */
+    color: white;
+}
+
+/*Ticket Status Color*/
+.status-open {
+    background-color: #0A541F; /* Green */
+    color: white;
+}
+
+.status-closed {
+    background-color: #052542; /* Blue */
+    color: white;
+}
+
+.status-in-progress {
+    background-color: #FC9F32; /* Yellow */
+    color: white;
+}
+
+/*Ticket Category Color*/
+.category-software {
+    background-color: #1E88E5; /* Light Blue */
+    color: white;
+}
+
+.category-hardware {
+    background-color: #8E24AA; /* Purple */
+    color: white;
+}
+
+.category-network {
+    background-color: #3949AB; /* Indigo */
+    color: white;
+}
+
+.category-account {
+    background-color: #F4511E; /* Dark Orange */
+    color: white;
+}
+
+.category-other {
+    background-color: #6D4C41; /* Brown */
+    color: white;
+}
