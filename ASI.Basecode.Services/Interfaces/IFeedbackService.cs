@@ -10,9 +10,8 @@ namespace ASI.Basecode.Services.Interfaces
     public interface IFeedbackService
     {
         Task AddAsync(FeedbackViewModel feedback);
-        Task<FeedbackViewModel> InitializeModelAsync(string userId, string id);
         Task<IEnumerable<FeedbackViewModel>> GetAllAsync();
-        Task<FeedbackViewModel> GetFeedbackByTicketIdAsync(string id);
         Task<FeedbackViewModel> GetFeedbackByIdAsync(string id);
+        Task<FeedbackViewModel> GetFeedbackByTicketIdAsync(string id);
     }
 }

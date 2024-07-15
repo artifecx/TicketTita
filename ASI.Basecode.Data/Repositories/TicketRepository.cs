@@ -140,6 +140,15 @@ namespace ASI.Basecode.Data.Repositories
         }
         #endregion Feedback Service Methods
 
+        #region Notification Service Methods
+        public async Task NotificationDeleteAsync(string id)
+        {
+            var notifications = this.GetDbSet<Notification>().Where(n => n.TicketId == id);
+            this.GetDbSet<Notification>().RemoveRange(notifications);
+            await UnitOfWork.SaveChangesAsync();
+        }
+        #endregion Notification Service Methods
+
         #region Find Methods
         /// <summary>
         /// Find a ticket by id
@@ -247,6 +256,9 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>Admin</returns>
         public async Task<Admin> AdminFindByIdAsync(string id) 
             => await this.GetDbSet<Admin>().FirstOrDefaultAsync(x => x.AdminId == id);
+
+        public async Task<IQueryable<Notification>> FindNotificationsByTicketIdAsync(string id)
+            => await Task.FromResult(this.GetDbSet<Notification>().Where(x => x.TicketId == id));
         #endregion Find Methods
 
         #region Get Methods

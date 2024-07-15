@@ -207,6 +207,7 @@ namespace ASI.Basecode.Services.Services
                 await RemoveAttachmentByTicketIdAsync(ticket.TicketId);
                 await RemoveAssignmentByTicketIdAsync(ticket.TicketId);
                 await RemoveFeedbackByTicketIdAsync(ticket.TicketId);
+                await RemoveNotificationByTicketIdAsync(ticket.TicketId);
                 await _repository.DeleteAsync(ticket);
             }
             else
@@ -742,6 +743,11 @@ namespace ASI.Basecode.Services.Services
             {
                 await _repository.RemoveAssignmentAsync(assignment);
             }
+        }
+
+        private async Task RemoveNotificationByTicketIdAsync(string id)
+        {
+            await _repository.NotificationDeleteAsync(id);
         }
         #endregion Utility Methods
 
