@@ -41,68 +41,30 @@ namespace ASI.Basecode.WebApp.Controllers
             this._feedbackService = feedbackService;
         }
 
-        /// <summary>Show all feedback</summary>
-        [Authorize]
-        public async Task<IActionResult> ViewAllAsync(string sortOrder)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                var feedbacks = await _feedbackService.GetAllAsync();
-                if (User.IsInRole("Employee"))
-                    feedbacks = feedbacks.Where(x => x.UserId == UserId);
-
-                return View(feedbacks);
-            }, "ViewAll");
-        }
-
-        #region GET Methods
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> ViewFeedbackAsync(string id)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
-                var feedback = await _feedbackService.GetFeedbackByTicketIdAsync(id);
-                if (feedback == null) return RedirectToAction("ViewAll");
-                return View(feedback);
-            }, "ViewFeedback");
-        }
-
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> ProvideFeedbackAsync(string id)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(userId))
-                    return RedirectToAction("ViewAll");
-
-                var feedback = await _feedbackService.InitializeModelAsync(userId, id);
-                if (feedback == null) return RedirectToAction("ViewAll");
-
-                return View(feedback);
-            }, "ProvideFeedback");
-        }
-        #endregion GET Methods
-
-        #region POST Methods
+        /// <summary>
+        /// Allows the user to provide a feedback.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Success result</returns>
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> ProvideFeedbackAsync(FeedbackViewModel model)
+        [Authorize(Policy = "Employee")]
+        public async Task<IActionResult> ProvideFeedback(FeedbackViewModel model)
         {
             return await HandleExceptionAsync(async () =>
             {
-                if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.TicketId))
-                    return RedirectToAction("ViewAll");
+                if (ModelState.IsValid)
+                {
+                    if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.TicketId))
+                        return RedirectToAction("ViewAll");
 
-                await _feedbackService.AddAsync(model);
+                    await _feedbackService.AddAsync(model);
 
-                TempData["CreateMessage"] = "Created Successfully";
-                return RedirectToAction("ViewAll");
+                    TempData["SuccessMessage"] = "Thank you for your feedback!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while submitting your feedback. Please try again.";
+                return Json(new { success = false });
             }, "ProvideFeedback");
         }
-        #endregion POST Methods
     }
 }
