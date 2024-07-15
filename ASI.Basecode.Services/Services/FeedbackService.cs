@@ -3,15 +3,10 @@ using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
-using LinqKit;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ASI.Basecode.Services.Services
@@ -21,7 +16,6 @@ namespace ASI.Basecode.Services.Services
         private readonly IFeedbackRepository _repository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IMapper _mapper;
-        private readonly ILogger<TicketService> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FeedbackService"/> class.
@@ -30,14 +24,17 @@ namespace ASI.Basecode.Services.Services
         /// <param name="mapper">The mapper.</param>
         public FeedbackService(IFeedbackRepository repository,
                             ITicketRepository ticketRepository,
-                            IMapper mapper, ILogger<TicketService> logger)
+                            IMapper mapper, ILogger<FeedbackService> logger)
         {
             _mapper = mapper;
             _repository = repository;
-            _logger = logger;
             _ticketRepository = ticketRepository;
         }
 
+        /// <summary>
+        /// Adds a ticket feedback.
+        /// </summary>
+        /// <param name="feedback">The feedback.</param>
         public async Task AddAsync(FeedbackViewModel feedback)
         {
             var existingFeedback = await _repository.FindFeedbackByTicketIdAsync(feedback.TicketId);
@@ -61,28 +58,13 @@ namespace ASI.Basecode.Services.Services
 
                     await _repository.AddAsync(newFeedback);
                 }
-                else
-                {
-                    LogError("AddAsync", "User/ticket does not exist.");
-                }
-            }
-            else
-            {
-                LogError("AddAsync", "Feedback for ticket already exists.");
             }
         }
 
-        public async Task<FeedbackViewModel> InitializeModelAsync(string userId, string id)
-        {
-            return new FeedbackViewModel
-            {
-                UserId = userId,
-                User = await _repository.FindUserByIdAsync(userId),
-                TicketId = id,
-                Ticket = await _ticketRepository.FindByIdAsync(id)
-            };
-        }
-
+        /// <summary>
+        /// Gets all feedbacks.
+        /// </summary>
+        /// <returns>IEnumerable FeedbackViewModel</returns>
         public async Task<IEnumerable<FeedbackViewModel>> GetAllAsync()
         {
             var feedbacks = await _repository.GetAllAsync();
@@ -91,22 +73,20 @@ namespace ASI.Basecode.Services.Services
             return feedbackViewModels;
         }
 
-        public async Task<FeedbackViewModel> GetFeedbackByTicketIdAsync(string id) =>
-            _mapper.Map<FeedbackViewModel>(await _repository.FindFeedbackByTicketIdAsync(id));
-
+        /// <summary>
+        /// Calls the repository to get feedback by its identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>FeedbackViewModel</returns>
         public async Task<FeedbackViewModel> GetFeedbackByIdAsync(string id) =>
             _mapper.Map<FeedbackViewModel>(await _repository.FindFeedbackByIdAsync(id));
 
-        #region Logging methods
         /// <summary>
-        /// Log the error message.
+        /// Calls the repository to get feedback by ticket identifier.
         /// </summary>
-        /// <param name="methodName">Name of the method.</param>
-        /// <param name="errorMessage">The error message.</param>
-        public void LogError(string methodName, string errorMessage)
-        {
-            _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
-        }
-        #endregion
+        /// <param name="id">The identifier.</param>
+        /// <returns>FeedbackViewModel</returns>
+        public async Task<FeedbackViewModel> GetFeedbackByTicketIdAsync(string id) =>
+            _mapper.Map<FeedbackViewModel>(await _repository.FindFeedbackByTicketIdAsync(id));
     }
 }
