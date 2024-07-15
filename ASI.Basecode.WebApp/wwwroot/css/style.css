@@ -391,6 +391,7 @@ header {
     padding-bottom: 0;
     margin-bottom: 0;
     border-bottom: 1px solid var(--border-color);
+    background-color: white;
 }
 
 .form-control:hover, .form-control:active, .form-control:focus {
@@ -408,6 +409,11 @@ header {
         border-color: var(--secondary-color);
     }
 
+    .btn-primary:active, .btn-primary:focus {
+        box-shadow: none !important;
+        background-color: var(--secondary-color) !important;
+    }
+
 .btn-secondary {
     background-color: var(--background-color2);
     color: black;
@@ -419,6 +425,12 @@ header {
         color: black;
     }
 
+    .btn-secondary:active, .btn-secondary:focus {
+        box-shadow: none !important;
+        background-color: var(--background-color6) !important;
+        color: black !important;
+    }
+
 .btn-danger {
     background-color: var(--danger-color);
     color: white;
@@ -428,6 +440,36 @@ header {
     .btn-danger:hover {
         background-color: #C23235;
         color: white;
+    }
+
+    .btn-danger:active, .btn-danger:focus {
+        box-shadow: none !important;
+        background-color: #C23235 !important;
+    }
+
+.btn-white {
+    color: var(--primary-color) !important;
+    background-color: white;
+    border-color: var(--primary-color);
+    width: 60%;
+    font-weight: bold;
+}
+
+    .btn-white:hover {
+        background-color: rgba(5,37,66,0.5);
+        border-color: white;
+        color: white !important;
+        width: 60%;
+        font-weight: bold;
+    }
+
+    .btn-white:active, .btn-white:focus {
+        background-color: rgba(5,37,66,0.5);
+        border-color: white;
+        color: white !important;
+        box-shadow: none !important;
+        width: 60%;
+        font-weight: bold;
     }
 
 .btn-radius {
@@ -461,6 +503,7 @@ a.text-gray {
 
 .table-white {
     border: 1px solid var(--border-color);
+    background-color: white;
 }
 
 .action-icon {
