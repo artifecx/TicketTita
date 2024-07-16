@@ -31,6 +31,12 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.User)
                     .Include(t => t.Feedback)
                     .Include(t => t.Attachments)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cu => cu.User)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cp => cp.Parent)
+                    .Include(t => t.Comments)
+                        .ThenInclude(c => c.InverseParent)
                     .Include(t => t.TicketAssignment)
                         .ThenInclude(ta => ta.Team)
                         .ThenInclude(team => team.TeamMembers)
@@ -119,13 +125,63 @@ namespace ASI.Basecode.Data.Repositories
         }
         #endregion Ticket Assignment Service Methods
 
-        #region Feedback Service Methods
+        #region Feedback Service Methods        
+        /// <summary>
+        /// Deletes the feedback.
+        /// </summary>
+        /// <param name="feedback">The feedback.</param>
         public async Task FeedbackDeleteAsync(Feedback feedback)
         {
             this.GetDbSet<Feedback>().Remove(feedback);
             await UnitOfWork.SaveChangesAsync();
         }
         #endregion Feedback Service Methods
+
+        #region Comment Service Methods
+        public async Task AddCommentAsync(Comment comment)
+        {
+            this.GetDbSet<Comment>().Add(comment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task UpdateCommentAsync(Comment comment)
+        {
+            this.GetDbSet<Comment>().Update(comment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteCommentAsync(string id)
+        {
+            var comment = await FindCommentByIdAsync(id);
+            await DeleteCommentAndChildrenRecursive(comment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        private async Task DeleteCommentAndChildrenRecursive(Comment comment)
+        {
+            await Context.Entry(comment).Collection(c => c.InverseParent).LoadAsync();
+
+            foreach (var childComment in comment.InverseParent.ToList())
+            {
+                await DeleteCommentAndChildrenRecursive(childComment);
+                this.GetDbSet<Comment>().Remove(childComment);
+            }
+
+            this.GetDbSet<Comment>().Remove(comment);
+        }
+
+        public IQueryable<Comment> GetCommentsWithIncludesAsync()
+        {
+            var comments = this.GetDbSet<Comment>()
+                                .Include(cu => cu.User)
+                                .Include(cp => cp.Parent)
+                                .Include(c => c.InverseParent);
+            return comments;
+        }
+            
+        public async Task<Comment> FindCommentByIdAsync(string id) =>
+            await GetCommentsWithIncludesAsync().FirstOrDefaultAsync(c => c.CommentId == id);
+        #endregion
 
         #region Notification Service Methods
         public async Task NotificationDeleteAsync(string id)

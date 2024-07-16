@@ -8,11 +8,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using ZXing;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 
 namespace ASI.Basecode.Services.Services
@@ -307,6 +309,41 @@ namespace ASI.Basecode.Services.Services
             if (feedback != null) await _repository.FeedbackDeleteAsync(feedback);
         }
         #endregion Ticket Feedback CRUD Operations
+
+        #region Ticket Comment CRUD Operations
+        public async Task AddCommentAsync(CommentViewModel model)
+        {
+            var comment = _mapper.Map<Comment>(model);
+            comment.CommentId = Guid.NewGuid().ToString();
+            comment.PostedDate = DateTime.Now;
+            comment.User = await _repository.UserFindByIdAsync(model.UserId);
+            comment.Ticket = await _repository.FindByIdAsync(model.TicketId);
+            comment.Parent = model.ParentId != null ? await _repository.FindCommentByIdAsync(model.ParentId) : null;
+
+            await _repository.AddCommentAsync(comment);
+        }
+
+        public async Task UpdateCommentAsync(CommentViewModel model)
+        {
+            var comment = await _repository.FindCommentByIdAsync(model.CommentId);
+            if (comment != null && comment.UserId == model.UserId)
+            {
+                if (comment.Content == model.Content)
+                {
+                    throw new NoChangesException("No changes were made to the reply.", model.TicketId);
+                }
+
+                comment.Content = model.Content;
+                comment.UpdatedDate = DateTime.Now;
+                await _repository.UpdateCommentAsync(comment);
+            }
+        }
+
+        public async Task DeleteCommentAsync(string commentId)
+        {
+            await _repository.DeleteCommentAsync(commentId);
+        }
+        #endregion Ticket Comment CRUD Operations
 
         #region Get Methods
         /// <summary>
