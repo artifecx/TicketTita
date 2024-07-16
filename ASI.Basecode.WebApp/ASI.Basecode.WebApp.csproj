@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="wwwroot\css\dashboard.css" />
+    <_ContentIncludedByDefault Remove="wwwroot\css\ticket.css" />
   </ItemGroup>
 
   <ItemGroup>

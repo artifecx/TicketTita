@@ -193,13 +193,19 @@
                                 }
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
+                                <span class="border mx-1 py-1 px-3 btn-radius @GetCategoryCssClass(item.CategoryType.CategoryName)">
+                                    @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
+                                </span>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
+                                <span class="border mx-1 py-1 px-3 btn-radius @GetPriorityCssClass(item.PriorityType.PriorityName)">
+                                    @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
+                                </span>
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.StatusType.StatusName)
+                                <span class="border mx-1 py-1 px-3 btn-radius @GetStatusCssClass(item.StatusType.StatusName)">
+                                    @Html.DisplayFor(modelItem => item.StatusType.StatusName)
+                                </span>
                             </td>
                             <td>
                                 @if (item.Attachment != null)
@@ -212,7 +218,7 @@
                                 }
                             </td>
                             <td>
-                                @Html.ActionLink("Details", "ViewTicket", new { id = item.TicketId })
+                                @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
                                 @if (User.IsInRole("Employee"))
                                 {
                                     @if (item.StatusType.StatusName.Contains("Resolved"))
@@ -220,20 +226,20 @@
                                         <text> | </text>
                                         @if (item.Feedback == null)
                                         {
-                                            @Html.ActionLink("Provide Feedback", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" })
+                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
                                         }
                                         else
                                         {
-                                            @Html.ActionLink("View Feedback", "ViewTicket", new { id = item.TicketId })
+                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
                                         }
                                     }
                                     else
                                     {
                                         <text> | </text>
-                                        @Html.ActionLink("Edit", "Edit", new { id = item.TicketId })
+                                        @Html.ActionLink(" ", "Edit", new { id = item.TicketId }, new { @class = "fas fa-edit action-icon", title = "Edit" })
                                     }
                                     <text> | </text>
-                                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@item.Subject')">Delete</a>
+                                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@item.Subject')"><i class="fas fa-trash action-icon" title="Delete"></i></a>
                                 }
                             </td>
                         </tr>
@@ -242,8 +248,8 @@
             </tbody>
         </table>
     </div>
-
 </div>
+
 
 @*---- Values passed to the js files ----*@
 <input type="hidden" id="createMessage" value="@TempData["CreateMessage"]" />
@@ -258,4 +264,72 @@
 @section Scripts {
     <script src="~/js/filterAndSort.js"></script>
     <script src="~/js/delete.js"></script>
+    <script src="~/js/feedback.js"></script>
+    <script>
+        $(document).ready(function () {
+            var successMessage = '@TempData["SuccessMessage"]';
+            var errorMessage = '@TempData["ErrorMessage"]';
+
+            if (successMessage) {
+                toastr.success(successMessage);
+            } else if (errorMessage) {
+                toastr.error(errorMessage);
+            }
+        });
+    </script>
+}
+
+@functions {
+    string GetPriorityCssClass(string PriorityName)
+    {
+        switch (PriorityName.ToLower())
+        {
+            case "critical":
+                return "priority-critical";
+            case "high":
+                return "priority-high";
+            case "medium":
+                return "priority-medium";
+            case "low":
+                return "priority-low";
+            default:
+                return "";
+        }
+    }
+
+    string GetStatusCssClass(string StatusName)
+    {
+        switch (StatusName.ToLower())
+        {
+            case "open":
+                return "status-open";
+            case "closed":
+                return "status-closed";
+            case "in progress":
+                return "status-in-progress";
+            case "resolved":
+                return "status-resolved";
+            default:
+                return "";
+        }
+    }
+
+    string GetCategoryCssClass(string CategoryName)
+    {
+        switch (CategoryName.ToLower())
+        {
+            case "software":
+                return "category-software";
+            case "hardware":
+                return "category-hardware";
+            case "network":
+                return "category-network";
+            case "account":
+                return "category-account";
+            case "other":
+                return "category-other";
+            default:
+                return "";
+        }
+    }
 }
