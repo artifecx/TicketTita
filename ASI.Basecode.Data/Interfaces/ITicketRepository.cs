@@ -15,6 +15,10 @@ namespace ASI.Basecode.Data.Interfaces
         Task RemoveAttachmentAsync(Attachment attachment);
         Task AssignTicketAsync(TicketAssignment assignment);
         Task RemoveAssignmentAsync(TicketAssignment assignment);
+        Task AddCommentAsync(Comment comment);
+        Task UpdateCommentAsync(Comment comment);
+        Task DeleteCommentAsync(string id);
+        Task<Comment> FindCommentByIdAsync(string id);
         Task<Ticket> FindByIdAsync(string id);
         Task<IEnumerable<Ticket>> FindByUserIdAsync(string id);
         Task<Attachment> FindAttachmentByIdAsync(string id);
@@ -39,7 +43,5 @@ namespace ASI.Basecode.Data.Interfaces
         Task NotificationDeleteAsync(string id);
         Task<Feedback> FeedbackFindByTicketIdAsync(string id);
         Task<Admin> AdminFindByIdAsync(string id);
-
-
     }
 }

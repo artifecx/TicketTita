@@ -17,6 +17,9 @@ namespace ASI.Basecode.Services.Interfaces
         Task RemoveAttachmentAsync(string attachmentId);
         Task AddTicketAssignmentAsync(TicketViewModel model,  bool Reassign);
         Task RemoveAssignmentAsync(string id);
+        Task AddCommentAsync(CommentViewModel model);
+        Task UpdateCommentAsync(CommentViewModel model);
+        Task DeleteCommentAsync(string commentId);
         Task<IEnumerable<TicketViewModel>> GetAllAsync();
         Task<TicketViewModel> GetTicketByIdAsync(string id);
         Task<IEnumerable<TicketViewModel>> GetUnresolvedTicketsAsync();

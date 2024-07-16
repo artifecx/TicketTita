@@ -7,15 +7,6 @@
         url.searchParams.delete('showModal');
         window.history.replaceState(null, null, url);
     }
-
-    var successMessage = $('#tempDataContainer').data('success-message');
-    var errorMessage = $('#tempDataContainer').data('error-message');
-
-    if (successMessage) {
-        toastr.success(successMessage);
-    } else if (errorMessage) {
-        toastr.error(errorMessage);
-    }
 });
 
 function displayAddModal(teamId) {

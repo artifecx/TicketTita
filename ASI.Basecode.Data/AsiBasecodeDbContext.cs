@@ -22,6 +22,7 @@ namespace ASI.Basecode.Data
         public virtual DbSet<ArticleCategory> ArticleCategories { get; set; }
         public virtual DbSet<Attachment> Attachments { get; set; }
         public virtual DbSet<CategoryType> CategoryTypes { get; set; }
+        public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<Feedback> Feedbacks { get; set; }
         public virtual DbSet<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
         public virtual DbSet<Notification> Notifications { get; set; }
@@ -219,6 +220,66 @@ namespace ASI.Basecode.Data
                     .HasColumnName("description");
             });
 
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.ToTable("Comment");
+
+                entity.HasIndex(e => e.ParentId, "IX_Comment_ParentID");
+
+                entity.HasIndex(e => e.TicketId, "IX_Comment_TicketID");
+
+                entity.HasIndex(e => e.UserId, "IX_Comment_UserID");
+
+                entity.Property(e => e.CommentId)
+                    .HasMaxLength(256)
+                    .HasColumnName("comment_ID");
+
+                entity.Property(e => e.Content)
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .HasColumnName("content");
+
+                entity.Property(e => e.ParentId)
+                    .HasMaxLength(256)
+                    .HasColumnName("parent_ID");
+
+                entity.Property(e => e.PostedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("postedDate")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.TicketId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("ticket_ID");
+
+                entity.Property(e => e.UpdatedDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("updatedDate");
+
+                entity.Property(e => e.UserId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("user_ID");
+
+                entity.HasOne(d => d.Parent)
+                    .WithMany(p => p.InverseParent)
+                    .HasForeignKey(d => d.ParentId)
+                    .HasConstraintName("FK_Comment_Parent");
+
+                entity.HasOne(d => d.Ticket)
+                    .WithMany(p => p.Comments)
+                    .HasForeignKey(d => d.TicketId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Comment_Ticket");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Comments)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Comment_User");
+            });
+
             modelBuilder.Entity<Feedback>(entity =>
             {
                 entity.ToTable("Feedback");
@@ -231,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62E6987208")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62336A0FB4")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -351,8 +412,6 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(500)
                     .HasColumnName("description");
-
-                entity.Property(e => e.IsRead).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.NotificationDate)
                     .HasColumnType("datetime")
@@ -530,7 +589,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306961672EC")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33060B072ACA")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -669,7 +728,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62C0A6E3DA")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62F0009DB8")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)

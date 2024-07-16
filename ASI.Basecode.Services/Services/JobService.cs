@@ -31,13 +31,16 @@ namespace ASI.Basecode.Services.Services
 
             foreach (var ticket in unresolvedTickets)
             {
-                _notificationService.AddNotification(
-                    ticketId: ticket.TicketId,
-                    description: "This ticket has been unresolved for over 30 minutes.",
-                    notificationTypeId: "7",
-                    UserId: ticket.Agent.UserId,
-                    title: $"Reminder: Ticket #{ticket.TicketId} Unresolved"
-                );
+                if(ticket.Agent != null)
+                {
+                    _notificationService.AddNotification(
+                        ticketId: ticket.TicketId,
+                        description: "This ticket has been unresolved for over 30 minutes.",
+                        notificationTypeId: "7",
+                        UserId: ticket.Agent.UserId,
+                        title: $"Reminder: Ticket #{ticket.TicketId} Unresolved"
+                    );
+                }
             }
 
             return Task.CompletedTask;

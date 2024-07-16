@@ -1,0 +1,87 @@
+﻿@model ASI.Basecode.Services.ServiceModels.CommentViewModel
+@using Humanizer;
+
+<div class="comment" id="comment-@Model.CommentId">
+    @Html.AntiForgeryToken()
+    <div class="comment-header">
+        <div>
+            <strong>@Model.User.Name</strong>
+            <span class="text-muted" title="(@Model.PostedDate)"> &#8226; @Model.PostedDate.ToUniversalTime().Humanize()</span>
+            @if(Model.UpdatedDate != null)
+            {
+                <span class="text-muted font-italic small" title="(@Model.UpdatedDate)"> &#8226; Edited</span>
+            }
+        </div>
+        <div>
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+            {
+                <a href="#" class="edit-comment-link" data-id="@Model.CommentId">Edit</a>
+                <text> | </text>
+            }
+            <a href="#" class="reply-comment-link" data-id="@Model.CommentId">Reply</a>
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+            {
+                <text> | </text>
+                <a href="#" class="delete-comment-link" data-id="@Model.CommentId">Delete</a>
+            }
+        </div>
+    </div>
+
+    <div class="comment-body">
+        <p>@Model.Content</p>
+    </div>
+
+    <div class="edit-comment-form" id="edit-comment-@Model.CommentId" style="display:none;">
+        <textarea class="form-control" placeholder="Edit comment...">@Model.Content</textarea>
+        <button class="btn btn-primary save-edit" data-id="@Model.CommentId">Save</button>
+        <button class="btn btn-secondary cancel-edit">Cancel</button>
+    </div>
+
+    <div class="reply-comment-form" id="reply-comment-@Model.CommentId" style="display:none;">
+        <textarea class="form-control" placeholder="Add reply..."></textarea>
+        <button class="btn btn-primary save-reply" data-id="@Model.CommentId">Reply</button>
+        <button class="btn btn-secondary cancel-reply">Cancel</button>
+    </div>
+
+    @if (Model.Replies != null && Model.Replies.Any())
+    {
+        <div class="replies">
+            @foreach (var reply in Model.Replies)
+            {
+                <div class="reply">
+                    @await Html.PartialAsync("_Comment", reply)
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+<style>
+    .comment {
+        margin: 15px 0;
+        max-width: 600px;
+    }
+
+    .comment .comment-header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .comment .comment-header-info {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .comment .comment-body {
+        margin-top: 10px;
+    }
+
+    .replies .reply {
+        margin-left: 40px;
+        border-left: 2px solid #ccc;
+        padding-left: 10px;
+        max-width: 560px;
+    }
+</style>
