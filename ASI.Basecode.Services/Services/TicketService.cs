@@ -80,9 +80,9 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                    await _repository.AddAsync(newTicket);
-                    CreateNotification(newTicket, 1, null);
+                    await _repository.AddAsync(newTicket);   
                 }
+                CreateNotification(newTicket, 1, null);
             }
         }
 
