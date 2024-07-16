@@ -210,6 +210,7 @@ namespace ASI.Basecode.Services.Services
                 await RemoveAssignmentByTicketIdAsync(ticket.TicketId);
                 await RemoveFeedbackByTicketIdAsync(ticket.TicketId);
                 await RemoveNotificationByTicketIdAsync(ticket.TicketId);
+                await RemoveCommentsByTicketAsync(ticket);
                 await _repository.DeleteAsync(ticket);
             }
             else
@@ -342,6 +343,14 @@ namespace ASI.Basecode.Services.Services
         public async Task DeleteCommentAsync(string commentId)
         {
             await _repository.DeleteCommentAsync(commentId);
+        }
+
+        private async Task RemoveCommentsByTicketAsync(Ticket ticket)
+        {
+            foreach (var comment in ticket.Comments)
+            {
+                await DeleteCommentAsync(comment.CommentId);
+            }
         }
         #endregion Ticket Comment CRUD Operations
 
