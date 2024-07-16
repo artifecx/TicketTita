@@ -23,6 +23,7 @@ namespace ASI.Basecode.Data.Models
         public DateTime? UpdatedDate { get; set; }
         public DateTime? ResolvedDate { get; set; }
         public string UserId { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual CategoryType CategoryType { get; set; }
         public virtual PriorityType PriorityType { get; set; }
