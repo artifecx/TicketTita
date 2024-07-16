@@ -27,7 +27,7 @@ namespace ASI.Basecode.Services.Services
         {
             _logger.LogInformation("Executing ReminderJob...");
 
-            var unresolvedTickets = _ticketService.GetUnresolvedTicketsOlderThan(TimeSpan.FromSeconds(50));
+            var unresolvedTickets = _ticketService.GetUnresolvedTicketsOlderThan(TimeSpan.FromMinutes(10));
 
             foreach (var ticket in unresolvedTickets)
             {

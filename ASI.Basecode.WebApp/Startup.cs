@@ -108,7 +108,7 @@ namespace ASI.Basecode.WebApp
                 q.AddTrigger(opts => opts
                     .ForJob(jobKey)
                     .WithIdentity("ReminderJob-trigger")
-                    .WithCronSchedule("50 * * * * ?")); // Every 30 minutes
+                    .WithCronSchedule("0 10 * * * ?")); // Every 10 minutes
             });
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
