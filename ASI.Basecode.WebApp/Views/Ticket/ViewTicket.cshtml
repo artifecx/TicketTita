@@ -6,114 +6,100 @@
     await Html.RenderPartialAsync("_DeleteModal");
 }
 
-<h1>View Ticket</h1>
+@section styles {
+    <link rel="stylesheet" href="~/css/ticket.css" />
+}
 
-<div>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketId)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.TicketId)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Subject)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Subject)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IssueDescription)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IssueDescription)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryTypeId)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CategoryType.CategoryName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.PriorityTypeId)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.PriorityType.PriorityName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.StatusTypeId)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.StatusType.StatusName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CreatedDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Attachment)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.Attachment == null)
-            {
-                @:No Attachment
-            }
-            else
-            {
-                <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.TicketId })">@Model.Attachment.Name</a>
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedDate)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.UpdatedDate == null)
-            {
-                @:No Updates
-            }
-            else
-            {
-                @Html.DisplayFor(model => model.UpdatedDate)
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolvedDate)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.ResolvedDate == null)
-            {
-                @:Open
-            }
-            else
-            {
-                @Html.DisplayFor(model => model.ResolvedDate)
-            }
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.TicketAssignment)
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.TicketAssignment == null)
-            {
-                @:No Assignee
-            }
-            else
-            {
-                @Html.DisplayFor(model => model.Agent.Name)
-            }
-        </dd>
-    </dl>
-    @if (Model.Feedback != null)
+<h1 class="nav-header display-6">View Ticket</h1>
+
+<div class="container-fluid p-4">
+    <div class="card px-5 py-4 mb-4">
+        <div class="card-body">
+            <div class="card-title mb-2 d-flex justify-content-lg-between">
+                <h3 class="font-weight-bold">
+                    @Html.DisplayNameFor(model => model.TicketId): @Html.DisplayFor(model => model.TicketId)
+                </h3>
+                <div>
+                    <span class="border mx-1 py-1 px-3 btn-radius @GetStatusCssClass(Model.StatusType.StatusName)">
+                        @Html.DisplayFor(model => model.StatusType.StatusName)
+                    </span>
+                    <span class="border mx-1 py-1 px-3 btn-radius @GetPriorityCssClass(Model.PriorityType.PriorityName)">
+                        @Html.DisplayFor(model => model.PriorityType.PriorityName)
+                    </span>
+                    <span class="border mx-1 py-1 px-3 btn-radius @GetCategoryCssClass(Model.CategoryType.CategoryName)">
+                        @Html.DisplayFor(model => model.CategoryType.CategoryName)
+                    </span>
+                </div>
+            </div>
+            <div class="pb-4 text-muted d-flex justify-content-between">
+                <div class="my-0">
+                    @Html.DisplayNameFor(model => model.TicketAssignment):
+                    @if (Model.TicketAssignment == null)
+                    {
+                        @:No Assignee
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Agent.Name)
+                    }
+                </div>
+                <div>
+                    <p class="my-0">@Html.DisplayNameFor(model => model.CreatedDate): @Html.DisplayFor(model => model.CreatedDate)</p>
+                    <p class="my-0">
+                        @Html.DisplayNameFor(model => model.UpdatedDate):
+                        @if (Model.UpdatedDate == null)
+                        {
+                            @:No Updates
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(model => model.UpdatedDate)
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="card-text">
+                <h5 class="font-weight-bold">@Html.DisplayFor(model => model.Subject)</h5>
+                <div class="mb-4">
+                    <p>@Html.DisplayFor(model => model.IssueDescription)</p>
+                </div>
+
+                <div class="mb-4">
+                    <span class="font-weight-bold">@Html.DisplayNameFor(model => model.Attachment):</span>
+                    @if (Model.Attachment == null)
+                    {
+                        @:No Attachment
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = Model.TicketId })">@Model.Attachment.Name</a>
+                    }
+                </div>
+            </div>
+
+            <div>
+                @if (Model.StatusType.StatusName != "Resolved")
+                {
+                    @Html.ActionLink("Edit", "Edit", new { id = Model.TicketId })
+                    <text> | </text>
+                }
+                <a asp-action="ViewAll">Back to List</a>
+                @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Resolved")
+                {
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedbackModal">
+                        Provide Feedback
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Feedback != null) 
     {
-        <hr />
-        <h4>Feedback</h4>
-        <dl class="row">
-            <dt class="col-sm-2">Rating</dt>
-            <dd class="col-sm-10">
-                <div class="star-rating no-interaction">
+        <div class="card px-5 py-4 mb-4">
+            <div class="card-body">
+                <h3 class="card-title font-weight-bold mb-4">Feedback</h3>
+                <div class="star-rating no-interaction small">
                     @{
                         for (int i = 5; i >= 1; i--)
                         {
@@ -124,31 +110,21 @@
                         }
                     }
                 </div>
-            </dd>
-            <dt class="col-sm-2">Content</dt>
-            <dd class="col-sm-10">@Model.Feedback.FeedbackContent</dd>
-            <dt class="col-sm-2">Submitted By</dt>
-            <dd class="col-sm-10">@Model.Feedback.User.Name</dd>
-            <dt class="col-sm-2">Created Date</dt>
-            <dd class="col-sm-10">@Model.Feedback.CreatedDate</dd>
-        </dl>
+                <div class="text-muted">
+                    @Model.Feedback.CreatedDate <br />
+                    @Model.Feedback.User.Name
+                </div>
+                <div class="card-text mt-5">
+                    @Model.Feedback.FeedbackContent
+                </div>
+            </div>
+        </div>
     }
 </div>
 
-<div>
-    @if (Model.StatusType.StatusName != "Resolved")
-    {
-        @Html.ActionLink("Edit", "Edit", new { id = Model.TicketId })
-        <text> | </text>
-    }
-    <a asp-action="ViewAll">Back to List</a>
-    @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Resolved")
-    {
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedbackModal">
-            Provide Feedback
-        </button>
-    }
-</div>
+
+
+
 
 <hr />
 <div id="comments-section">
@@ -190,4 +166,58 @@
     <script src="~/js/comment.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
+
+@functions {
+    string GetPriorityCssClass(string PriorityName)
+    {
+        switch (PriorityName.ToLower())
+        {
+            case "critical":
+                return "priority-critical";
+            case "high":
+                return "priority-high";
+            case "medium":
+                return "priority-medium";
+            case "low":
+                return "priority-low";
+            default:
+                return "";
+        }
+    }
+
+    string GetStatusCssClass(string StatusName)
+    {
+        switch (StatusName.ToLower())
+        {
+            case "open":
+                return "status-open";
+            case "closed":
+                return "status-closed";
+            case "in progress":
+                return "status-in-progress";
+            case "resolved":
+                return "status-resolved";
+            default:
+                return "";
+        }
+    }
+
+    string GetCategoryCssClass(string CategoryName)
+    {
+        switch (CategoryName.ToLower())
+        {
+            case "software":
+                return "category-software";
+            case "hardware":
+                return "category-hardware";
+            case "network":
+                return "category-network";
+            case "account":
+                return "category-account";
+            case "other":
+                return "category-other";
+            default:
+                return "";
+        }
+    }
 }
