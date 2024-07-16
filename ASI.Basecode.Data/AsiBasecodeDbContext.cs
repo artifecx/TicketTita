@@ -292,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62336A0FB4")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD6226CBCDDA")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -345,6 +345,8 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.CreatedDate, "IX_KnowledgeBaseArticle_CreatedDate");
 
+                entity.HasIndex(e => e.IsDeleted, "IX_KnowledgeBaseArticle_IsDeleted");
+
                 entity.HasIndex(e => e.Title, "IX_KnowledgeBaseArticle_Title");
 
                 entity.HasIndex(e => e.UpdatedDate, "IX_KnowledgeBaseArticle_UpdatedDate");
@@ -371,6 +373,8 @@ namespace ASI.Basecode.Data
                     .HasColumnType("datetime")
                     .HasColumnName("createdDate")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.Title)
                     .IsRequired()
@@ -561,6 +565,8 @@ namespace ASI.Basecode.Data
             {
                 entity.ToTable("Team");
 
+                entity.HasIndex(e => e.IsDeleted, "IX_Team_IsDeleted");
+
                 entity.HasIndex(e => e.Name, "IX_Team_Name");
 
                 entity.Property(e => e.TeamId)
@@ -589,7 +595,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33060B072ACA")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306C9655F8C")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -630,6 +636,8 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.CreatedDate, "IX_Ticket_CreatedDate");
 
+                entity.HasIndex(e => e.IsDeleted, "IX_Ticket_IsDeleted");
+
                 entity.HasIndex(e => e.PriorityTypeId, "IX_Ticket_PriorityTypeID");
 
                 entity.HasIndex(e => e.ResolvedDate, "IX_Ticket_ResolvedDate");
@@ -655,6 +663,8 @@ namespace ASI.Basecode.Data
                     .HasColumnType("datetime")
                     .HasColumnName("createdDate")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IsDeleted).HasColumnName("isDeleted");
 
                 entity.Property(e => e.IssueDescription)
                     .IsRequired()
@@ -728,7 +738,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62F0009DB8")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62A893A544")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)
