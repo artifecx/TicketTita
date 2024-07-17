@@ -120,11 +120,13 @@
 @foreach (var item in Model)
 {
     <div class="modal fixed-right fade" id="userDetailsModal-@item.UserId" tabindex="-1" role="dialog" aria-labelledby="userDetailsModalLabel-@item.UserId" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-aside" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-body">
-                    <i class="fa fa-arrow-left-long" data-dismiss="modal"></i>
                     <h5 class="modal-title p-3" id="userDetailsModalLabel-@item.UserId">User Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                     <dl class="row px-4 py-2">
                         <dt class="col-sm-4">User ID</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.UserId)</dd>
