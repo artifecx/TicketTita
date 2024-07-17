@@ -150,10 +150,6 @@ namespace ASI.Basecode.Services.Services
                 }
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
 
-                if (ticket.StatusTypeId.Equals("S3")) // Assuming "Resolved" status type ID is "Resolved"
-                {
-                    await UpdateTeamPerformanceReportsAsync(existingTicket);
-                }
             }
             else
             {
