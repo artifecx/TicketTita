@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using static ASI.Basecode.Resources.Constants.Enums;
+using ASI.Basecode.Data.Interfaces;
 
 namespace ASI.Basecode.WebApp.Authentication
 {
@@ -22,6 +23,7 @@ namespace ASI.Basecode.WebApp.Authentication
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IAdminRepository _adminRepository;
 
         /// <summary>
         /// Gets or sets the user.
@@ -31,21 +33,16 @@ namespace ASI.Basecode.WebApp.Authentication
         /// <summary>
         /// Initializes a new instance of the SignInManager class.
         /// </summary>
-        public SignInManager()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the SignInManager class.
-        /// </summary>
         /// <param name="configuration">The configuration.</param>
         /// <param name="accountService">The account service.</param>
         /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         public SignInManager(IConfiguration configuration,
-                             IHttpContextAccessor httpContextAccessor)
+                             IHttpContextAccessor httpContextAccessor, IAdminRepository adminRepository)
         {
             this._configuration = configuration;
             this._httpContextAccessor = httpContextAccessor;
+            this._adminRepository = adminRepository;
+
             user = new LoginUser();
         }
 
@@ -68,7 +65,8 @@ namespace ASI.Basecode.WebApp.Authentication
             }
 
             user.userData = userData;
-            claimsIdentity = CreateClaimsIdentity(userData);
+            bool isSuper = _adminRepository.IsSuperAdmin(userData.UserId);
+            claimsIdentity = CreateClaimsIdentity(userData, isSuper);
             return Task.FromResult(claimsIdentity);
         }
 
@@ -77,7 +75,7 @@ namespace ASI.Basecode.WebApp.Authentication
         /// </summary>
         /// <param name="user">The user.</param>
         /// <returns>Instance of ClaimsIdentity</returns>
-        public ClaimsIdentity CreateClaimsIdentity(User user)
+        public ClaimsIdentity CreateClaimsIdentity(User user, bool isSuper)
         {
             var token = _configuration.GetTokenAuthentication();
            
@@ -87,10 +85,11 @@ namespace ASI.Basecode.WebApp.Authentication
                 new Claim(ClaimTypes.NameIdentifier, user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim(ClaimTypes.Name, user.Name, ClaimValueTypes.String, Const.Issuer),
                 new Claim(ClaimTypes.Role, user.RoleId, ClaimValueTypes.String, Const.Issuer),
-
                 new Claim("Role", user.RoleId, ClaimValueTypes.String, Const.Issuer),
                 new Claim("Email", user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim("UserName", user.Name, ClaimValueTypes.String, Const.Issuer),
+                new Claim("IsSuperAdmin", isSuper.ToString(), ClaimValueTypes.Boolean, Const.Issuer),
+
             };
             return new ClaimsIdentity(claims, Const.AuthenticationScheme);
         }
@@ -125,7 +124,8 @@ namespace ASI.Basecode.WebApp.Authentication
         /// <param name="isPersistent">if set to <c>true</c> [is persistent].</param>
         public async Task SignInAsync(User user, bool isPersistent = false)
         {
-            var claimsIdentity = this.CreateClaimsIdentity(user);
+            bool isSuper = _adminRepository.IsSuperAdmin(user.UserId);
+            var claimsIdentity = this.CreateClaimsIdentity(user, isSuper);
             var principal = this.CreateClaimsPrincipal(claimsIdentity);
             await this.SignInAsync(principal, isPersistent);
         }
