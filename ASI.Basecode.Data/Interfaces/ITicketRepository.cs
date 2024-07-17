@@ -8,6 +8,7 @@ namespace ASI.Basecode.Data.Interfaces
     public interface ITicketRepository
     {
         Task<List<Ticket>> GetAllAsync();
+        Task<List<Ticket>> GetAllAndDeletedAsync();
         Task AddAsync(Ticket ticket);
         Task UpdateAsync(Ticket ticket);
         Task DeleteAsync(Ticket ticket);
@@ -21,26 +22,18 @@ namespace ASI.Basecode.Data.Interfaces
         Task<Comment> FindCommentByIdAsync(string id);
         Task<Ticket> FindByIdAsync(string id);
         Task<IEnumerable<Ticket>> FindByUserIdAsync(string id);
-        Task<Attachment> FindAttachmentByIdAsync(string id);
         Task<Attachment> FindAttachmentByTicketIdAsync(string id);
         Task<TicketAssignment> FindAssignmentByTicketIdAsync(string id);
         Task<Team> FindTeamByUserIdAsync(string id);
-        Task<User> FindAgentByUserIdAsync(string id);
-        Task<CategoryType> FindCategoryByIdAsync(string id);
         Task<PriorityType> FindPriorityByIdAsync(string id);
         Task<StatusType> FindStatusByIdAsync(string id);
-        Task<IQueryable<Notification>> FindNotificationsByTicketIdAsync(string id);
         Task<IQueryable<CategoryType>> GetCategoryTypesAsync();
         Task<IQueryable<PriorityType>> GetPriorityTypesAsync();
         Task<IQueryable<StatusType>> GetStatusTypesAsync();
         Task<IQueryable<User>> GetSupportAgentsAsync();
-        Task<IQueryable<TicketAssignment>> GetTicketAssignmentsAsync();
-
         Task<IQueryable<string>> GetUserIdsWithTicketsAsync();
         Task<IQueryable<User>> UserGetAllAsync();
         Task<User> UserFindByIdAsync(string id);
-        Task FeedbackDeleteAsync(Feedback feedback);
-        Task NotificationDeleteAsync(string id);
         Task<Feedback> FeedbackFindByTicketIdAsync(string id);
         Task<Admin> AdminFindByIdAsync(string id);
     }

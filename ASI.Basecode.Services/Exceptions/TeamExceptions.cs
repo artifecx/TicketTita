@@ -8,44 +8,38 @@ namespace ASI.Basecode.Services.Exceptions
 {
     public class TeamExceptions
     {
-        public class TeamNameAlreadyExistsException : Exception
+        public class TeamException : Exception
         {
-            public string Id { get; set; }
+            public string Id { get; }
+            public TeamException(string message) : base(message) { }
+            public TeamException(string message, string id) : base(message)
+            {
+                Id = id;
+            }
+        }
+
+        public class TeamNameAlreadyExistsException : TeamException
+        {
             public TeamNameAlreadyExistsException(string message) : base(message) { }
-            public TeamNameAlreadyExistsException(string message, string id) : base(message) 
-            {
-                Id = id;
-            }
+            public TeamNameAlreadyExistsException(string message, string id) : base(message) { }
         }
 
-        public class TeamHasUnresolvedTicketsException : Exception
+        public class TeamHasUnresolvedTicketsException : TeamException
         {
-            public string Id { get; set; }
             public TeamHasUnresolvedTicketsException(string message) : base(message) { }
-            public TeamHasUnresolvedTicketsException(string message, string id) : base(message)
-            {
-                Id = id;
-            }
+            public TeamHasUnresolvedTicketsException(string message, string id) : base(message) { }
         }
 
-        public class TeamHasMembersException : Exception
+        public class TeamHasMembersException : TeamException
         {
-            public string Id { get; set; }
             public TeamHasMembersException(string message) : base(message) { }
-            public TeamHasMembersException(string message, string id) : base(message)
-            {
-                Id = id;
-            }
+            public TeamHasMembersException(string message, string id) : base(message) { }
         }
 
-        public class NoAgentSelectedException : Exception
+        public class NoAgentSelectedException : TeamException
         {
-            public string Id { get; set; }
             public NoAgentSelectedException(string message) : base(message) { }
-            public NoAgentSelectedException(string message, string id) : base(message)
-            {
-                Id = id;
-            }
+            public NoAgentSelectedException(string message, string id) : base(message) { }
         }
     }
 }
