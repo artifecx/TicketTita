@@ -1,0 +1,63 @@
+﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
+
+@{
+    var PriorityTypes = ViewBag.PTs;
+    var CategoryTypes = ViewBag.CTs;
+}
+
+<div class="modal fade" id="createTicketModal" tabindex="-1" role="dialog" aria-labelledby="createTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTicketModalLabel">Create Ticket</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createTicketForm" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Subject" class="control-label"></label>
+                        <input asp-for="Subject" class="form-control" />
+                        <span asp-validation-for="Subject" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="IssueDescription" class="control-label"></label>
+                        <textarea asp-for="IssueDescription" class="form-control"></textarea>
+                        <span asp-validation-for="IssueDescription" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CategoryTypeId" class="control-label"></label>
+                        <select asp-for="CategoryTypeId" class="form-control">
+                            @foreach (var item in CategoryTypes)
+                            {
+                                <option value="@item.CategoryTypeId">@item.CategoryName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryTypeId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PriorityTypeId" class="control-label"></label>
+                        <select asp-for="PriorityTypeId" class="form-control">
+                            @foreach (var item in PriorityTypes)
+                            {
+                                <option value="@item.PriorityTypeId">@item.PriorityName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="PriorityTypeId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="File">Attachment</label>
+                        <input type="file" name="File" class="form-control" />
+                        <button id="removeButton" class="btn btn-danger" style="display: none; margin-top: 10px;">Remove File</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateTicket()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>

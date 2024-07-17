@@ -11,7 +11,6 @@
             </div>
             <div class="modal-body">
                 <form id="reassignAgentForm" method="post" asp-controller="Team" asp-action="ReassignAgent">
-                    @Html.AntiForgeryToken()
                     <input type="hidden" id="oldTeamId" name="oldTeamId" value="" />
                     <input type="hidden" id="agentId" name="agentId" value="" />
                     <div class="form-group">

@@ -57,8 +57,7 @@ namespace ASI.Basecode.Services.ServiceModels
         /// Gets or sets the name of the updated by.
         /// </summary>
         public string? UpdatedByName { get; set; }
-
-
+ 
         /// <summary>
         /// Gets or sets the roles.
         /// </summary>

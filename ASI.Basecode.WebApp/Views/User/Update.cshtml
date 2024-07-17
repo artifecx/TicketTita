@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Update";
+    bool isSuper = User.HasClaim("IsSuperAdmin", "true");
 }
 
 <div class="modal-content">
@@ -40,7 +41,10 @@
                     <option value="">Select Role</option>
                     @foreach (var role in Model.Roles)
                     {
-                        <option value="@role.RoleId">@role.RoleName</option>
+                        @if (role.RoleId != "Admin" || isSuper)
+                        {
+                            <option value="@role.RoleId">@role.RoleName</option>
+                        }
                     }
                 </select>
                 <span asp-validation-for="RoleId" class="text-danger"></span>

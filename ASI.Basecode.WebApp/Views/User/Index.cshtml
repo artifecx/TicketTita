@@ -1,9 +1,11 @@
-﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.UserViewModel>
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.UserViewModel>
+@using ASI.Basecode.Data.Models
 
 @{
     ViewData["Title"] = "Index";
     string currentFilter = ViewData["CurrentFilter"] as string;
     string sortOrder = ViewData["CurrentSort"] as string;
+    string roleFilter = ViewData["RoleFilter"] as string;
     string nameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
     string emailSortParm = sortOrder == "Email" ? "email_desc" : "Email";
     string createdBySortParm = sortOrder == "CreatedBy" ? "createdBy_desc" : "CreatedBy";
@@ -11,9 +13,12 @@
     string updatedBySortParm = sortOrder == "UpdatedBy" ? "updatedBy_desc" : "UpdatedBy";
     string roleSortParm = sortOrder == "Role" ? "role_desc" : "Role";
     string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
+    bool isSuper = User.HasClaim("IsSuperAdmin", "true");
+
+    
 }
 
-@section styles {
+@section styles { 
     <link rel="stylesheet" href="~/css/user.css" />
 }
 
@@ -46,59 +51,103 @@
             <tr>
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@nameSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
-                        @Html.DisplayNameFor(model => model.Name)
+                        Name
                         <i class="fa-solid fa-chevron-down"></i>
                     </a>
                 </th>
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@emailSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
-                        @Html.DisplayNameFor(model => model.Email)
+                        Email
                         <i class="fa-solid fa-chevron-down"></i>
                     </a>
                 </th>
                 <th>
-                    <a asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
-                        Role
-                        <i class="fa-solid fa-chevron-down"></i>
-                    </a>
+                    <div class="dropdown">
+                        <a class="text-black" href="#" id="roleDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Role
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="roleDropdown">
+                            <a class="dropdown-item" asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter" asp-route-roleFilter="Admin">Admin</a>
+                            <a class="dropdown-item" asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter" asp-route-roleFilter="Employee">Employee</a>
+                            <a class="dropdown-item" asp-action="Index" asp-route-sortOrder="@roleSortParm" asp-route-currentFilter="@currentFilter" asp-route-roleFilter="Support Agent">Support Agent</a>
+                        </div>
+                    </div>
                 </th>
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@updatedTimeSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
-                        @Html.DisplayNameFor(model => model.UpdatedTime)
+                        Updated Time
                         <i class="fa-solid fa-chevron-down"></i>
                     </a>
                 </th>
                 <th></th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="font-weight-bold">
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Email)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RoleId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.UpdatedTime)
-                    </td>
-                    <td>
- 
-                        @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon", data_toggle = "modal", data_target = "#editUserModal", data_userid = @item.UserId })
-                        @* @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon" }) *@
-                        @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
-                        <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
-                    </td>
-                </tr>
-            }
-        </tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="13" class="alert alert-warning text-center" role="alert">
+                    @(string.IsNullOrEmpty(currentFilter) ? Html.Raw("No Users found") : Html.Raw("No Users found matching the criteria"))
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="font-weight-bold">
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RoleId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UpdatedTime)
+                        </td>
+                        <td>
+                            @if (isSuper || item.RoleId != "Admin")
+                            {
+                                @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon", data_toggle = "modal", data_target = "#editUserModal", data_userid = @item.UserId })
+                            }
+                            
+                            @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
+                            @if (isSuper || item.RoleId != "Admin")
+                            {
+                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        }
+        
     </table>
 </div>
+@* Please change width of button *@
+<div class="d-flex justify-content-end px-4 py-3">
+    @if (Model.HasPreviousPage)
+    {
+        <a class="btn btn-info mx-2" asp-action="Index"
+           asp-route-sortOrder="@sortOrder"
+           asp-route-currentFilter="@currentFilter"
+           asp-route-roleFilter="@ViewData["RoleFilter"]"
+           asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+    }
+    @if (Model.HasNextPage)
+    {
+        <a class="btn btn-info mx-2" asp-action="Index"
+           asp-route-sortOrder="@sortOrder"
+           asp-route-currentFilter="@currentFilter"
+           asp-route-roleFilter="@ViewData["RoleFilter"]"
+           asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+    }
+</div>
+
 
 <!-- Add User Modal -->
 <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
@@ -187,6 +236,7 @@
 
 @section Scripts {
     <script>
+
         var itemId;
         function displayDeleteModal(id) {
             itemId = id;
