@@ -110,7 +110,11 @@
                             @Html.DisplayFor(modelItem => item.UpdatedTime)
                         </td>
                         <td>
-                            @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon", data_toggle = "modal", data_target = "#editUserModal", data_userid = @item.UserId })
+                            @if (isSuper || item.RoleId != "Admin")
+                            {
+                                @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon", data_toggle = "modal", data_target = "#editUserModal", data_userid = @item.UserId })
+                            }
+                            
                             @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
                             @if (isSuper || item.RoleId != "Admin")
                             {

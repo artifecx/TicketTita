@@ -175,11 +175,9 @@ namespace ASI.Basecode.Services.Services
         {
             var newUser = _mapper.Map<User>(model);
             newUser.UserId = Guid.NewGuid().ToString();
-            newUser.Password = PasswordManager.EncryptPassword(newUser.Password);
+            // default pass = defpass. 
+            newUser.Password = PasswordManager.EncryptPassword("defpass");
             newUser.CreatedTime = DateTime.Now;
-            
-
-
             var currentAdmin = GetCurrentAdmin();
             if (currentAdmin != null)
             {
@@ -201,7 +199,7 @@ namespace ASI.Basecode.Services.Services
                     AdminId = newUser.UserId,
                     Name = newUser.Name,
                     Email = newUser.Email,
-                    Password = newUser.Password,
+                    Password = PasswordManager.EncryptPassword("defpass"),
                     IsSuper = false 
                 };
                 _adminRepository.Add(newAdmin);
