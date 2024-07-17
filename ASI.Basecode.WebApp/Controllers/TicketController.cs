@@ -87,12 +87,11 @@ namespace ASI.Basecode.WebApp.Controllers
                 {
                     _notificationService.MarkNotificationAsRead(notificationId);
                 }
-
+                ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
                 ViewBag.ShowModal = showModal;
                 return View(ticket);
             }, "ViewTicket");
         }
-
 
         /// <summary>
         /// Shows the page to create a ticket
@@ -355,6 +354,60 @@ namespace ASI.Basecode.WebApp.Controllers
                 }
                 return RedirectToAction("ViewTicket", new { id = model.TicketId });
             }, "ReassignTicket");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddComment([FromBody] CommentViewModel model)
+        {
+            return await HandleExceptionAsync(async () =>
+            {
+                if (ModelState.IsValid)
+                {
+                    if (model == null) return RedirectToAction("ViewAll");
+                    model.UserId = UserId;
+                    await _ticketService.AddCommentAsync(model);
+                    TempData["SuccessMessage"] = "Comment posted successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while posting your comment. Please try again.";
+                return Json(new { success = false });
+            }, "AddComment");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> EditComment([FromBody] CommentViewModel model)
+        {
+            return await HandleExceptionAsync(async () =>
+            {
+                if (ModelState.IsValid)
+                {
+                    model.UserId = UserId;
+                    await _ticketService.UpdateCommentAsync(model);
+                    TempData["SuccessMessage"] = "Comment edited successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while editing your comment. Please try again.";
+                return Json(new { success = false });
+            }, "EditComment");
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteComment([FromBody] CommentViewModel model)
+        {
+            return await HandleExceptionAsync(async () =>
+            {
+                if (ModelState.IsValid)
+                {
+                    await _ticketService.DeleteCommentAsync(model.CommentId);
+                    TempData["SuccessMessage"] = "Comment deleted successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while deleting your comment. Please try again.";
+                return Json(new { success = false });
+            }, "DeleteComment");
         }
         #endregion POST methods
 

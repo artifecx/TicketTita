@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "ViewTicket";
     await Html.RenderPartialAsync("_FeedbackModal", Model);
+    await Html.RenderPartialAsync("_DeleteModal");
 }
 
 @section styles {
@@ -119,28 +120,50 @@
             </div>
         </div>
     }
+
+    <div class="card px-5 py-4 mb-4" id="comments-section">
+        <div class="card-body">
+            <h3 class="card-title font-weight-bold mb-4">Comments</h3>
+            @if(Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
+            {
+                <div>
+                    <a href="#" id="new-comment-link">New Comment</a>
+                    <div id="new-comment-section" style="display:none;">
+                        @Html.AntiForgeryToken()
+                        <textarea id="new-comment-content" class="form-control" placeholder="Add a comment..."></textarea>
+                        <button id="post-comment-btn" class="btn btn-primary">Post Comment</button>
+                        <button id="cancel-comment-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            }
+            @if (Model.Comments.Any())
+            {
+                @foreach (var comment in Model.Comments.Where(c => c.ParentId == null))
+                {
+                    @await Html.PartialAsync("_Comment", comment)
+                }
+            }
+            else
+            {
+                <p class="alert alert-warning text-center" role="alert">No comments.</p>
+            }
+        </div>
+    </div>
 </div>
 
-
-
-
+<div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 
 @section Scripts {
-    <script src="~/js/feedback.js"></script>
     <script>
-        $(document).ready(function() {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var errorMessage = '@TempData["ErrorMessage"]';
-
-            if (successMessage) {
-                toastr.success(successMessage);
-            } else if (errorMessage) {
-                toastr.error(errorMessage);
-            }
-        });
+        var editCommentUrl = '@Url.Action("EditComment", "Ticket")';
+        var addCommentUrl = '@Url.Action("AddComment", "Ticket")';
+        var deleteCommentUrl = '@Url.Action("DeleteComment", "Ticket")';
+        var ticketId = '@Model.TicketId';
     </script>
+    <script src="~/js/comment.js"></script>
+    <script src="~/js/feedback.js"></script>
+    <script src="~/js/toastrNotification.js"></script>
 }
-
 @functions {
     string GetPriorityCssClass(string PriorityName)
     {
