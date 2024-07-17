@@ -1,5 +1,6 @@
 ﻿using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
+using ASI.Basecode.Services.Services;
 using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Globalization;
 using System.Linq;
 
 namespace ASI.Basecode.WebApp.Controllers
@@ -32,66 +34,22 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="currentFilter"></param>
         /// <param name="searchString"></param>
         /// <returns></returns>
-        public IActionResult Index(string sortOrder, string currentFilter, string searchString)
+        public IActionResult Index(string sortOrder, string currentFilter, string searchString, int pageNumber = 1)
         {
+            int pageSize = 10;
+
+            var users = _userService.FilterUsers(sortOrder, currentFilter, searchString);
+            var FilteredUsersCount = _userService.CountFilteredUsers(users);
+            var usersPaginated = _userService.PaginateUsers(users, pageSize, pageNumber);
+            var user = new PaginatedList<UserViewModel>(usersPaginated, FilteredUsersCount, pageNumber, pageSize);
+
+            
             ViewData["CurrentSort"] = sortOrder;
             ViewData["CurrentFilter"] = searchString;
 
-            var users = _userService.RetrieveAll();
+           
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                users = users.Where(u => u.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
-                                      || u.Email.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
-            }
-
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    users = users.OrderByDescending(u => u.Name);
-                    break;
-                case "Email":
-                    users = users.OrderBy(u => u.Email);
-                    break;
-                case "email_desc":
-                    users = users.OrderByDescending(u => u.Email);
-                    break;
-                case "CreatedBy":
-                    users = users.OrderBy(u => u.CreatedByName);
-                    break;
-                case "createdBy_desc":
-                    users = users.OrderByDescending(u => u.CreatedByName);
-                    break;
-                case "CreatedTime":
-                    users = users.OrderBy(u => u.CreatedTime);
-                    break;
-                case "Role":
-                    users = users.OrderBy(u => u.RoleId);
-                    break;
-                case "role_desc":
-                    users = users.OrderByDescending(u => u.RoleId);
-                    break;
-                case "createdTime_desc":
-                    users = users.OrderByDescending(u => u.CreatedTime);
-                    break;
-                case "UpdatedBy":
-                    users = users.OrderBy(u => u.UpdatedByName);
-                    break;
-                case "updatedBy_desc":
-                    users = users.OrderByDescending(u => u.UpdatedByName);
-                    break;
-                case "UpdatedTime":
-                    users = users.OrderBy(u => u.UpdatedTime);
-                    break;
-                case "updatedTime_desc":
-                    users = users.OrderByDescending(u => u.UpdatedTime);
-                    break;
-                default:
-                    users = users.OrderBy(u => u.Name);
-                    break;
-            }
-
-            return View(users);
+            return View(user);
         }
 
         #region GET methods      
