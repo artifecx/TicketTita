@@ -2,119 +2,36 @@
     var url = new URL(window.location);
     var showModal = url.searchParams.get('showModal');
 
-    if (showModal === 'editTeam') {
-        $('#editTeamModal').modal('show');
+    if (showModal === 'editTicket') {
+        $('#editTicketModal').modal('show');
         url.searchParams.delete('showModal');
         window.history.replaceState(null, null, url);
     }
 });
 
-function displayAddModal(teamId) {
-    $('#TeamId').val(teamId);
-    $('#addAgentModal').modal('show');
-}
-
-$('#addAgentModal').on('hidden.bs.modal', function () {
-    toastr.info("Add agent cancelled, no changes were made");
-});
-
-function submitAddAgent() {
-    var form = $('#addAgentForm');
-
-    form.validate();
-    if (!form.valid()) {
-        return;
-    }
-
-    var formData = form.serialize();
-
-    $.ajax({
-        url: '/Team/AssignAgent',
-        type: 'POST',
-        data: formData,
-        success: function (response) {
-            if (response.success) {
-                $('#addAgentModal').modal('hide');
-                location.reload();
-            } else {
-                var errorMessage = response.error || "An error occurred.";
-                toastr.error(errorMessage);
-            }
-        },
-        error: function (xhr, status, error) {
-            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
-            toastr.error(errorMessage);
-            $('#addAgentModal').modal('hide');
-        }
-    });
-}
-
-function displayReassignAgentModal(oldTeamId, agentId) {
-    $('#oldTeamId').val(oldTeamId);
-    $('#agentId').val(agentId);
-    $('#reassignAgentModal').modal('show');
-}
-
-$('#reassignAgentModal').on('hidden.bs.modal', function () {
-    toastr.info("Reassignment cancelled, no changes were made");
-});
-
-function submitReassignAgent() {
-    var form = $('#reassignAgentForm');
-
-    form.validate();
-    if (!form.valid()) {
-        return;
-    }
-
-    var formData = form.serialize();
-
-    $.ajax({
-        url: '/Team/ReassignAgent',
-        type: 'POST',
-        data: formData,
-        success: function (response) {
-            if (response.success) {
-                $('#reassignAgentModal').modal('hide');
-                location.reload();
-            } else {
-                var errorMessage = response.error || "An error occurred.";
-                toastr.error(errorMessage);
-            }
-        },
-        error: function (xhr, status, error) {
-            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
-            toastr.error(errorMessage);
-            $('#reassignAgentModal').modal('hide');
-        }
-    });
-}
-
-function displayCreateModal() {
-    $('#createTeamModal').modal('show');
-}
-
-$('#createTeamModal').on('hidden.bs.modal', function () {
+$('#createTicketModal').on('hidden.bs.modal', function () {
     toastr.info("Create cancelled, no changes were made");
 });
 
-function submitCreateTeam() {
-    var form = $('#createTeamForm');
+function submitCreateTicket() {
+    var form = $('#createTicketForm');
 
     form.validate();
     if (!form.valid()) {
         return;
     }
 
-    var formData = form.serialize();
+    var formData = new FormData(form[0]);
 
     $.ajax({
-        url: '/Team/Create',
+        url: '/Ticket/Create',
         type: 'POST',
         data: formData,
+        processData: false,
+        contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#createTeamModal').modal('hide');
+                $('#createTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -124,39 +41,50 @@ function submitCreateTeam() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#createTeamModal').modal('hide');
+            $('#createTicketModal').modal('hide');
         }
     });
 }
 
-function displayEditModal(teamId, teamName, teamDescription) {
-    $('#editTeamId').val(teamId);
-    $('#editTeamName').val(teamName);
-    $('#editTeamDescription').val(teamDescription);
-    $('#editTeamModal').modal('show');
-}
+var attachmentRemoved = false;
+document.getElementById('clearAttachment').addEventListener('click', function () {
+    document.getElementById('attachmentDetails').style.display = 'none';
+    document.getElementById('fileUpload').style.display = 'block';
+    attachmentRemoved = true;
+});
 
-$('#editTeamModal').on('hidden.bs.modal', function () {
+$('#editTicketModal').on('hidden.bs.modal', function () {
+    $('#editTicketForm')[0].reset();
+    document.getElementById('attachmentDetails').style.display = '@(Model.Attachment != null ? "block" : "none")';
+    document.getElementById('fileUpload').style.display = '@(Model.Attachment == null ? "block" : "none")';
+
+    document.querySelector('#attachmentDetails input').value = '@Model.Attachment?.Name';
     toastr.info("Edit cancelled, no changes were made");
 });
 
-function submitEditTeam() {
-    var form = $('#editTeamForm');
+function submitEditTicket() {
+    var form = $('#editTicketForm');
 
     form.validate();
     if (!form.valid()) {
         return;
     }
 
-    var formData = form.serialize();
+    var formData = new FormData(form[0]);
+
+    if (attachmentRemoved) {
+        formData.delete('Attachment.AttachmentId');
+    }
 
     $.ajax({
-        url: '/Team/Edit',
+        url: '/Ticket/Edit',
         type: 'POST',
         data: formData,
+        processData: false,
+        contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#editTeamModal').modal('hide');
+                $('#editTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -166,7 +94,67 @@ function submitEditTeam() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#editTeamModal').modal('hide');
+            $('#editTicketModal').modal('hide');
         }
     });
 }
+
+$('#saveTrackingBtn').click(function () {
+    var statusId = $('#statusId').val();
+    var priorityId = $('#priorityId').val();
+    var ticketId = $('#ticketId').val();
+
+    $.ajax({
+        url: '/Ticket/UpdateTracking',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            TicketId: ticketId,
+            PriorityTypeId: priorityId,
+            StatusTypeId: statusId
+        }),
+        success: function (response) {
+            if (response.success) {
+                $('#updateTrackingModal').modal('hide');
+                location.reload();
+            } else {
+                var errorMessage = response.error || "An error occurred.";
+                toastr.error(errorMessage);
+            }
+        },
+        error: function (xhr, status, error) {
+            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
+            toastr.error(errorMessage);
+            $('#updateTrackingModal').modal('hide');
+        }
+    });
+});
+
+$('#saveAssignmentBtn').click(function () {
+    var agentId = $('#agentId').val();
+    var ticketId = $('#ticketId').val();
+
+    $.ajax({
+        url: '/Ticket/UpdateAssignment',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            TicketId: ticketId,
+            AgentId: agentId,
+        }),
+        success: function (response) {
+            if (response.success) {
+                $('#updateAssignmentModal').modal('hide');
+                location.reload();
+            } else {
+                var errorMessage = response.error || "An error occurred.";
+                toastr.error(errorMessage);
+            }
+        },
+        error: function (xhr, status, error) {
+            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
+            toastr.error(errorMessage);
+            $('#updateAssignmentModal').modal('hide');
+        }
+    });
+});

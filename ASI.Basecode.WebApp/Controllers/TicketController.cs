@@ -9,15 +9,18 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
-    public class TicketController : ControllerBase<TicketController>
+    public partial class TicketController : ControllerBase<TicketController>
     {
         private readonly ITicketService _ticketService;
+        private readonly IFeedbackService _feedbackService;
         private readonly INotificationService _notificationService;
 
         /// <summary>
@@ -36,11 +39,13 @@ namespace ASI.Basecode.WebApp.Controllers
             IConfiguration configuration,
             IMapper mapper,
             ITicketService ticketService,
+            IFeedbackService feedbackService,
             INotificationService notificationService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._ticketService = ticketService;
+            this._feedbackService = feedbackService;
             this._notificationService = notificationService;
         }
 
@@ -53,12 +58,12 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="filterValue">User defined, taken from the page</param>
         /// <returns>ViewAll page</returns>
         [Authorize]
-        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue)
+        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
                 await PopulateViewBagAsync();
-                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue);
+                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue, pageIndex, 10);
 
                 ViewData["FilterBy"] = filterBy;
                 ViewData["FilterValue"] = filterValue;
@@ -82,115 +87,23 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
                 var ticket = await _ticketService.GetTicketByIdAsync(id);
                 if (ticket == null) return RedirectToAction("ViewAll");
+                var statusTypes = await _ticketService.GetStatusTypesAsync();
+                var users = await _ticketService.UserGetAllAsync();
+
+                ticket.StatusTypes = User.IsInRole("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") : 
+                        statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));
+                ticket.PriorityTypes = await _ticketService.GetPriorityTypesAsync();
+                ticket.CategoryTypes = await _ticketService.GetCategoryTypesAsync();
+                ticket.Agents = users.Where(x => x.RoleId == "Support Agent");
 
                 if (!string.IsNullOrEmpty(notificationId))
                 {
                     _notificationService.MarkNotificationAsRead(notificationId);
                 }
-
+                ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
                 ViewBag.ShowModal = showModal;
                 return View(ticket);
             }, "ViewTicket");
-        }
-
-
-        /// <summary>
-        /// Shows the page to create a ticket
-        /// </summary>
-        /// <returns>Create page</returns>
-        [HttpGet]
-        [Authorize(Policy = "Employee")]
-        public async Task<IActionResult> Create() =>
-            await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("default")), "Create");
-
-        /// <summary>
-        /// Shows the page to update the status of a ticket
-        /// </summary>
-        /// <returns>UpdateStatus page</returns>
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> UpdateStatus() =>
-            await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("status")), "UpdateStatus");
-
-        /// <summary>
-        /// Shows the page to update the priority of a ticket
-        /// </summary>
-        /// <returns>UpdatePriority page</returns>
-        [HttpGet]
-        [Authorize(Policy = "AdminOrAgent")]
-        public async Task<IActionResult> UpdatePriority() =>
-            await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("priority")), "UpdatePriority");
-
-        /// <summary>
-        /// Shows the page to assign a ticket
-        /// </summary>
-        /// <returns>AssignTicket page</returns>
-        [HttpGet]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> AssignTicket() =>
-            await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("assign")), "AssignTicket");
-
-        /// <summary>
-        /// Shows the page to reassign a ticket
-        /// </summary>
-        /// <returns>ReassignTicket page</returns>
-        [HttpGet]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ReassignTicket() =>
-            await HandleExceptionAsync(async () => View(await _ticketService.InitializeModelAsync("reassign")), "ReassignTicket");
-
-        /// <summary>
-        /// Shows the page to edit a ticket
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Edit page</returns>
-        [HttpGet]
-        [Authorize(Policy = "Employee")]
-        public async Task<IActionResult> Edit(string id)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
-                var ticket = await _ticketService.GetTicketByIdAsync(id);
-                if (ticket == null) return RedirectToAction("ViewAll");
-                return View(ticket);
-            }, "Edit");
-        }
-
-        /// <summary>
-        /// Fetches the ticket details to be used in the view
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Json containing ticket details</returns>
-        [HttpGet]
-        [Authorize]
-        public async Task<JsonResult> GetTicketDetails(string id)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (string.IsNullOrEmpty(id)) return Json(null);
-                var ticketDetails = await _ticketService.GetTicketDetailsAsync(id);
-                if (ticketDetails == null) return Json(null);
-                return Json(ticketDetails);
-            }, "GetTicketDetails");
-        }
-
-        /// <summary>
-        /// Allows the user to download the attachment
-        /// </summary>
-        /// <param name="id">Attachment identifier</param>
-        /// <returns>The file to download</returns>
-        [HttpGet]
-        [Authorize]
-        public async Task<FileResult> DownloadAttachment(string id)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (string.IsNullOrEmpty(id)) return null;
-                var attachment = await _ticketService.GetAttachmentByTicketIdAsync(id);
-                if (attachment == null) return null;
-                return File(attachment.Content, "application/octet-stream", attachment.Name);
-            }, "DownloadAttachment");
         }
         #endregion GET methods
 
@@ -206,13 +119,14 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                string userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                if (string.IsNullOrEmpty(userId)) return RedirectToAction("ViewAll");
-
-                await _ticketService.AddAsync(model, userId);
-
-                TempData["CreateMessage"] = "Created Successfully";
-                return RedirectToAction("ViewAll");
+                if(model != null || string.IsNullOrEmpty(UserId))
+                {
+                    await _ticketService.AddAsync(model, UserId);
+                    TempData["SuccessMessage"] = "New ticket created successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while creating a new ticket. Please try again.";
+                return Json(new { success = false });
             }, "Create");
         }
 
@@ -227,51 +141,15 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                if (model == null) return RedirectToAction("ViewAll");
-
-                await _ticketService.UpdateAsync(model,4);
-                return RedirectToAction("ViewAll");
+                if (model != null)
+                {
+                    await _ticketService.UpdateAsync(model,4);
+                    TempData["SuccessMessage"] = "Ticket edited successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while editing the ticket. Please try again.";
+                return Json(new { success = false });
             }, "Edit");
-        }
-
-        /// <summary>
-        /// Allows the user to update the ticket status
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>ViewTicket page</returns>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> UpdateStatus(TicketViewModel model)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                var ticket = await _ticketService.GetTicketByIdAsync(model.TicketId);
-                if (ticket == null) return RedirectToAction("ViewAll");
-
-                ticket.StatusTypeId = model.StatusTypeId;
-                await _ticketService.UpdateAsync(ticket, 3);
-                return RedirectToAction("ViewTicket", new { id = model.TicketId });
-            }, "UpdateStatus");
-        }
-
-        /// <summary>
-        /// Allows the user to update the ticket priority
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>ViewTicket page</returns>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> UpdatePriority(TicketViewModel model)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                var ticket = await _ticketService.GetTicketByIdAsync(model.TicketId);
-                if (ticket == null) return RedirectToAction("ViewAll");
-
-                ticket.PriorityTypeId = model.PriorityTypeId;
-                await _ticketService.UpdateAsync(ticket, 2);
-                return RedirectToAction("ViewTicket", new { id = model.TicketId });
-            }, "UpdatePriority");
         }
 
         /// <summary>
@@ -285,76 +163,15 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                if (string.IsNullOrEmpty(id)) return Json(new { success = false });
-                await _ticketService.DeleteAsync(id);
-                return Json(new { success = true });
-            }, "Delete");
-        }
-
-        /// <summary>
-        /// Allows the user to remove an attachment from a ticket
-        /// </summary>
-        /// <param name="ticketId">Ticket identifier</param>
-        /// <param name="attachmentId">Attachment identifier</param>
-        /// <returns>Edit page</returns>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> RemoveAttachment(string ticketId, string attachmentId)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (string.IsNullOrEmpty(ticketId) || string.IsNullOrEmpty(attachmentId)) return RedirectToAction("ViewAll");
-                var ticket = await _ticketService.GetTicketByIdAsync(ticketId);
-                if (ticket == null) return RedirectToAction("ViewAll");
-
-                await _ticketService.RemoveAttachmentAsync(attachmentId);
-                ticket.Attachment = null;
-
-                await _ticketService.UpdateAsync(ticket, 4);
-                return RedirectToAction("Edit", new { id = ticketId });
-            }, "RemoveAttachment");
-        }
-
-        /// <summary>
-        /// Allows the user to assign a ticket to another user
-        /// </summary>
-        /// <param name="model">The model</param>
-        /// <returns>ViewTicket page</returns>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> AssignTicket(TicketViewModel model)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (model == null || model.Agent == null) return RedirectToAction("ViewAll");
-                await _ticketService.AddTicketAssignmentAsync(model, false);
-                return RedirectToAction("ViewTicket", new { id = model.TicketId });
-            }, "AssignTicket");
-        }
-
-        /// <summary>
-        /// Allows the user to reassign a ticket to another user
-        /// </summary>
-        /// <param name="model">The model</param>
-        /// <returns>ViewTicket page</returns>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> ReassignTicket(TicketViewModel model)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                if (model == null) return RedirectToAction("ViewAll");
-                var assignment = await _ticketService.GetAssignmentByTicketIdAsync(model.TicketId);
-                if (assignment != null && model.Agent.UserId != _ticketService.ExtractAgentId(assignment.AssignmentId))
+                if (!string.IsNullOrEmpty(id))
                 {
-                    await _ticketService.RemoveAssignmentAsync(assignment.TicketId);
-                    if (model.Agent != null && !model.Agent.UserId.Equals("remove"))
-                    {
-                        await _ticketService.AddTicketAssignmentAsync(model, true);
-                    }
+                    await _ticketService.DeleteAsync(id);
+                    TempData["SuccessMessage"] = "Ticket deleted successfully!";
+                    return Json(new { success = true });
                 }
-                return RedirectToAction("ViewTicket", new { id = model.TicketId });
-            }, "ReassignTicket");
+                TempData["ErrorMessage"] = "An error occurred while deleting the ticket. Please try again.";
+                return Json(new { success = false });
+            }, "Delete");
         }
         #endregion POST methods
 
@@ -365,18 +182,18 @@ namespace ASI.Basecode.WebApp.Controllers
         private async Task PopulateViewBagAsync()
         {
             var usersWithTickets = await _ticketService.GetUserIdsWithTicketsAsync();
-            ViewBag.PriorityTypes = (await _ticketService.GetPriorityTypesAsync())
-                                    .OrderBy(pt => pt.PriorityTypeId).Select(pt => pt.PriorityName)
-                                    .ToList();
-            ViewBag.StatusTypes = (await _ticketService.GetStatusTypesAsync())
-                                    .OrderBy(st => st.StatusTypeId).Select(st => st.StatusName)
-                                    .ToList();
-            ViewBag.CategoryTypes = (await _ticketService.GetCategoryTypesAsync())
-                                    .OrderBy(ct => ct.CategoryTypeId).Select(ct => ct.CategoryName)
-                                    .ToList();
-            ViewBag.Users = (await _ticketService.UserGetAllAsync())
-                                    .Where(u => u.RoleId == "Employee" && usersWithTickets.Contains(u.UserId))
-                                    .OrderBy(u => u.Name).Select(u => u.Name).Distinct().ToList();
+            var priorityTypes = await _ticketService.GetPriorityTypesAsync();
+            var statusTypes = await _ticketService.GetStatusTypesAsync();
+            var categoryTypes = await _ticketService.GetCategoryTypesAsync();
+            var users = await _ticketService.UserGetAllAsync();
+
+            ViewBag.PriorityTypes = priorityTypes.OrderBy(pt => pt.PriorityTypeId).Select(pt => pt.PriorityName).ToList();
+            ViewBag.StatusTypes = statusTypes.OrderBy(st => st.StatusTypeId).Select(st => st.StatusName).ToList();
+            ViewBag.CategoryTypes = categoryTypes.OrderBy(ct => ct.CategoryTypeId).Select(ct => ct.CategoryName).ToList();
+            ViewBag.Users = users.Where(u => u.RoleId == "Employee" && usersWithTickets.Contains(u.UserId)).OrderBy(u => u.Name).Select(u => u.Name).Distinct().ToList();
+            ViewBag.PTs = priorityTypes;
+            ViewBag.STs = statusTypes;
+            ViewBag.CTs = categoryTypes;
         }
     }
 }

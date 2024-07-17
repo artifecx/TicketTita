@@ -12,6 +12,7 @@ namespace ASI.Basecode.Data.Models
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public string AuthorId { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual User Author { get; set; }
         public virtual ArticleCategory Category { get; set; }

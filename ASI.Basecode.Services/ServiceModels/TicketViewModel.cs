@@ -83,6 +83,9 @@ namespace ASI.Basecode.Services.ServiceModels
 
         [Display(Name = "Feedback")]
         public Feedback Feedback { get; set; }
+
+        [Display(Name = "Comments")]
+        public IEnumerable<CommentViewModel> Comments { get; set; }
         #endregion
 
 

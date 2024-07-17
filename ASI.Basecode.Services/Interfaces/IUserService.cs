@@ -16,6 +16,10 @@ namespace ASI.Basecode.Services.Interfaces
         void Update(UserViewModel model);
         void Delete(String UserId);
         IEnumerable<Role> GetRoles();
+        IEnumerable<UserViewModel> FilterUsers(string sortOrder, string currentFilter, string searchString, string roleFilter);
+        int CountFilteredUsers(IEnumerable<UserViewModel> users);
+        IEnumerable<UserViewModel> PaginateUsers(IEnumerable<UserViewModel> users, int pageSize, int pageNumber);
+
         PerformanceReportViewModel GetPerformanceReport(string userId);
         bool IsSupportAgent(string userId);
         public bool IsAgentInTeam(string userId);

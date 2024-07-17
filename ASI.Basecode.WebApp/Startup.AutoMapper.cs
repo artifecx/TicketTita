@@ -27,8 +27,7 @@ namespace ASI.Basecode.WebApp
         {
             public AutoMapperProfileConfiguration()
             {
-                CreateMap<UserViewModel, User>();
-                CreateMap<User, UserViewModel>();
+                CreateMap<UserViewModel, User>().ReverseMap();
                 CreateMap<TicketViewModel, Ticket>();
                 CreateMap<Ticket, TicketViewModel>()
                         .ForMember(dest => dest.Attachment, opt => opt.MapFrom(src => src.Attachments.FirstOrDefault()))
@@ -36,13 +35,15 @@ namespace ASI.Basecode.WebApp
                             ? src.TicketAssignment.Team.TeamMembers.FirstOrDefault(tm => tm.User.RoleId == "Support Agent").User
                             : null))
                         .ForMember(dest => dest.TicketAssignment, opt => opt.MapFrom(src => src.TicketAssignment))
-                        .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback));
-                CreateMap<Feedback, FeedbackViewModel>();
-                CreateMap<FeedbackViewModel, Feedback>();
-                CreateMap<Team, TeamViewModel>();
-                CreateMap<TeamViewModel, Team>();
-                CreateMap<KnowledgeBaseViewModel, KnowledgeBaseArticle>();
-                CreateMap<KnowledgeBaseArticle, KnowledgeBaseViewModel>();
+                        .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
+                        .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
+                CreateMap<Feedback, FeedbackViewModel>().ReverseMap();
+                CreateMap<Comment, CommentViewModel>()
+                        .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.InverseParent))
+                        .ReverseMap()
+                        .ForMember(dest => dest.InverseParent, opt => opt.MapFrom(src => src.Replies));
+                CreateMap<Team, TeamViewModel>().ReverseMap();
+                CreateMap<KnowledgeBaseViewModel, KnowledgeBaseArticle>().ReverseMap();
                 CreateMap<IEnumerable<KnowledgeBaseViewModel>, IEnumerable<KnowledgeBaseArticle>>();
             }
         }

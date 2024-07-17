@@ -11,7 +11,6 @@
             </div>
             <div class="modal-body">
                 <form id="addAgentForm">
-                    @Html.AntiForgeryToken()
                     <input type="hidden" id="TeamId" name="TeamId" value="@Model.TeamId" />
                     <div class="form-group">
                         <label for="AgentId">Select Agent</label>
@@ -26,7 +25,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="submitAddAgent()">Add Agent</button>
             </div>
         </div>

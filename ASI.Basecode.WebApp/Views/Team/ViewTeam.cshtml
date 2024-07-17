@@ -91,19 +91,9 @@
     <a asp-action="ViewAll">Back to List</a>
 </div>
 
+<div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
+
 @section Scripts {
     <script src="~/js/team.js"></script>
-    <script>
-        $(document).ready(function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var errorMessage = '@TempData["ErrorMessage"]';
-
-            if (successMessage) {
-                toastr.success(successMessage);
-            } else if (errorMessage) {
-                toastr.error(errorMessage);
-            }
-        });
-    </script>
+    <script src="~/js/toastrNotification.js"></script>
 }
-

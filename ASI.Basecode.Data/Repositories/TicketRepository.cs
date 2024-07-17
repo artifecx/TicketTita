@@ -2,6 +2,7 @@
 using ASI.Basecode.Data.Models;
 using Basecode.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -25,12 +26,19 @@ namespace ASI.Basecode.Data.Repositories
         private IQueryable<Ticket> GetTicketsWithIncludes()
         {
             return this.GetDbSet<Ticket>()
+                    .Where(t => !t.IsDeleted)
                     .Include(t => t.CategoryType)
                     .Include(t => t.PriorityType)
                     .Include(t => t.StatusType)
                     .Include(t => t.User)
                     .Include(t => t.Feedback)
                     .Include(t => t.Attachments)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cu => cu.User)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cp => cp.Parent)
+                    .Include(t => t.Comments)
+                        .ThenInclude(c => c.InverseParent)
                     .Include(t => t.TicketAssignment)
                         .ThenInclude(ta => ta.Team)
                         .ThenInclude(team => team.TeamMembers)
@@ -42,7 +50,33 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <returns>List Ticket</returns>
         public async Task<List<Ticket>> GetAllAsync() =>
-            await GetTicketsWithIncludes().ToListAsync();
+            await GetTicketsWithIncludes().AsNoTracking().ToListAsync();
+
+        /// <summary>
+        /// Gets all tickets including the deleted.
+        /// </summary>
+        /// <returns>List Ticket</returns>
+        public Task<List<Ticket>> GetAllAndDeletedAsync()
+        {
+            return this.GetDbSet<Ticket>()
+                    .Include(t => t.CategoryType)
+                    .Include(t => t.PriorityType)
+                    .Include(t => t.StatusType)
+                    .Include(t => t.User)
+                    .Include(t => t.Feedback)
+                    .Include(t => t.Attachments)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cu => cu.User)
+                    .Include(t => t.Comments)
+                        .ThenInclude(cp => cp.Parent)
+                    .Include(t => t.Comments)
+                        .ThenInclude(c => c.InverseParent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team)
+                        .ThenInclude(team => team.TeamMembers)
+                        .ThenInclude(tm => tm.User)
+                    .AsNoTracking().ToListAsync();
+        }
 
         /// <summary>
         /// Add a ticket
@@ -70,7 +104,8 @@ namespace ASI.Basecode.Data.Repositories
         /// <param name="ticket">The ticket</param>
         public async Task DeleteAsync(Ticket ticket)
         {
-            this.GetDbSet<Ticket>().Remove(ticket);
+            ticket.IsDeleted = true;
+            this.GetDbSet<Ticket>().Update(ticket);
             await UnitOfWork.SaveChangesAsync();
         }
         #endregion Ticket Service Methods
@@ -119,22 +154,76 @@ namespace ASI.Basecode.Data.Repositories
         }
         #endregion Ticket Assignment Service Methods
 
-        #region Feedback Service Methods
-        public async Task FeedbackDeleteAsync(Feedback feedback)
+        #region Comment Service Methods        
+        /// <summary>
+        /// Adds the comment.
+        /// </summary>
+        /// <param name="comment">The comment.</param>
+        public async Task AddCommentAsync(Comment comment)
         {
-            this.GetDbSet<Feedback>().Remove(feedback);
+            this.GetDbSet<Comment>().Add(comment);
             await UnitOfWork.SaveChangesAsync();
         }
-        #endregion Feedback Service Methods
 
-        #region Notification Service Methods
-        public async Task NotificationDeleteAsync(string id)
+        /// <summary>
+        /// Updates the comment.
+        /// </summary>
+        /// <param name="comment">The comment.</param>
+        public async Task UpdateCommentAsync(Comment comment)
         {
-            var notifications = this.GetDbSet<Notification>().Where(n => n.TicketId == id);
-            this.GetDbSet<Notification>().RemoveRange(notifications);
+            this.GetDbSet<Comment>().Update(comment);
             await UnitOfWork.SaveChangesAsync();
         }
-        #endregion Notification Service Methods
+
+        /// <summary>
+        /// Deletes the comment.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        public async Task DeleteCommentAsync(string id)
+        {
+            var comment = await FindCommentByIdAsync(id);
+            await DeleteCommentAndChildrenRecursive(comment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Deletes the comment and children recursively.
+        /// </summary>
+        /// <param name="comment">The comment.</param>
+        private async Task DeleteCommentAndChildrenRecursive(Comment comment)
+        {
+            await Context.Entry(comment).Collection(c => c.InverseParent).LoadAsync();
+
+            foreach (var childComment in comment.InverseParent.ToList())
+            {
+                await DeleteCommentAndChildrenRecursive(childComment);
+                this.GetDbSet<Comment>().Remove(childComment);
+            }
+
+            this.GetDbSet<Comment>().Remove(comment);
+        }
+
+        /// <summary>
+        /// Gets the comments with includes.
+        /// </summary>
+        /// <returns>IQueryable Comment</returns>
+        public IQueryable<Comment> GetCommentsWithIncludesAsync()
+        {
+            var comments = this.GetDbSet<Comment>()
+                                .Include(cu => cu.User)
+                                .Include(cp => cp.Parent)
+                                .Include(c => c.InverseParent);
+            return comments;
+        }
+
+        /// <summary>
+        /// Finds the comment by identifier asynchronous.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Comment</returns>
+        public async Task<Comment> FindCommentByIdAsync(string id) =>
+            await GetCommentsWithIncludesAsync().FirstOrDefaultAsync(c => c.CommentId == id);
+        #endregion
 
         #region Find Methods
         /// <summary>
@@ -152,14 +241,6 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>Ticket</returns>
         public async Task<IEnumerable<Ticket>> FindByUserIdAsync(string id) =>
             await GetTicketsWithIncludes().Where(t => t.UserId == id).ToListAsync();
-
-        /// <summary>
-        /// Find an attachment by its identifier
-        /// </summary>
-        /// <param name="id">Attachment identifier</param>
-        /// <returns>Attachment</returns>
-        public async Task<Attachment> FindAttachmentByIdAsync(string id) 
-            => await this.GetDbSet<Attachment>().FirstOrDefaultAsync(x => x.AttachmentId == id);
 
         /// <summary>
         /// Find an attachment by ticket identifier
@@ -187,22 +268,6 @@ namespace ASI.Basecode.Data.Repositories
             var memberOf = await this.GetDbSet<TeamMember>().FirstOrDefaultAsync(x => x.UserId == id);
             return await this.GetDbSet<Team>().FirstOrDefaultAsync(x => x.TeamId == memberOf.TeamId);
         }
-
-        /// <summary>
-        /// Find an agent by user identifier
-        /// </summary>
-        /// <param name="id">User identifier</param>
-        /// <returns>User</returns>
-        public async Task<User> FindAgentByUserIdAsync(string id) 
-            => await this.GetDbSet<User>().FirstOrDefaultAsync(x => x.UserId == id);
-
-        /// <summary>
-        /// Find a category by its identifier
-        /// </summary>
-        /// <param name="id">CategoryType identifier</param>
-        /// <returns>CategoryType</returns>
-        public async Task<CategoryType> FindCategoryByIdAsync(string id) 
-            => await this.GetDbSet<CategoryType>().FirstOrDefaultAsync(x => x.CategoryTypeId == id);
 
         /// <summary>
         /// Find a priority by its identifier
@@ -243,9 +308,6 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>Admin</returns>
         public async Task<Admin> AdminFindByIdAsync(string id) 
             => await this.GetDbSet<Admin>().FirstOrDefaultAsync(x => x.AdminId == id);
-
-        public async Task<IQueryable<Notification>> FindNotificationsByTicketIdAsync(string id)
-            => await Task.FromResult(this.GetDbSet<Notification>().Where(x => x.TicketId == id));
         #endregion Find Methods
 
         #region Get Methods
@@ -283,13 +345,6 @@ namespace ASI.Basecode.Data.Repositories
         /// <returns>IQueryable User</returns>
         public async Task<IQueryable<User>> UserGetAllAsync() 
             => await Task.FromResult(this.GetDbSet<User>());
-
-        /// <summary>
-        /// Get all ticket assignments
-        /// </summary>
-        /// <returns>IQueryable TicketAssignment</returns>
-        public async Task<IQueryable<TicketAssignment>> GetTicketAssignmentsAsync() 
-            => await Task.FromResult(this.GetDbSet<TicketAssignment>());
 
         /// <summary>
         /// Get all user identifiers with tickets submitted

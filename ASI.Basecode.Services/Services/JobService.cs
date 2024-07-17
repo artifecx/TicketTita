@@ -27,17 +27,20 @@ namespace ASI.Basecode.Services.Services
         {
             _logger.LogInformation("Executing ReminderJob...");
 
-            var unresolvedTickets = _ticketService.GetUnresolvedTicketsOlderThan(TimeSpan.FromMinutes(10));
+            var unresolvedTickets = _ticketService.GetUnresolvedTicketsOlderThan(TimeSpan.FromMinutes(5));
 
             foreach (var ticket in unresolvedTickets)
             {
-                _notificationService.AddNotification(
-                    ticketId: ticket.TicketId,
-                    description: "This ticket has been unresolved for over 30 minutes.",
-                    notificationTypeId: "7",
-                    UserId: ticket.Agent.UserId,
-                    title: $"Reminder: Ticket #{ticket.TicketId} Unresolved"
-                );
+                if(ticket.Agent != null)
+                {
+                    _notificationService.AddNotification(
+                        ticketId: ticket.TicketId,
+                        description: "This ticket has been unresolved for over 30 minutes.",
+                        notificationTypeId: "7",
+                        UserId: ticket.Agent.UserId,
+                        title: $"Reminder: Ticket #{ticket.TicketId} Unresolved"
+                    );
+                }
             }
 
             return Task.CompletedTask;

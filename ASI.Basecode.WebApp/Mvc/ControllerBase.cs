@@ -292,25 +292,13 @@ namespace ASI.Basecode.WebApp.Mvc
                 StartLog(actionName);
                 return await action();
             }
-            catch (TeamHasUnresolvedTicketsException ex)
+            catch (TeamException ex)
             {
                 TempData["ErrorMessage"] = ex.Message.ToString();
                 _logger.LogError(ex, $"Error in {actionName}");
                 return new JsonResult(new { success = false, error = ex.Message });
             }
-            catch (TeamHasMembersException ex)
-            {
-                TempData["ErrorMessage"] = ex.Message.ToString();
-                _logger.LogError(ex, $"Error in {actionName}");
-                return new JsonResult(new { success = false, error = ex.Message });
-            }
-            catch (NoChangesException ex)
-            {
-                TempData["ErrorMessage"] = ex.Message.ToString();
-                _logger.LogError(ex, $"Error in {actionName}");
-                return new JsonResult(new { success = false, error = ex.Message });
-            }
-            catch (NoAgentSelectedException ex)
+            catch (TicketException ex)
             {
                 TempData["ErrorMessage"] = ex.Message.ToString();
                 _logger.LogError(ex, $"Error in {actionName}");

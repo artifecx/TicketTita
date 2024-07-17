@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "ViewAll";
+    await Html.RenderPartialAsync("_CreateTeamModal", new ASI.Basecode.Services.ServiceModels.TeamViewModel());
     await Html.RenderPartialAsync("_DeleteModal");
 }
 
@@ -11,7 +12,9 @@
 <p>
     @if (User.IsInRole("Admin"))
     {
-        <a asp-action="Create">Create Team</a>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTeamModal">
+            Create Team
+        </button>
     }
 </p>
 <table class="table">
@@ -86,10 +89,12 @@
 </table>
 
 @*---- Values passed to the js files ----*@
-<input type="hidden" id="createMessage" value="@TempData["CreateMessage"]" />
+<div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 <input type="hidden" id="baseUrl" value="@Url.Action("ViewAll", "Team")" />
 <input type="hidden" id="deleteUrl" value="@Url.Action("Delete", "Team")" />
 
 @section Scripts {
     <script src="~/js/delete.js"></script>
+    <script src="~/js/toastrNotification.js"></script>
+    <script src="~/js/team.js"></script>
 }
