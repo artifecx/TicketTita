@@ -15,7 +15,6 @@ function submitFeedback() {
         TicketId: $('#ticketId').val(),
         FeedbackRating: $('input[name="FeedbackRating"]:checked').val(),
         FeedbackContent: $('#content').val(),
-        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
     };
 
     var isValid = true;

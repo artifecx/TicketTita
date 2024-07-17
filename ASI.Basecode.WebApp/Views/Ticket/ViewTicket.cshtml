@@ -3,14 +3,44 @@
 @{
     ViewData["Title"] = "ViewTicket";
     await Html.RenderPartialAsync("_FeedbackModal", Model);
+    await Html.RenderPartialAsync("_EditTicketModal", Model);
     await Html.RenderPartialAsync("_DeleteModal");
+    await Html.RenderPartialAsync("_UpdateTrackingModal", Model);
+    await Html.RenderPartialAsync("_UpdateAssignment", Model);
 }
 
 @section styles {
     <link rel="stylesheet" href="~/css/ticket.css" />
 }
 
-<h1 class="nav-header display-6">View Ticket</h1>
+<h1 class="nav-header display-6">
+    View Ticket
+    @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+    {
+        if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
+                Update Tracking
+            </button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
+                Update Assignment
+            </button>
+        }
+    } 
+    else
+    {
+        if(Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
+        {
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
+                Update Ticket
+            </button>
+
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editTicketModal">
+                Edit Ticket
+            </button>
+        }
+    }
+</h1>
 
 <div class="container-fluid p-4">
     <div class="card px-5 py-4 mb-4">
@@ -163,6 +193,7 @@
     <script src="~/js/comment.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
+    <script src="~/js/ticket.js"></script>
 }
 @functions {
     string GetPriorityCssClass(string PriorityName)

@@ -1,8 +1,9 @@
-﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.TicketViewModel>
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.TicketViewModel>
 
 @{
     ViewData["Title"] = "ViewAll";
     await Html.RenderPartialAsync("_DeleteModal");
+    await Html.RenderPartialAsync("_CreateTicketModal", new ASI.Basecode.Services.ServiceModels.TicketViewModel());
 
     string filterBy = ViewData["FilterBy"] as string;
     string filterValue = ViewData["FilterValue"] as string;
@@ -30,21 +31,9 @@
     <p>
         @if (User.IsInRole("Employee"))
         {
-            <a asp-action="Create">Create New</a>
-            <text> | </text>
-        }
-        <a asp-action="UpdateStatus">Update Status</a>
-        @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
-        {
-            <text> | </text>
-            <a asp-action="UpdatePriority">Update Priority</a>
-            @if (User.IsInRole("Admin"))
-            {
-                <text> | </text>
-                <a asp-action="AssignTicket">Assign</a>
-                <text> | </text>
-                <a asp-action="ReassignTicket">Reassign</a>
-            }
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTicketModal">
+                Create
+            </button>
         }
     </p>
 
@@ -68,13 +57,13 @@
                     <th>
 
                         <a asp-action="ViewAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.TicketId)
+                            @Html.DisplayNameFor(model => model.First().TicketId)
                             @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "id_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.Subject)
+                            @Html.DisplayNameFor(model => model.First().Subject)
                             @(sortBy == "subject" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "subject_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
@@ -85,7 +74,7 @@
                     {
                         <th>
                             <a asp-action="ViewAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                                @Html.DisplayNameFor(model => model.User)
+                                @Html.DisplayNameFor(model => model.First().User)
                                 @(sortBy == "user" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "user_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                             </a>
                         </th>
@@ -98,36 +87,36 @@
                     </th> *@
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.UpdatedDate)
+                            @Html.DisplayNameFor(model => model.First().UpdatedDate)
                             @(sortBy == "updated" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "updated_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.ResolvedDate)
+                            @Html.DisplayNameFor(model => model.First().ResolvedDate)
                             @(sortBy == "resolved" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "resolved_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.CategoryType)
+                            @Html.DisplayNameFor(model => model.First().CategoryType)
                             @(sortBy == "category" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "category_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.PriorityType)
+                            @Html.DisplayNameFor(model => model.First().PriorityType)
                             @(sortBy == "priority" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "priority_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
                         <a asp-action="ViewAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" class="text-black">
-                            @Html.DisplayNameFor(model => model.StatusType)
+                            @Html.DisplayNameFor(model => model.First().StatusType)
                             @(sortBy == "status" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "status_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Attachment)
+                        @Html.DisplayNameFor(model => model.First().Attachment)
                     </th>
                     <th></th>
                 </tr>
@@ -236,10 +225,12 @@
                                     else
                                     {
                                         <text> | </text>
-                                        @Html.ActionLink(" ", "Edit", new { id = item.TicketId }, new { @class = "fas fa-edit action-icon", title = "Edit" })
+                                        @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
                                     }
                                     <text> | </text>
-                                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@item.Subject')"><i class="fas fa-trash action-icon" title="Delete"></i></a>
+                                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@(item.Subject.Length > 20 ? item.Subject.Substring(0, 20) + "..." : item.Subject)')">
+                                        <i class="fas fa-trash action-icon" title="Delete"></i>
+                                    </a>
                                 }
                             </td>
                         </tr>
@@ -247,12 +238,34 @@
                 }
             </tbody>
         </table>
+        <nav>
+            <ul class="pagination">
+                @if (Model.HasPreviousPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">Previous</a>
+                    </li>
+                }
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">@i</a>
+                    </li>
+                }
+                @if (Model.HasNextPage)
+                {
+                    <li class="page-item">
+                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue">Next</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     </div>
 </div>
 
 
 @*---- Values passed to the js files ----*@
-<input type="hidden" id="createMessage" value="@TempData["CreateMessage"]" />
+<div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 <input type="hidden" id="baseUrl" value="@Url.Action("ViewAll", "Ticket")" />
 <input type="hidden" id="deleteUrl" value="@Url.Action("Delete", "Ticket")" />
 <input type="hidden" id="filterValueHidden" value="@filterValue" />
@@ -265,18 +278,8 @@
     <script src="~/js/filterAndSort.js"></script>
     <script src="~/js/delete.js"></script>
     <script src="~/js/feedback.js"></script>
-    <script>
-        $(document).ready(function () {
-            var successMessage = '@TempData["SuccessMessage"]';
-            var errorMessage = '@TempData["ErrorMessage"]';
-
-            if (successMessage) {
-                toastr.success(successMessage);
-            } else if (errorMessage) {
-                toastr.error(errorMessage);
-            }
-        });
-    </script>
+    <script src="~/js/toastrNotification.js"></script>
+    <script src="~/js/ticket.js"></script>
 }
 
 @functions {

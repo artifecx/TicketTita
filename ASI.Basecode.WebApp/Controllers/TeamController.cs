@@ -42,14 +42,13 @@ namespace ASI.Basecode.WebApp.Controllers
             this._teamService = teamService;
         }
 
-        /// <summary>Show all feedback</summary>
+        /// <summary>Show all teams</summary>
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ViewAll(string sortOrder)
         {
             return await HandleExceptionAsync(async () =>
             {
                 var teams = await _teamService.GetAllAsync();
-
                 return View(teams);
             }, "ViewAll");
         }
@@ -73,11 +72,6 @@ namespace ASI.Basecode.WebApp.Controllers
                 return View(team);
             }, "ViewTeam");
         }
-
-        [HttpGet]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> Create() => 
-            await HandleExceptionAsync(async () => View(new TeamViewModel()), "Create");
         #endregion GET Methods
 
         #region POST Methods
@@ -87,10 +81,14 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                await _teamService.AddAsync(model);
-
-                TempData["CreateMessage"] = "Created Successfully";
-                return RedirectToAction("ViewAll");
+                if (ModelState.IsValid)
+                {
+                    await _teamService.AddAsync(model);
+                    TempData["SuccessMessage"] = "Team created successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while creating the team. Please try again.";
+                return Json(new { success = false });
             }, "Create");
         }
 
@@ -120,8 +118,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _teamService.DeleteAsync(id);
+                    TempData["SuccessMessage"] = "Team deleted successfully!";
                     return Json(new { success = true });
                 }
+                TempData["ErrorMessage"] = "An error occurred while deleting the team. Please try again.";
                 return Json(new { success = false });
             }, "Delete");
         }

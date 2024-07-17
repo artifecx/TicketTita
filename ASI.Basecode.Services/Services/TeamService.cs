@@ -21,8 +21,6 @@ namespace ASI.Basecode.Services.Services
     {
         private readonly ITeamRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<TeamService> _logger;
         private readonly INotificationService _notificationService;
 
         /// <summary>
@@ -35,14 +33,10 @@ namespace ASI.Basecode.Services.Services
         public TeamService(
             ITeamRepository repository,
             IMapper mapper,
-            INotificationService notificationService,
-            ILogger<TeamService> logger,
-            IHttpContextAccessor httpContextAccessor)
+            INotificationService notificationService)
         {
             _repository = repository;
             _mapper = mapper;
-            _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
         }
 
@@ -50,10 +44,7 @@ namespace ASI.Basecode.Services.Services
         {
             var teams = await _repository.GetAllAsync();
             if (teams.Any(t => t.Name.ToLower() == team.Name.ToLower()))
-            {
-                LogError("AddAsync", "Team name already exists.");
-                throw new TeamNameAlreadyExistsException("Team name already exists.");
-            }
+                throw new TeamException("Team name already exists.");
 
             if (team != null)
             {
@@ -77,9 +68,7 @@ namespace ASI.Basecode.Services.Services
                                   existingTeam.Description != team.Description;
 
                 if (!hasChanges)
-                {
-                    throw new NoChangesException("No changes were made to the team.", team.TeamId);
-                }
+                    throw new TeamException("No changes were made to the team.", team.TeamId);
 
                 var teamMembers = existingTeam.TeamMembers;
                 var ticketAssignments = existingTeam.TicketAssignments;
@@ -102,14 +91,12 @@ namespace ASI.Basecode.Services.Services
             if(ticketAssignments.Any(t => t.Ticket.ResolvedDate == null))
             {
                 var message = "Cannot delete team with unresolved tickets, reassign or unassign tickets before deleting.";
-                LogError("DeleteAsync", message);
-                throw new TeamHasUnresolvedTicketsException(message);
+                throw new TeamException(message);
             }
             if (teamMembers.Any())
             {
                 var message = "Cannot delete team with members, unassign or reassign them before deleting.";
-                LogError("DeleteAsync", message);
-                throw new TeamHasMembersException(message);
+                throw new TeamException(message);
             }
 
             await _repository.DeleteAsync(team);
@@ -118,10 +105,7 @@ namespace ASI.Basecode.Services.Services
         public async Task AddTeamMemberAsync(string teamId, string agentId)
         {
             if (string.IsNullOrEmpty(agentId))
-            {
-                _logger.LogError("No agent selected.");
-                throw new NoAgentSelectedException("Please select an agent to add to the team.", teamId);
-            }
+                throw new TeamException("Please select an agent to add to the team.", teamId);
 
             bool existingTeamMember = await _repository.IsExistingTeamMember(teamId, agentId);
             if (!existingTeamMember)
@@ -180,17 +164,5 @@ namespace ASI.Basecode.Services.Services
         public async Task<IEnumerable<User>> GetAgentsAsync() =>
             await _repository.GetAgentsAsync();
         #endregion Get Methods
-
-        #region Logging methods
-        /// <summary>
-        /// Logs an error message.
-        /// </summary>
-        /// <param name="methodName">The method where this error was logged</param>
-        /// <param name="errorMessage">The error message</param>
-        private void LogError(string methodName, string errorMessage)
-        {
-            _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
-        }
-        #endregion
     }
 }
