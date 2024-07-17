@@ -93,6 +93,12 @@
                         @* @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon" }) *@
                         @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
                         <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
+                        @if (item.RoleId.Equals("Support Agent"))
+                        {
+                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId">
+                                View Performance
+                            </button>
+                        }
                     </td>
                 </tr>
             }
@@ -183,6 +189,23 @@
     </div>
 </div>
 
+<!-- Performance Report Modal -->
+<div class="modal fade" id="performanceReportModal" tabindex="-1" role="dialog" aria-labelledby="performanceReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="performanceReportModalLabel">Performance Report</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="performanceReportContent">
+                <!-- Performance report content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         var itemId;
@@ -199,6 +222,15 @@
                     sessionStorage.setItem("DeleteSuccess", "Deleted Successfully");
                     window.location.href = '@Url.Action("Index", "User")';
                 }
+            });
+        });
+
+        $('#performanceReportModal').on('show.bs.modal', function (e) {
+            var button = $(e.relatedTarget);
+            var userId = button.data('userid');
+            var url = '@Url.Action("PerformanceReport")?userId=' + userId;
+            $.get(url, function (data) {
+                $('#performanceReportContent').html(data);
             });
         });
 

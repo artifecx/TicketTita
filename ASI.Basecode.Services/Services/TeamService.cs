@@ -24,6 +24,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TeamService> _logger;
         private readonly INotificationService _notificationService;
+        private readonly IPerformanceReportRepository _performanceReportRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamService"/> class.
@@ -37,13 +38,15 @@ namespace ASI.Basecode.Services.Services
             IMapper mapper,
             INotificationService notificationService,
             ILogger<TeamService> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IPerformanceReportRepository performanceReportRepository)
         {
             _repository = repository;
             _mapper = mapper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
+            _performanceReportRepository = performanceReportRepository;
         }
 
         public async Task AddAsync(TeamViewModel team)
@@ -128,16 +131,30 @@ namespace ASI.Basecode.Services.Services
             {
                 var team = await _repository.FindByIdAsync(teamId);
                 var agent = await _repository.FindAgentByIdAsync(agentId);
+
+                // Create a new performance report for the new team member
+                var performanceReport = new PerformanceReport
+                {
+                    ReportId = Guid.NewGuid().ToString(),
+                    ResolvedTickets = 0,
+                    AverageResolutionTime = 0.0,
+                    AssignedDate = DateTime.UtcNow
+                };
+                await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
                 var teamMember = new TeamMember
                 {
                     TeamId = team.TeamId,
                     UserId = agentId,
+                    ReportId = performanceReport.ReportId,
                     Team = team,
-                    User = agent
+                    User = agent,
+                    Report = performanceReport
                 };
 
                 team.TeamMembers.Add(teamMember);
                 await _repository.AddTeamMemberAsync(teamMember);
+                
+                
             }
         }
 

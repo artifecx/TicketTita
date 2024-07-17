@@ -156,6 +156,16 @@ namespace ASI.Basecode.WebApp.Controllers
             var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
             return View(SelectedUser);
         }
+
+        public IActionResult PerformanceReport(string userId)
+        {
+            var performanceReport = _userService.GetPerformanceReport(userId);
+            if (performanceReport != null)
+            {
+                return PartialView("_PerformanceReportModal", performanceReport);
+            }
+            return NotFound();
+        }
         #endregion
 
         #region POST Methods        

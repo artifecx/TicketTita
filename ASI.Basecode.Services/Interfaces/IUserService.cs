@@ -16,5 +16,8 @@ namespace ASI.Basecode.Services.Interfaces
         void Update(UserViewModel model);
         void Delete(String UserId);
         IEnumerable<Role> GetRoles();
+        PerformanceReportViewModel GetPerformanceReport(string userId);
+        bool IsSupportAgent(string userId);
+        public bool IsAgentInTeam(string userId);
     }
 }

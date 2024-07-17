@@ -39,7 +39,5 @@ namespace ASI.Basecode.Data.Interfaces
         Task NotificationDeleteAsync(string id);
         Task<Feedback> FeedbackFindByTicketIdAsync(string id);
         Task<Admin> AdminFindByIdAsync(string id);
-
-
     }
 }
