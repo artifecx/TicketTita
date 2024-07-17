@@ -34,11 +34,11 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="currentFilter"></param>
         /// <param name="searchString"></param>
         /// <returns></returns>
-        public IActionResult Index(string sortOrder, string currentFilter, string searchString, int pageNumber = 1)
+        public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
         {
             int pageSize = 10;
 
-            var users = _userService.FilterUsers(sortOrder, currentFilter, searchString);
+            var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
             var FilteredUsersCount = _userService.CountFilteredUsers(users);
             var usersPaginated = _userService.PaginateUsers(users, pageSize, pageNumber);
             var user = new PaginatedList<UserViewModel>(usersPaginated, FilteredUsersCount, pageNumber, pageSize);
@@ -46,8 +46,9 @@ namespace ASI.Basecode.WebApp.Controllers
             
             ViewData["CurrentSort"] = sortOrder;
             ViewData["CurrentFilter"] = searchString;
+            ViewData["RoleFilter"] = roleFilter;
 
-           
+
 
             return View(user);
         }

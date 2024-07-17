@@ -58,14 +58,24 @@ namespace ASI.Basecode.Services.Services
 
             return data;
         }
-        public IEnumerable<UserViewModel> FilterUsers(string sortOrder, string currentFilter, string searchString) {
+        public IEnumerable<UserViewModel> FilterUsers(string sortOrder, string currentFilter, string searchString, string roleFilter) {
 
-            var users = RetrieveAll(); 
+            var users = RetrieveAll();
+
+            var superAdminIds = _adminRepository.GetSuperAdminId();
+
+            users = users.Where(u => !superAdminIds.Contains(u.UserId));
+
 
             if (!string.IsNullOrEmpty(searchString))
             {
                 users = users.Where(u => u.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
                                       || u.Email.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            if (!String.IsNullOrEmpty(roleFilter))
+            {
+                users = users.Where(u => u.RoleId == roleFilter);
             }
 
             switch (sortOrder)
@@ -123,7 +133,13 @@ namespace ASI.Basecode.Services.Services
         public int CountFilteredUsers(IEnumerable<UserViewModel> users) { 
              return users.Count();
         }
-
+        /// <summary>
+        /// Paginates the users.
+        /// </summary>
+        /// <param name="users">The users.</param>
+        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="pageNumber">The page number.</param>
+        /// <returns></returns>
         public IEnumerable<UserViewModel> PaginateUsers(IEnumerable<UserViewModel> users, int pageSize, int pageNumber) {
             return users.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         }
@@ -147,7 +163,7 @@ namespace ASI.Basecode.Services.Services
                 UpdatedBy = model.UpdatedBy,
                 UpdatedByName = _adminRepository.FindById(model.UpdatedBy)?.Name,
                 CreatedTime = model.CreatedTime,
-                UpdatedTime = model.UpdatedTime
+                UpdatedTime = model.UpdatedTime,
             };
         }
 
@@ -161,7 +177,8 @@ namespace ASI.Basecode.Services.Services
             newUser.UserId = Guid.NewGuid().ToString();
             newUser.Password = PasswordManager.EncryptPassword(newUser.Password);
             newUser.CreatedTime = DateTime.Now;
-        
+            
+
 
             var currentAdmin = GetCurrentAdmin();
             if (currentAdmin != null)

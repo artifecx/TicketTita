@@ -2,6 +2,7 @@
 
 @{
     await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    bool isSuper = User.HasClaim("IsSuperAdmin", "true");
 }
         <div class="modal-content">
             <div class="modal-header">
@@ -32,10 +33,13 @@
                         <label asp-for="RoleId" class="control-label"></label>
                         <select asp-for="RoleId" class="form-control">
                             <option value="">Select Role</option>
-                            @foreach (var role in Model.Roles)
-                            {
-                                <option value="@role.RoleId">@role.RoleName</option>
-                            }
+                    @foreach (var role in Model.Roles)
+                    {
+                        @if (role.RoleId != "Admin" || isSuper)
+                        {
+                            <option value="@role.RoleId">@role.RoleName</option>
+                        }
+                    }
                         </select>
                         <span asp-validation-for="RoleId" class="text-danger"></span>
                     </div>
