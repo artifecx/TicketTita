@@ -58,6 +58,91 @@ namespace ASI.Basecode.Services.Services
 
             return data;
         }
+        public IEnumerable<UserViewModel> FilterUsers(string sortOrder, string currentFilter, string searchString, string roleFilter) {
+
+            var users = RetrieveAll();
+
+            var superAdminIds = _adminRepository.GetSuperAdminId();
+
+            users = users.Where(u => !superAdminIds.Contains(u.UserId));
+
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(u => u.Name.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
+                                      || u.Email.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            if (!String.IsNullOrEmpty(roleFilter))
+            {
+                users = users.Where(u => u.RoleId == roleFilter);
+            }
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    users = users.OrderByDescending(u => u.Name);
+                    break;
+                case "Email":
+                    users = users.OrderBy(u => u.Email);
+                    break;
+                case "email_desc":
+                    users = users.OrderByDescending(u => u.Email);
+                    break;
+                case "CreatedBy":
+                    users = users.OrderBy(u => u.CreatedByName);
+                    break;
+                case "createdBy_desc":
+                    users = users.OrderByDescending(u => u.CreatedByName);
+                    break;
+                case "CreatedTime":
+                    users = users.OrderBy(u => u.CreatedTime);
+                    break;
+                case "Role":
+                    users = users.OrderBy(u => u.RoleId);
+                    break;
+                case "role_desc":
+                    users = users.OrderByDescending(u => u.RoleId);
+                    break;
+                case "createdTime_desc":
+                    users = users.OrderByDescending(u => u.CreatedTime);
+                    break;
+                case "UpdatedBy":
+                    users = users.OrderBy(u => u.UpdatedByName);
+                    break;
+                case "updatedBy_desc":
+                    users = users.OrderByDescending(u => u.UpdatedByName);
+                    break;
+                case "UpdatedTime":
+                    users = users.OrderBy(u => u.UpdatedTime);
+                    break;
+                case "updatedTime_desc":
+                    users = users.OrderByDescending(u => u.UpdatedTime);
+                    break;
+                default:
+                    users = users.OrderBy(u => u.Name);
+                    break;
+            }
+            return users;
+        }
+        /// <summary>
+        /// Counts the filtered users.
+        /// </summary>
+        /// <param name="users">The users.</param>
+        /// <returns></returns>
+        public int CountFilteredUsers(IEnumerable<UserViewModel> users) { 
+             return users.Count();
+        }
+        /// <summary>
+        /// Paginates the users.
+        /// </summary>
+        /// <param name="users">The users.</param>
+        /// <param name="pageSize">Size of the page.</param>
+        /// <param name="pageNumber">The page number.</param>
+        /// <returns></returns>
+        public IEnumerable<UserViewModel> PaginateUsers(IEnumerable<UserViewModel> users, int pageSize, int pageNumber) {
+            return users.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
         /// <summary>
         /// Retrieves the user.
         /// </summary>
@@ -66,8 +151,6 @@ namespace ASI.Basecode.Services.Services
         public UserViewModel RetrieveUser(string userId)
         {
             var model = _userRepository.RetrieveAll().FirstOrDefault(s => s.UserId == userId);
-            if (model == null) return null;
-
             return new UserViewModel
             {
                 UserId = model.UserId,
@@ -80,7 +163,7 @@ namespace ASI.Basecode.Services.Services
                 UpdatedBy = model.UpdatedBy,
                 UpdatedByName = _adminRepository.FindById(model.UpdatedBy)?.Name,
                 CreatedTime = model.CreatedTime,
-                UpdatedTime = model.UpdatedTime
+                UpdatedTime = model.UpdatedTime,
             };
         }
 
@@ -92,10 +175,9 @@ namespace ASI.Basecode.Services.Services
         {
             var newUser = _mapper.Map<User>(model);
             newUser.UserId = Guid.NewGuid().ToString();
-            newUser.Password = PasswordManager.EncryptPassword(newUser.Password);
+            // default pass = defpass. 
+            newUser.Password = PasswordManager.EncryptPassword("defpass");
             newUser.CreatedTime = DateTime.Now;
-        
-
             var currentAdmin = GetCurrentAdmin();
             if (currentAdmin != null)
             {
@@ -117,7 +199,7 @@ namespace ASI.Basecode.Services.Services
                     AdminId = newUser.UserId,
                     Name = newUser.Name,
                     Email = newUser.Email,
-                    Password = newUser.Password,
+                    Password = PasswordManager.EncryptPassword("defpass"),
                     IsSuper = false 
                 };
                 _adminRepository.Add(newAdmin);
@@ -181,6 +263,8 @@ namespace ASI.Basecode.Services.Services
                 _adminRepository.Delete(userId);
             }
         }
+
+
         #region Get Methods
         /// <summary>
         /// Gets the current admin.
