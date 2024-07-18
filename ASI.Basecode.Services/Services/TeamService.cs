@@ -40,6 +40,10 @@ namespace ASI.Basecode.Services.Services
             _notificationService = notificationService;
         }
 
+        /// <summary>
+        /// Calls the repository to add a new team.
+        /// </summary>
+        /// <param name="team">The team.</param>
         public async Task AddAsync(TeamViewModel team)
         {
             var teams = await _repository.GetAllAsync();
@@ -59,6 +63,10 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Calls the repository to update a team.
+        /// </summary>
+        /// <param name="team">The team.</param>
         public async Task UpdateAsync(TeamViewModel team)
         {
             var existingTeam = await _repository.FindByIdAsync(team.TeamId);
@@ -82,6 +90,10 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Calls the repository to delete a team.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
         public async Task DeleteAsync(string id)
         {
             var team = await _repository.FindByIdAsync(id);
@@ -102,6 +114,11 @@ namespace ASI.Basecode.Services.Services
             await _repository.DeleteAsync(team);
         }
 
+        /// <summary>
+        /// Adds a team member to team.
+        /// </summary>
+        /// <param name="teamId">The team identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
         public async Task AddTeamMemberAsync(string teamId, string agentId)
         {
             if (string.IsNullOrEmpty(agentId))
@@ -125,6 +142,11 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Removes a team member from a team.
+        /// </summary>
+        /// <param name="teamId">The team identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
         public async Task RemoveTeamMemberAsync(string teamId, string agentId)
         {
             bool existingTeamMember = await _repository.IsExistingTeamMember(teamId, agentId);
@@ -140,7 +162,11 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
-        #region Get Methods
+        #region Get Methods        
+        /// <summary>
+        /// Calls the repository to get all teams.
+        /// </summary>
+        /// <returns>IEnumerable TeamViewModel</returns>
         public async Task<IEnumerable<TeamViewModel>> GetAllAsync()
         {
             var teams = await _repository.GetAllAsync();
@@ -149,10 +175,18 @@ namespace ASI.Basecode.Services.Services
             return teamViewModels;
         }
 
+        /// <summary>
+        /// Calls the repository to get all teams with just the necessary attributes.
+        /// </summary>
+        /// <returns>IEnumerable Team</returns>
         public async Task<IEnumerable<Team>> GetAllStrippedAsync() =>
             await _repository.GetAllStrippedAsync();
 
-
+        /// <summary>
+        /// Calls the repository to find a team by its identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>TeamViewModel</returns>
         public async Task<TeamViewModel> GetTeamByIdAsync(string id)
         {
             var team = await _repository.FindByIdAsync(id);
@@ -161,6 +195,10 @@ namespace ASI.Basecode.Services.Services
             return teamViewModel;
         }
 
+        /// <summary>
+        /// Calls the repository to get all agents.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<User>> GetAgentsAsync() =>
             await _repository.GetAgentsAsync();
         #endregion Get Methods

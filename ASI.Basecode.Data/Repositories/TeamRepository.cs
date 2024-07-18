@@ -29,7 +29,7 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         public async Task<List<Team>> GetAllAsync() =>
-            await GetTeamsWithIncludes().ToListAsync();
+            await GetTeamsWithIncludes().AsNoTracking().ToListAsync();
 
         public async Task AddAsync(Team team)
         {
