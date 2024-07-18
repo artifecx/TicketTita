@@ -1,0 +1,66 @@
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.TicketViewModel>
+
+@if (!Model.Any())
+{
+    <tr>
+        <td colspan="13" class="alert alert-warning text-center" role="alert">
+            @(string.IsNullOrEmpty(ViewBag.FilterBy) ? Html.Raw("No tickets found") : Html.Raw("No tickets found matching the criteria"))
+        </td>
+    </tr>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.TicketId)</td>
+            <td>@Html.DisplayFor(modelItem => item.Subject)</td>
+            @if (!User.IsInRole("Employee"))
+            {
+                <td>@Html.DisplayFor(modelItem => item.User.Name)</td>
+            }
+            <td>@item.UpdatedDate?.ToString("MM/dd/yyyy") ?? "No Updates"</td>
+            <td>@item.ResolvedDate?.ToString("MM/dd/yyyy") ?? "Open"</td>
+            <td><span class="border mx-1 py-1 px-3 btn-radius @ViewContext.ViewData["CategoryCssClass"]">@Html.DisplayFor(modelItem => item.CategoryType.CategoryName)</span></td>
+            <td><span class="border mx-1 py-1 px-3 btn-radius @ViewContext.ViewData["PriorityCssClass"]">@Html.DisplayFor(modelItem => item.PriorityType.PriorityName)</span></td>
+            <td><span class="border mx-1 py-1 px-3 btn-radius @ViewContext.ViewData["StatusCssClass"]">@Html.DisplayFor(modelItem => item.StatusType.StatusName)</span></td>
+            <td>
+                @if (item.Attachment != null)
+                {
+                    <a href="@Url.Action("DownloadAttachment", "Ticket", new { id = item.TicketId })">Download Attachment</a>
+                }
+                else
+                {
+                    @:No attachment
+                }
+            </td>
+            <td>
+                @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
+                @if (User.IsInRole("Employee"))
+                {
+                    @if (item.StatusType.StatusName.Contains("Resolved"))
+                    {
+                        <text> | </text>
+                        @if (item.Feedback == null)
+                        {
+                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
+                        }
+                        else
+                        {
+                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
+                        }
+                    }
+                    else
+                    {
+                        <text> | </text>
+                        @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
+                    }
+                    <text> | </text>
+                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@(item.Subject.Length > 20 ? item.Subject.Substring(0, 20) + "..." : item.Subject)')">
+                        <i class="fas fa-trash action-icon" title="Delete"></i>
+                    </a>
+                }
+            </td>
+        </tr>
+    }
+}

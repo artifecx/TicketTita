@@ -17,7 +17,7 @@ namespace ASI.Basecode.Services.Interfaces
         Task AddCommentAsync(CommentViewModel model);
         Task UpdateCommentAsync(CommentViewModel model);
         Task DeleteCommentAsync(string commentId);
-        Task<IEnumerable<TicketViewModel>> GetAllAsync();
+        Task<List<TicketViewModel>> GetAllAsync();
         Task<TicketViewModel> GetTicketByIdAsync(string id);
         Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, int pageIndex, int pageSize);
         Task<Attachment> GetAttachmentByTicketIdAsync(string id);

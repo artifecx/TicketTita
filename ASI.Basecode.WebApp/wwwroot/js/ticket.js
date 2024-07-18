@@ -115,6 +115,11 @@ function validateTracking() {
     }
 }
 
+function reopenTicket() {
+    statusId = 'S1';
+    saveTracking();
+}
+
 function saveTracking() {
     var priorityId = $('#priorityId').val();
     var ticketId = $('#ticketId').val();

@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -44,11 +45,15 @@ namespace ASI.Basecode.WebApp.Controllers
 
         /// <summary>Show all teams</summary>
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ViewAll(string sortOrder)
+        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
-                var teams = await _teamService.GetAllAsync();
+                var teams = await _teamService.GetAllAsync(sortBy, filterBy, pageIndex, 10);
+
+                ViewData["FilterBy"] = filterBy;
+                ViewData["SortBy"] = sortBy;
+
                 return View(teams);
             }, "ViewAll");
         }

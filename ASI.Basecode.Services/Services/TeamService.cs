@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -144,6 +145,7 @@ namespace ASI.Basecode.Services.Services
                     AssignedDate = DateTime.UtcNow
                 };
                 await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
+                
                 var teamMember = new TeamMember
                 {
                     TeamId = team.TeamId,
@@ -156,8 +158,6 @@ namespace ASI.Basecode.Services.Services
 
                 team.TeamMembers.Add(teamMember);
                 await _repository.AddTeamMemberAsync(teamMember);
-                
-                
             }
         }
 
@@ -186,12 +186,37 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all teams.
         /// </summary>
         /// <returns>IEnumerable TeamViewModel</returns>
-        public async Task<IEnumerable<TeamViewModel>> GetAllAsync()
+        public async Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, int pageIndex, int pageSize)
         {
-            var teams = await _repository.GetAllAsync();
-            var teamViewModels = _mapper.Map<IEnumerable<TeamViewModel>>(teams.OrderBy(t => t.Name));
+            var teams = _mapper.Map<List<TeamViewModel>>(await _repository.GetAllAsync());
 
-            return teamViewModels;
+            if (!string.IsNullOrEmpty(filterBy))
+            {
+                teams = teams.Where(team => team.Name.Contains(filterBy, StringComparison.OrdinalIgnoreCase) ||
+                                   (team.Description != null && team.Description.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
+                             .ToList();
+            }
+            
+            teams = sortBy switch
+            {
+                "name_desc" => teams.OrderByDescending(t => t.Name).ToList(),
+                "agents_desc" => teams.OrderByDescending(t => t.TeamMembers?.Count() ?? 0).ToList(),
+                "agents" => teams.OrderBy(t => t.TeamMembers?.Count() ?? 0).ToList(),
+                "active_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
+                "active" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
+                "inactive_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
+                "inactive" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
+                //"completion_desc" => teams.OrderByDescending().ToList(), // TODO: completion time
+                //"completion" => teams.OrderBy().ToList(), // TODO: completion time
+                //"rating_desc" => teams.OrderByDescending().ToList(), // TODO: rating
+                //"rating" => teams.OrderBy().ToList(), // TODO: rating
+                _ => teams.OrderBy(t => t.Name).ToList(),
+            };
+
+            var count = teams.Count;
+            var items = teams.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+
+            return new PaginatedList<TeamViewModel>(items, count, pageIndex, pageSize);
         }
 
         /// <summary>
