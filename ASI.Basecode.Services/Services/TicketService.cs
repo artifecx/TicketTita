@@ -26,7 +26,6 @@ namespace ASI.Basecode.Services.Services
         private readonly ITicketRepository _repository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<TicketService> _logger;
         private readonly INotificationService _notificationService;
         private readonly IPerformanceReportRepository _performanceReportRepository;
         private readonly ITeamRepository _teamRepository;
@@ -42,14 +41,12 @@ namespace ASI.Basecode.Services.Services
             ITicketRepository repository,
             IMapper mapper,
             INotificationService notificationService,
-            ILogger<TicketService> logger,
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository,
             ITeamRepository teamRepository)
         {
             _repository = repository;
             _mapper = mapper;
-            _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
             _performanceReportRepository = performanceReportRepository;
@@ -278,18 +275,6 @@ namespace ASI.Basecode.Services.Services
             }
         }
         #endregion Utility Methods
-
-        #region Logging methods
-        /// <summary>
-        /// Logs an error message.
-        /// </summary>
-        /// <param name="methodName">The method where this error was logged</param>
-        /// <param name="errorMessage">The error message</param>
-        private void LogError(string methodName, string errorMessage)
-        {
-            _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
-        }
-        #endregion
 
         #region Performance Report Methods
         private async Task UpdateTeamPerformanceReportsAsync(Ticket existingTicket)

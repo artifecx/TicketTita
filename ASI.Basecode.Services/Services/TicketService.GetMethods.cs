@@ -19,10 +19,10 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all tickets.
         /// </summary>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<IEnumerable<TicketViewModel>> GetAllAsync()
+        public async Task<List<TicketViewModel>> GetAllAsync()
         {
             var tickets = await _repository.GetAllAsync();
-            var ticketViewModels = _mapper.Map<IEnumerable<TicketViewModel>>(tickets);
+            var ticketViewModels = _mapper.Map<List<TicketViewModel>>(tickets);
 
             return ticketViewModels;
         }
@@ -53,11 +53,11 @@ namespace ASI.Basecode.Services.Services
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (userRole.Contains("Employee"))
+            if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Employee"))
             {
                 tickets = tickets.Where(x => x.UserId == userId).ToList();
             }
-            else if (userRole.Contains("Support Agent"))
+            else if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Support Agent"))
             {
                 tickets = tickets.Where(x => x.Agent != null && x.Agent.UserId == userId).ToList();
             }
@@ -96,11 +96,10 @@ namespace ASI.Basecode.Services.Services
                 _ => tickets.OrderBy(t => t.TicketId).ToList(),
             };
 
-            var count = tickets.Count();
+            var count = tickets.Count;
             var items = tickets.Skip((pageIndex - 1) * pageSize).Take(pageSize);
-            var ticketViewModels = _mapper.Map<List<TicketViewModel>>(items);
 
-            return new PaginatedList<TicketViewModel>(ticketViewModels, count, pageIndex, pageSize);
+            return new PaginatedList<TicketViewModel>(items, count, pageIndex, pageSize);
         }
 
         /// <summary>

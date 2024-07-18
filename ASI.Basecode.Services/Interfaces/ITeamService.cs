@@ -9,7 +9,7 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface ITeamService
     {
-        Task<IEnumerable<TeamViewModel>> GetAllAsync();
+        Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, int pageIndex, int pageSize);
         Task AddAsync(TeamViewModel team);
         Task UpdateAsync(TeamViewModel team);
         Task DeleteAsync(string id);

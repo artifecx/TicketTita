@@ -40,7 +40,7 @@ namespace ASI.Basecode.Services.Services
                 if (existingTicket.TicketAssignment == null && existingTicket.StatusTypeId == "S3")
                     throw new TicketException("Cannot resolve tickets with no assignee.", ticket.TicketId);
 
-                if(closedStatusList.Contains(currentStatus))
+                if(existingTicket.StatusTypeId == "S3")
                     throw new TicketException($"Cannot change status of a {currentStatus} ticket.", ticket.TicketId);
 
                 existingTicket.StatusType = string.IsNullOrEmpty(ticket.StatusTypeId) ?
