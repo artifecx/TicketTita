@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using ASI.Basecode.Data.Repositories;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -18,6 +19,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IAdminRepository _adminRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITeamRepository _teamRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserService"/> class.
@@ -26,12 +28,13 @@ namespace ASI.Basecode.Services.Services
         /// <param name="adminRepository">The admin repository.</param>
         /// <param name="mapper">The mapper.</param>
         /// <param name="httpContextAccessor">The HTTP context accessor.</param>
-        public UserService(IUserRepository userRepository, IAdminRepository adminRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public UserService(IUserRepository userRepository, IAdminRepository adminRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor, ITeamRepository teamRepository)
         {
             _userRepository = userRepository;
             _adminRepository = adminRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _teamRepository = teamRepository;
         }
         /// <summary>
         /// Retrieves all.
@@ -290,6 +293,65 @@ namespace ASI.Basecode.Services.Services
         public IEnumerable<Role> GetRoles()
         {
             return _userRepository.GetRoles();
+        }
+
+        public PerformanceReportViewModel GetPerformanceReport(string userId)
+        {
+            var user = _userRepository.RetrieveAll().FirstOrDefault(u => u.UserId == userId && u.RoleId == "Support Agent");
+
+            if (user != null)
+            {
+                var teamMember = _teamRepository.FindTeamMemberByIdAsync(userId).Result;
+                var tickets = _teamRepository.GetResolvedTicketsAssignedToTeamAsync(teamMember.TeamId).Result;
+                var feedbacks = tickets
+                .Where(t => t.Feedback != null)
+                .Select(t => t.Feedback)
+                .ToList();
+                if (teamMember != null)
+                {
+                    var performanceReport = teamMember.Report;
+                    if (performanceReport != null)
+                    {
+                        return new PerformanceReportViewModel
+                        {
+                            ReportId = performanceReport.ReportId,
+                            ResolvedTickets = performanceReport.ResolvedTickets,
+                            AverageResolutionTime = performanceReport.AverageResolutionTime,
+                            AssignedDate = performanceReport.AssignedDate,
+                            Name = user.Name,
+                            AverageRating = CalculateAverageRating(tickets),
+                            Feedbacks = feedbacks
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        private double CalculateAverageRating(List<Ticket> tickets)
+        {
+            if (tickets == null || tickets.Count == 0)
+                return 0;
+
+            int totalRatings = 0;
+            foreach (var ticket in tickets)
+            {
+                totalRatings += ticket.Feedback?.FeedbackRating ?? 0;
+            }
+
+            return (double)totalRatings / tickets.Count;
+        }
+
+        public bool IsSupportAgent(string userId)
+        {
+            var user = _userRepository.RetrieveAll().FirstOrDefault(u => u.UserId == userId && u.RoleId == "Support Agent");
+            return user != null;
+        }
+
+        public bool IsAgentInTeam(string userId)
+        {
+            var teamMember = _teamRepository.FindTeamMemberByIdAsync(userId).Result;
+            return teamMember != null;
         }
         #endregion
     }

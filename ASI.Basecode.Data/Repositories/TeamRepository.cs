@@ -24,6 +24,8 @@ namespace ASI.Basecode.Data.Repositories
                         .Where(team => !team.IsDeleted)
                         .Include(f => f.TeamMembers)
                             .ThenInclude(u => u.User)
+                        .Include(f => f.TeamMembers)
+                            .ThenInclude(u => u.Report)
                         .Include(f => f.TicketAssignments)
                             .ThenInclude(a => a.Admin);
         }
@@ -105,10 +107,19 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         public async Task<TeamMember> FindTeamMemberByIdAsync(string id) => 
-            await this.GetDbSet<TeamMember>().FirstOrDefaultAsync(tm => tm.UserId == id);
+            await this.GetDbSet<TeamMember>().Include(u => u.Report).FirstOrDefaultAsync(tm => tm.UserId == id);
 
         public async Task<bool> IsExistingTeamMember(string teamId, string agentId) =>
             await GetTeamsWithIncludes()
                 .AnyAsync(t => t.TeamMembers.Any(tm => tm.UserId == agentId && tm.TeamId == teamId));
+
+        public async Task<List<Ticket>> GetResolvedTicketsAssignedToTeamAsync(string teamId)
+        {
+            return await this.GetDbSet<Ticket>()
+                        .Where(t => t.TicketAssignment.TeamId == teamId && t.StatusTypeId == "S3")
+                        .Include(t => t.Feedback)
+                            .ThenInclude(f => f.User)
+                        .ToListAsync();
+        }
     }
 }

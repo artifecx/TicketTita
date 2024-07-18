@@ -1,0 +1,28 @@
+﻿@model ASI.Basecode.Services.ServiceModels.PerformanceReportViewModel
+
+@if (Model != null)
+{
+    <div>
+        <h3>Performance Report for @Model.Name</h3>
+        <p><strong>Report ID:</strong> @Model.ReportId</p>
+        <p><strong>Resolved Tickets:</strong> @Model.ResolvedTickets</p>
+        <p><strong>Average Resolution Time:</strong> @Model.AverageResolutionTime</p>
+        <p><strong>Assigned Date:</strong> @Model.AssignedDate</p>
+        <p><strong>Customer Feedback:</strong> @Model.AverageRating</p>
+        <h3>Feedbacks:</h3>
+        <ul>
+            @foreach (var feedback in Model.Feedbacks)
+            {
+                <li>
+                    <p><strong>User:</strong> @feedback.User.Name</p>
+                    <p><strong>Rating:</strong> @feedback.FeedbackRating</p>
+                    <p><strong>Feedback:</strong> @feedback.FeedbackContent</p>
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <p>No performance report available.</p>
+}
