@@ -187,12 +187,27 @@ namespace ASI.Basecode.Data.Repositories
         private void AssignArticleProperties(KnowledgeBaseArticle article)
         {
             string categoryId = article.CategoryId;
-            int categoryCount = RetrieveAll().Count(t => t.CategoryId == categoryId);
-            int overallCount = RetrieveAll().Count();
 
-            article.ArticleId = $"{categoryId:00}-{categoryCount:00}-{overallCount:00}";
+            // Get all articles in the same category
+            var articlesInCategory = RetrieveAll().ToList();
+
+            // Calculate the next category count based on the highest existing article number in the category
+            int Count = articlesInCategory
+                .Select(a => GetCountFromArticleId(a.ArticleId))
+                .DefaultIfEmpty(0)
+                .Max() + 1;
+
+            // Generate the ArticleId based on the category count and overall count
+            article.ArticleId = $"{categoryId:00}-{Count:00}";
 
             SetNavigation(article);
+        }
+
+        // Extracts the category count part from the ArticleId
+        private int GetCountFromArticleId(string articleId)
+        {
+            var parts = articleId.Split('-');
+            return int.Parse(parts[1]);
         }
 
         private void SetNavigation(KnowledgeBaseArticle article)
