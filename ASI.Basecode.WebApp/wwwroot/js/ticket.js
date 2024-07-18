@@ -99,8 +99,23 @@ function submitEditTicket() {
     });
 }
 
-$('#saveTrackingBtn').click(function () {
-    var statusId = $('#statusId').val();
+var statusId;
+function validateTracking() {
+    statusId = $('#statusId').val();
+
+    if (statusId === 'S3') {
+        $('#updateTrackingModal').modal('hide');
+        setTimeout(function () {
+            var message = 'Setting this ticket as resolved is final and cannot be undone';
+            displayConfirmationModal(saveTracking, message, 'updateTrackingModal');
+        }, 250);
+    }
+    else {
+        saveTracking();
+    }
+}
+
+function saveTracking() {
     var priorityId = $('#priorityId').val();
     var ticketId = $('#ticketId').val();
 
@@ -115,20 +130,23 @@ $('#saveTrackingBtn').click(function () {
         }),
         success: function (response) {
             if (response.success) {
+                statusId = null;
                 $('#updateTrackingModal').modal('hide');
                 location.reload();
             } else {
+                statusId = null;
                 var errorMessage = response.error || "An error occurred.";
                 toastr.error(errorMessage);
             }
         },
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
+            statusId = null;
             toastr.error(errorMessage);
             $('#updateTrackingModal').modal('hide');
         }
     });
-});
+}
 
 $('#saveAssignmentBtn').click(function () {
     var agentId = $('#agentId').val();

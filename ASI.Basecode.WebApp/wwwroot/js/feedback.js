@@ -9,8 +9,9 @@
     }
 });
 
-function submitFeedback() {
-    var formData = {
+var formData;
+function validateFeedback() {
+    formData = {
         UserId: $('#userId').val(),
         TicketId: $('#ticketId').val(),
         FeedbackRating: $('input[name="FeedbackRating"]:checked').val(),
@@ -37,6 +38,14 @@ function submitFeedback() {
         return;
     }
 
+    $('#feedbackModal').modal('hide');
+    setTimeout(function () {
+        var message = 'This feedback is final and cannot be edited or deleted';
+        displayConfirmationModal(submitFeedback, message, 'feedbackModal');
+    }, 250);
+}
+
+function submitFeedback() {
     $.ajax({
         url: $('#feedbackForm').data('url'),
         type: 'POST',
@@ -44,9 +53,11 @@ function submitFeedback() {
         success: function (response) {
             $('#feedbackModal').modal('hide');
             $('#feedbackForm')[0].reset();
+            formData = null;
             location.reload();
         },
         error: function () {
+            formData = null;
             location.reload();
         }
     });

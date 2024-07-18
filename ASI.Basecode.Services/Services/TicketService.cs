@@ -28,6 +28,8 @@ namespace ASI.Basecode.Services.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<TicketService> _logger;
         private readonly INotificationService _notificationService;
+        private readonly IPerformanceReportRepository _performanceReportRepository;
+        private readonly ITeamRepository _teamRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -41,13 +43,17 @@ namespace ASI.Basecode.Services.Services
             IMapper mapper,
             INotificationService notificationService,
             ILogger<TicketService> logger,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IPerformanceReportRepository performanceReportRepository,
+            ITeamRepository teamRepository)
         {
             _repository = repository;
             _mapper = mapper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
+            _performanceReportRepository = performanceReportRepository;
+            _teamRepository = teamRepository;
         }
 
         #region Ticket CRUD Operations
@@ -143,6 +149,7 @@ namespace ASI.Basecode.Services.Services
                     await _repository.UpdateAsync(ticket);
                 }
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
+
             }
             else
             {
@@ -271,5 +278,43 @@ namespace ASI.Basecode.Services.Services
             }
         }
         #endregion Utility Methods
+
+        #region Logging methods
+        /// <summary>
+        /// Logs an error message.
+        /// </summary>
+        /// <param name="methodName">The method where this error was logged</param>
+        /// <param name="errorMessage">The error message</param>
+        private void LogError(string methodName, string errorMessage)
+        {
+            _logger.LogError($"Ticket Service {methodName} : {errorMessage}");
+        }
+        #endregion
+
+        #region Performance Report Methods
+        private async Task UpdateTeamPerformanceReportsAsync(Ticket existingTicket)
+        {
+            if (existingTicket.TicketAssignment != null)
+            {
+                var team = await _teamRepository.FindByIdAsync(existingTicket.TicketAssignment.TeamId);
+                if (team != null)
+                {
+                    foreach (var teamMember in team.TeamMembers)
+                    {
+                        var performanceReport = teamMember.Report;
+                        if (performanceReport != null)
+                        {
+                            performanceReport.ResolvedTickets++;
+                            var resolutionTime = (existingTicket.UpdatedDate.Value - existingTicket.CreatedDate).TotalMinutes;
+                            performanceReport.AverageResolutionTime = ((performanceReport.AverageResolutionTime * (performanceReport.ResolvedTickets - 1)) + resolutionTime) / performanceReport.ResolvedTickets;
+
+                            await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }
