@@ -31,8 +31,9 @@
     <p>
         @if (User.IsInRole("Employee"))
         {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTicketModal">
-                Create
+            <button type="button" class="btn btn-primary btn-radius" data-toggle="modal" data-target="#createTicketModal">
+                <i class="fa fa-plus"></i>
+                Create Ticket
             </button>
         }
     </p>
@@ -47,7 +48,7 @@
             <option value="user">User</option>
         </select>
         <select id="filterValue" name="filterValue" style="display: none;"></select>
-        <button type="submit">Apply Filter</button>
+        <button type="submit" class="btn btn-primary">Apply Filter</button>
     </form>
 
     <div class="py-3">

@@ -451,24 +451,24 @@ header {
     color: var(--primary-color) !important;
     background-color: white;
     border-color: var(--primary-color);
-    width: 60%;
+    width: 30%;
     font-weight: bold;
 }
 
     .btn-white:hover {
-        background-color: rgba(5,37,66,0.5);
+        background-color: var(--primary-color);
         border-color: white;
         color: white !important;
-        width: 60%;
+        width: 30%;
         font-weight: bold;
     }
 
     .btn-white:active, .btn-white:focus {
-        background-color: rgba(5,37,66,0.5);
+        background-color: var(--primary-color);
         border-color: white;
         color: white !important;
         box-shadow: none !important;
-        width: 60%;
+        width: 30%;
         font-weight: bold;
     }
 
