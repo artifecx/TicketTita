@@ -7,6 +7,7 @@
     await Html.RenderPartialAsync("_DeleteModal");
     await Html.RenderPartialAsync("_UpdateTrackingModal", Model);
     await Html.RenderPartialAsync("_UpdateAssignment", Model);
+    await Html.RenderPartialAsync("_ConfirmationModal");
 }
 
 @section styles {
@@ -194,6 +195,7 @@
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
     <script src="~/js/ticket.js"></script>
+    <script src="~/js/confirm.js"></script>
 }
 @functions {
     string GetPriorityCssClass(string PriorityName)
