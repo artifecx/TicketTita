@@ -308,7 +308,9 @@
         var createMessage = '@TempData["UpdateMessage"]';
         var deleteMessage = sessionStorage.getItem("DeleteSuccess");
         var errMessage = '@TempData["DuplicateErr"]';
+        var NoChangesMessage = '@TempData["NoChangesMessage"]';
 
+      
         if (createMessage) {
             toastr.success(createMessage);
         } else if (errMessage) {
@@ -316,6 +318,8 @@
         } else if (deleteMessage) {
             toastr.success(deleteMessage);
             sessionStorage.removeItem("DeleteSuccess");
+        } else if (NoChangesMessage) {
+            toastr.error(NoChangesMessage);
         }
     </script>
 }

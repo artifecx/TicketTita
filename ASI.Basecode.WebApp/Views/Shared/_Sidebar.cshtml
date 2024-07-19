@@ -7,10 +7,12 @@
     bool isAdmin = HttpContextAccessor.HttpContext.User.IsInRole("Admin");
     var userId = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     bool hasUnreadNotifications = false;
-    
+    int notificationCount = 0;
+
     if (!string.IsNullOrEmpty(userId))
     {
         hasUnreadNotifications = NotificationService.HasUnreadNotifications(userId);
+        notificationCount = NotificationService.GetUnreadNotificationCount(userId);
     }
 }
 
@@ -55,17 +57,25 @@
                 Articles
             </a>
         </li>
-             <li class="py-2">
-                <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
-                    <i class="fa fa-bell px-1"></i>
-                    Notifications
-                </a>
-            </li>
+        <li class="py-2">
+            <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
+                <i class="fa fa-bell px-1"></i>
+                Notifications
+                @if (notificationCount > 0)
+                {
+                    <span class="position-absolute translate-middle badge rounded-pill bg-danger">
+                        @notificationCount
+                        <span class="visually-hidden"></span>
+                    </span>
+                }
+            </a>
+        </li>
         <li class="py-2">
             <a asp-controller="#" asp-action="#" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "#" ? "active" : "")">
                 <i class="fa fa-cog px-1"></i>
                 Settings
             </a>
+        </li>
         <li class="py-2">
             <a href="#" data-toggle="modal" data-target="#logoutModal">
                 <i class="fa fa-sign-out px-1"></i>
@@ -116,12 +126,14 @@
 </script>
 
 <style>
-        .unread-notification {
-            background-color: #ffeb3b; /* Highlight color */
-        }
-    </style>
+    .unread-notification {
+        background-color: #ffeb3b; /* Highlight color */
+    }
 
-
-
-
-
+    .badge-danger {
+        background-color: #dc3545;
+        color: white;
+        padding: 3px 7px;
+        border-radius: 50%;
+    }
+</style>

@@ -15,5 +15,6 @@ namespace ASI.Basecode.Services.Interfaces
         void MarkNotificationAsUnread(string notificationId);
         bool HasUnreadNotifications(string userId);
         void DeleteNotification(string notificationId);
+        int GetUnreadNotificationCount(string userId);
     }
 }
