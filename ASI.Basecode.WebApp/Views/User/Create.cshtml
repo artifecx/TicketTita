@@ -4,35 +4,59 @@
     await Html.RenderPartialAsync("_ValidationScriptsPartial");
     bool isSuper = User.HasClaim("IsSuperAdmin", "true");
 }
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel">Register A User</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+
+@section styles {
+    <link rel="stylesheet" href="~/css/user.css" />
+}
+
+<div class="d-flex justify-content-end mx-4 mt-3 mb-2">
+    <button type="button" class="btn-close custom-close-button" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<h5 class="modal-title font-weight-bold d-flex justify-content-center mb-3" id="createUserModalLabel">Add New User</h5>
+
+<div class="modal-body mx-5">
+    <form id="createUserForm" asp-action="PostCreate" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label asp-for="Name" class="control-label"></label>
             </div>
-            <div class="modal-body">
-                <form id="createUserForm" asp-action="PostCreate" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Email" class="control-label"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-@*                     <div class="form-group">
-                        <label asp-for="Password" class="control-label"></label>
-                        <input asp-for="Password" class="form-control" type="password" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div> *@
-                    <div class="form-group">
-                        <label asp-for="RoleId" class="control-label"></label>
-                        <select asp-for="RoleId" class="form-control">
-                            <option value="">Select Role</option>
+            <div class="form-group col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label asp-for="Email" class="control-label"></label>
+            </div>
+            <div class="form-group col-md-10">
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+        </div>
+
+        @* <div class="form-row">
+            <div class="form-group col-md-2">
+                <label asp-for="Password" class="control-label"></label>
+            </div>
+            <div class="form-group col-md-10">
+                <input asp-for="Password" class="form-control" type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+        </div> *@
+
+        <div class="form-row">
+            <div class="form-group col-md-2">
+                <label asp-for="RoleId" class="control-label">Role</label>
+            </div>
+            <div class="form-group col-md-10">
+                <select asp-for="RoleId" class="form-control">
+                    <option value="">Select Role</option>
                     @foreach (var role in Model.Roles)
                     {
                         @if (role.RoleId != "Admin" || isSuper)
@@ -40,15 +64,17 @@
                             <option value="@role.RoleId">@role.RoleName</option>
                         }
                     }
-                        </select>
-                        <span asp-validation-for="RoleId" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Create" class="btn btn-primary" />
-                    </div>
-                </form>
+                </select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
             </div>
         </div>
+
+        <div class="form-group d-flex justify-content-center my-3">
+            <input type="submit" value="Create" class="btn btn-white btn-radius" />
+        </div>
+    </form>
+</div>
+
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -62,17 +88,17 @@
                     success: function (result) {
                         if (result.success) {
 
-                            location.reload(); 
+                            location.reload();
                         }
                     },
-                    }
-                });
-            });
-
-            var errMessage = '@TempData["DuplicateErr"]';
-            if (errMessage) {
-                toastr.error(errMessage);
-            }
+                }
+                        });
         });
+
+        var errMessage = '@TempData["DuplicateErr"]';
+        if (errMessage) {
+            toastr.error(errMessage);
+        }
+                });
     </script>
 }

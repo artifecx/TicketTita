@@ -1,25 +1,78 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.PerformanceReportViewModel
 
+@functions {
+    string ConvertResolutionTime(double averageResolutionTime)
+    {
+        if (averageResolutionTime >= 1440) // 1440 minutes in a day
+        {
+            double days = averageResolutionTime / 1440;
+            return $"{days:0.0} days";
+        }
+        else if (averageResolutionTime >= 60) // 60 minutes in an hour
+        {
+            double hours = averageResolutionTime / 60;
+            return $"{hours:0.0} hours";
+        }
+        else
+        {
+            return $"{averageResolutionTime:0.0} minutes";
+        }
+    }
+}
+
+
 @if (Model != null)
 {
-    <div>
-        <h3>Performance Report for @Model.Name</h3>
-        <p><strong>Report ID:</strong> @Model.ReportId</p>
-        <p><strong>Resolved Tickets:</strong> @Model.ResolvedTickets</p>
-        <p><strong>Average Resolution Time:</strong> @Model.AverageResolutionTime</p>
-        <p><strong>Assigned Date:</strong> @Model.AssignedDate</p>
-        <p><strong>Customer Feedback:</strong> @Model.AverageRating</p>
-        <h3>Feedbacks:</h3>
-        <ul>
-            @foreach (var feedback in Model.Feedbacks)
-            {
-                <li>
-                    <p><strong>User:</strong> @feedback.User.Name</p>
-                    <p><strong>Rating:</strong> @feedback.FeedbackRating</p>
-                    <p><strong>Feedback:</strong> @feedback.FeedbackContent</p>
-                </li>
-            }
-        </ul>
+    <div class="performance-report">
+        <div class="header">@Model.Name</div>
+        <div class="summary">
+            <p><strong>Tickets Resolved:</strong> @Model.ResolvedTickets</p>
+            <p><strong>Average Resolution Time:</strong> @ConvertResolutionTime(Model.AverageResolutionTime)</p>
+            <div class="average-rating">
+                <p><strong>Average Rating:</strong> @Model.AverageRating.ToString("0.0")</p>
+                <div class="star-rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="star @(i <= Math.Round(Model.AverageRating) ? "filled" : "")">&#9733;</span>
+                    }
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped feedback-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Rating</th>
+                    <th>Feedback</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Feedbacks != null && Model.Feedbacks.Any())
+                {
+                    @foreach (var feedback in Model.Feedbacks)
+                    {
+                        <tr>
+                            <td>@feedback.User.Name</td>
+                            <td>
+                                <div class="star-rating">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span class="star @(i <= feedback.FeedbackRating ? "filled" : "")">&#9733;</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>@feedback.FeedbackContent</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">No feedbacks yet</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 }
 else
