@@ -112,14 +112,13 @@
                             {
                                 <a href="javascript:void(0);" class="fas fa-edit action-icon" data-toggle="modal" data-target="#editUserModal" data-userid="@item.UserId" data-toggle="tooltip" title="Edit"></a>
                             }
-
                             <text> | </text>
                             @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
                             @if (isSuper || item.RoleId != "Admin")
                             {
                                 <text> | </text>
                                 <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
-
+                            }
                             @if (item.RoleId.Equals("Support Agent"))
                             {
                                 <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId" data-toggle="tooltip" title="View Performance">
@@ -127,7 +126,6 @@
                                 </button>
                             }
                         </td>
-
                     </tr>
                 }
             </tbody>

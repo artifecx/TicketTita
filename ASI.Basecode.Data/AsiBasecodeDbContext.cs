@@ -292,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD6226CBCDDA")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62668A4B0A")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -569,6 +569,8 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.Name, "IX_Team_Name");
 
+                entity.HasIndex(e => e.SpecializationId, "IX_Team_SpecializationID");
+
                 entity.Property(e => e.TeamId)
                     .HasMaxLength(256)
                     .HasColumnName("team_ID");
@@ -583,6 +585,17 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnName("name");
+
+                entity.Property(e => e.SpecializationId)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .HasColumnName("specialization_ID");
+
+                entity.HasOne(d => d.Specialization)
+                    .WithMany(p => p.Teams)
+                    .HasForeignKey(d => d.SpecializationId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Team_Specialization");
             });
 
             modelBuilder.Entity<TeamMember>(entity =>
@@ -595,7 +608,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306C9655F8C")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306D7396162")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -730,7 +743,9 @@ namespace ASI.Basecode.Data
 
                 entity.ToTable("TicketAssignment");
 
-                entity.HasIndex(e => e.AdminId, "IX_TicketAssignment_AdminID");
+                entity.HasIndex(e => e.AgentId, "IX_TicketAssignment_AgentID");
+
+                entity.HasIndex(e => e.AssignedById, "IX_TicketAssignment_AssignedByID");
 
                 entity.HasIndex(e => e.AssignedDate, "IX_TicketAssignment_AssignedDate");
 
@@ -738,17 +753,21 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62A893A544")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62BE17AD74")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)
                     .HasMaxLength(256)
                     .HasColumnName("assignment_ID");
 
-                entity.Property(e => e.AdminId)
+                entity.Property(e => e.AgentId)
+                    .HasMaxLength(256)
+                    .HasColumnName("agent_ID");
+
+                entity.Property(e => e.AssignedById)
                     .IsRequired()
                     .HasMaxLength(256)
-                    .HasColumnName("admin_ID");
+                    .HasColumnName("assignedBy_ID");
 
                 entity.Property(e => e.AssignedDate)
                     .HasColumnType("datetime")
@@ -756,7 +775,6 @@ namespace ASI.Basecode.Data
                     .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.TeamId)
-                    .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnName("team_ID");
 
@@ -765,16 +783,20 @@ namespace ASI.Basecode.Data
                     .HasMaxLength(256)
                     .HasColumnName("ticket_ID");
 
-                entity.HasOne(d => d.Admin)
-                    .WithMany(p => p.TicketAssignments)
-                    .HasForeignKey(d => d.AdminId)
+                entity.HasOne(d => d.Agent)
+                    .WithMany(p => p.TicketAssignmentAgents)
+                    .HasForeignKey(d => d.AgentId)
+                    .HasConstraintName("FK_TicketAssignment_Agent");
+
+                entity.HasOne(d => d.AssignedBy)
+                    .WithMany(p => p.TicketAssignmentAssignedBies)
+                    .HasForeignKey(d => d.AssignedById)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TicketAssignment_Admin");
+                    .HasConstraintName("FK_TicketAssignment_AssignedBy");
 
                 entity.HasOne(d => d.Team)
                     .WithMany(p => p.TicketAssignments)
                     .HasForeignKey(d => d.TeamId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TicketAssignment_Team");
 
                 entity.HasOne(d => d.Ticket)

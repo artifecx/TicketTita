@@ -31,9 +31,8 @@ namespace ASI.Basecode.WebApp
                 CreateMap<TicketViewModel, Ticket>();
                 CreateMap<Ticket, TicketViewModel>()
                         .ForMember(dest => dest.Attachment, opt => opt.MapFrom(src => src.Attachments.FirstOrDefault()))
-                        .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.TicketAssignment != null
-                            ? src.TicketAssignment.Team.TeamMembers.FirstOrDefault(tm => tm.User.RoleId == "Support Agent").User
-                            : null))
+                        .ForMember(dest => dest.Agent, opt => opt.MapFrom(src => src.TicketAssignment != null ? src.TicketAssignment.Agent : null))
+                        .ForMember(dest => dest.Team, opt => opt.MapFrom(src => src.TicketAssignment != null ? src.TicketAssignment.Team : null))
                         .ForMember(dest => dest.TicketAssignment, opt => opt.MapFrom(src => src.TicketAssignment))
                         .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.Feedback))
                         .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));

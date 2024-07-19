@@ -154,6 +154,7 @@ function saveTracking() {
 }
 
 $('#saveAssignmentBtn').click(function () {
+    var teamId = $('#teamId').val();
     var agentId = $('#agentId').val();
     var ticketId = $('#ticketId').val();
 
@@ -163,6 +164,7 @@ $('#saveAssignmentBtn').click(function () {
         contentType: 'application/json',
         data: JSON.stringify({
             TicketId: ticketId,
+            TeamId: teamId,
             AgentId: agentId,
         }),
         success: function (response) {

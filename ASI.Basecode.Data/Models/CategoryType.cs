@@ -7,6 +7,7 @@ namespace ASI.Basecode.Data.Models
     {
         public CategoryType()
         {
+            Teams = new HashSet<Team>();
             Tickets = new HashSet<Ticket>();
         }
 
@@ -14,6 +15,7 @@ namespace ASI.Basecode.Data.Models
         public string CategoryName { get; set; }
         public string Description { get; set; }
 
+        public virtual ICollection<Team> Teams { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }
