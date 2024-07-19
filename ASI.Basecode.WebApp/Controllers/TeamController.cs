@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace ASI.Basecode.WebApp.Controllers
     public class TeamController : ControllerBase<TeamController>
     {
         private readonly ITeamService _teamService;
+        private readonly ITicketService _ticketService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamController"/> class.
@@ -36,24 +38,39 @@ namespace ASI.Basecode.WebApp.Controllers
             IConfiguration configuration,
             IMapper mapper,
             ITeamService teamService,
+            ITicketService ticketService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._teamService = teamService;
+            this._ticketService = ticketService;
         }
 
+        #region GET Methods 
         /// <summary>Show all teams</summary>
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ViewAll(string sortOrder)
+        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
-                var teams = await _teamService.GetAllAsync();
+                var teams = await _teamService.GetAllAsync(sortBy, filterBy, pageIndex, 10);
+
+                ViewData["FilterBy"] = filterBy;
+                ViewData["SortBy"] = sortBy;
+                ViewBag.CTs = (await _ticketService.GetCategoryTypesAsync())
+                                .Where(ct => !ct.CategoryName.Contains("Other"))
+                                .OrderBy(ct => ct.CategoryName).ToList();
+
                 return View(teams);
             }, "ViewAll");
         }
-
-        #region GET Methods
+               
+        /// <summary>
+        /// Views the selected team.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <param name="showModal">The show modal.</param>
+        /// <returns>View</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ViewTeam(string id, string showModal = null)
@@ -68,13 +85,21 @@ namespace ASI.Basecode.WebApp.Controllers
                 ViewBag.AssignedAgents = agents.Where(x => x.TeamMember?.TeamId == id).ToList();
                 ViewBag.UnassignedAgents = agents.Where(x => x.TeamMember == null).ToList();
                 ViewBag.Teams = teams.Where(x => x.TeamId != id).ToList();
+                ViewBag.CTs = (await _ticketService.GetCategoryTypesAsync())
+                                .Where(ct => !ct.CategoryName.Contains("Other"))
+                                .OrderBy(ct => ct.CategoryName).ToList();
 
                 return View(team);
             }, "ViewTeam");
         }
         #endregion GET Methods
 
-        #region POST Methods
+        #region POST Methods        
+        /// <summary>
+        /// Creates a new team.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> Create(TeamViewModel model)
@@ -92,6 +117,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Create");
         }
 
+        /// <summary>
+        /// Edits the selected team.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> Edit(TeamViewModel model)
@@ -109,6 +139,11 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Edit");
         }
 
+        /// <summary>
+        /// Deletes the selected team.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> Delete(string id)
@@ -126,7 +161,12 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "Delete");
         }
 
-
+        /// <summary>
+        /// Assigns an agent to team.
+        /// </summary>
+        /// <param name="teamId">The team identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> AssignAgent(string teamId, string agentId)
@@ -144,6 +184,13 @@ namespace ASI.Basecode.WebApp.Controllers
             }, "AssignAgent");
         }
 
+        /// <summary>
+        /// Reassigns an agent to team.
+        /// </summary>
+        /// <param name="oldTeamId">The old team identifier.</param>
+        /// <param name="newTeamId">The new team identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ReassignAgent(string oldTeamId, string newTeamId, string agentId)

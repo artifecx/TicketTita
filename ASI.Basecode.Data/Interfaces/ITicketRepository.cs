@@ -15,6 +15,7 @@ namespace ASI.Basecode.Data.Interfaces
         Task AddAttachmentAsync(Attachment attachment);
         Task RemoveAttachmentAsync(Attachment attachment);
         Task AssignTicketAsync(TicketAssignment assignment);
+        Task UpdateAssignmentAsync(TicketAssignment assignment);
         Task RemoveAssignmentAsync(TicketAssignment assignment);
         Task AddCommentAsync(Comment comment);
         Task UpdateCommentAsync(Comment comment);

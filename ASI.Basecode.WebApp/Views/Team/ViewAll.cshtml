@@ -1,92 +1,166 @@
-﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.TeamViewModel>
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.TeamViewModel>
 
 @{
     ViewData["Title"] = "ViewAll";
     await Html.RenderPartialAsync("_CreateTeamModal", new ASI.Basecode.Services.ServiceModels.TeamViewModel());
     await Html.RenderPartialAsync("_DeleteModal");
+
+    string filterBy = ViewData["FilterBy"] as string;
+    string sortBy = ViewData["SortBy"] as string;
+    int pageIndex = Model.PageIndex;
+
+    string sortByName = string.IsNullOrEmpty(sortBy) ? "name_desc" : null;
+    string sortBySpecialization = sortBy == "specialization" ? "specialization_desc" : "specialization";
+    string sortByNoOfAgents = sortBy == "agents" ? "agents_desc" : "agents";
+    string sortByActiveTickets = sortBy == "active" ? "active_desc" : "active";
+    string sortByInactiveTickets = sortBy == "inactive" ? "inactive_desc" : "inactive";
+    string sortByAvgCompletionTime = sortBy == "completion" ? "completion_desc" : "completion";
+    string sortByAvgFeedbackRating = sortBy == "rating" ? "rating_desc" : "rating";
 }
 
-<h1>Team Management</h1>
-<hr />
-<h4>All Teams</h4>
-<p>
-    @if (User.IsInRole("Admin"))
-    {
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createTeamModal">
-            Create Team
-        </button>
-    }
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TeamMembers)
-            </th>
-            <th>
-                Active Tickets
-            </th>
-            <th>
-                Closed / Resolved Tickets
-            </th>
-            <th>
-                Average Completion Time
-            </th>
-            <th>
-                Average Feedback Rating
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="d-flex justify-content-between nav-header">
+    <h1 class="display-6">Team Management</h1>
+    <div class="d-flex justify-content-between">
+        <form method="get" asp-action="ViewAll" asp-route-sortBy="@sortByName" asp-route-filterBy="@filterBy">
+            <div class="form-group input-group">
+                <input type="text" name="filterBy" class="form-control btn-radius px-3" placeholder="Name or specialization" value="@filterBy" />
+                <span class="input-group-append">
+                    <button type="submit" class="btn btn-primary btn-radius-r px-3">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+        </form>
+        <div class="mx-3">
+            <p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <button type="button" class="btn btn-primary btn-radius px-3" data-toggle="modal" data-target="#createTeamModal">
+                        <i class="fa fa-plus"></i>
+                        Create Team
+                    </button>
+                }
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-3">
+    <table class="table table-white">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @{
-                        var description = item.Description;
-                        if (description != null && description.Length > 20)
-                        {
-                            description = description.Substring(0, 20) + "...";
-                        }
-                        else if (description == null)
-                        {
-                            description = "No description.";
-                        }
-                    }
-                    @description
-                </td>
-                <td>
-                    @(item.TeamMembers?.Count() ?? 0)
-                </td>
-                <td>
-                    @(item.TicketAssignments?.Where(t => t.Ticket.ResolvedDate == null).Count() ?? 0)
-                </td>
-                <td>
-                    @(item.TicketAssignments?.Where(t => t.Ticket.ResolvedDate != null).Count() ?? 0)
-                </td>
-                <td>
-                </td>
-                <td>
-                </td>
-                <td>
-                    @Html.ActionLink("Details", "ViewTeam", new { id = item.TeamId }) |
-                    @Html.ActionLink("Edit", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }) |
-                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId', '@item.Name')">Delete</a>
-                </td>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByName" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        @Html.DisplayNameFor(model => model.First().Name)
+                        @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "name_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortBySpecialization" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        @Html.DisplayNameFor(model => model.First().Specialization)
+                        @(sortBy == "specialization" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "specialization_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByNoOfAgents" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        @Html.DisplayNameFor(model => model.First().TeamMembers)
+                        @(sortBy == "agents" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "agents_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByActiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        Active Tickets
+                        @(sortBy == "active" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "active_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        Closed / Resolved Tickets
+                        @(sortBy == "inactive" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "inactive_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByAvgCompletionTime" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        Average Completion Time
+                        @(sortBy == "completion" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "completion_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="ViewAll" asp-route-sortBy="@sortByAvgFeedbackRating" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                        Average Feedback Rating
+                        @(sortBy == "rating" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "rating_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
+                    </a>
+                </th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="13" class="alert alert-warning text-center" role="alert">
+                            @(string.IsNullOrEmpty(filterBy) ? Html.Raw("No teams found") : Html.Raw("No teams found matching the criteria"))
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Specialization.CategoryName)
+                            </td>
+                            <td>
+                                @(item.TeamMembers?.Count() ?? 0)
+                            </td>
+                            <td>
+                                @(item.TicketAssignments?.Where(t => t.Ticket?.ResolvedDate == null).Count() ?? 0)
+                            </td>
+                            <td>
+                                @(item.TicketAssignments?.Where(t => t.Ticket?.ResolvedDate != null).Count() ?? 0)
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                @Html.ActionLink("Details", "ViewTeam", new { id = item.TeamId }) |
+                                @Html.ActionLink("Edit", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }) |
+                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId', '@item.Name')">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                }
+        </tbody>
+    </table>
+
+    <nav>
+        <ul class="pagination">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy">Previous</a>
+                </li>
+            }
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy">@i</a>
+                </li>
+            }
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
 
 @*---- Values passed to the js files ----*@
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>

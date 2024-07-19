@@ -4,88 +4,75 @@
     ViewData["Title"] = "Notifications";
 }
 
-<h1>Notifications</h1>
+<h1 class="nav-header display-6">Notifications</h1>
 
-<form method="post" asp-action="MarkAllAsRead">
-    <button type="submit" class="btn btn-primary">Mark All as Read</button>
-</form>
+@section styles {
+    <link rel="stylesheet" href="~/css/notification.css" />
+}
 
-<form method="post" asp-action="MarkAllAsUnread">
-    <button type="submit" class="btn btn-warning">Mark All as Unread</button>
-</form>
+<div class="container-fluid px-4 py-3">
+    <div class="d-flex justify-content-end mb-2">
+        <form method="post" asp-action="MarkAllAsRead" class="ml-4">
+            <button type="submit" class="btn btn-primary">Mark All as Read</button>
+        </form>
 
-<p>
+        <form method="post" asp-action="MarkAllAsUnread" class="ml-4">
+            <button type="submit" class="btn btn-warning">Mark All as Unread</button>
+        </form>
+    </div>
+
+    @* <p>
     <a asp-action="Create">Create New</a>
-</p>
+    </p> *@
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NotificationTypeId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TicketId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsRead)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NotificationId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NotificationDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.NotificationTypeId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsRead)
-                </td>
-                <td>
-                    <form method="post" asp-action="MarkAsUnread" style="display:inline">
-                        <input type="hidden" name="id" value="@item.NotificationId" />
-                        <button type="submit" class="btn btn-link">Mark as Unread</button>
-                    </form>
-                    <form method="post" asp-action="MarkAsRead" style="display:inline">
-                        <input type="hidden" name="id" value="@item.NotificationId" />
-                        <button type="submit" class="btn btn-link">Mark as Read</button>
-                    </form>
-                    @Html.ActionLink("Details", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, null) |
-                    <a href="#" class="btn btn-link text-danger" onclick="displayDeleteModal('@item.NotificationId')">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <table class="table table-white">
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="@(item.IsRead ? "read-notification" : "")">
+                    <td>
+                        <div class="d-flex justify-content-between text-muted">
+                            <div>
+                                @Html.DisplayFor(modelItem => item.IsRead)
+                                <strong>@Html.DisplayNameFor(modelItem => item.NotificationId):</strong>
+                                @Html.DisplayFor(modelItem => item.NotificationId)
+                            </div>
+                            @Html.DisplayFor(modelItem => item.NotificationDate)
+                        </div>
+                        <div class="mt-4 mx-4">
+                            <h5 class="font-weight-bold">@Html.DisplayFor(modelItem => item.Title)</h5>
+                            @Html.DisplayFor(modelItem => item.Description)
+                        </div>
+
+                        <div class="d-flex justify-content-end align-items-center">
+                            <form method="post" asp-action="MarkAsUnread" class="d-inline">
+                                <input type="hidden" name="id" value="@item.NotificationId" />
+                                <button type="submit" class="btn btn-with-icon mx-2">
+                                    <i class="fas fa-envelope-open"></i> Mark as Unread
+                                </button>
+                            </form>
+                            <text> | </text>
+                            <form method="post" asp-action="MarkAsRead" class="d-inline">
+                                <input type="hidden" name="id" value="@item.NotificationId" />
+                                <button type="submit" class="btn btn-with-icon mx-2">
+                                    <i class="fas fa-envelope"></i> Mark as Read
+                                </button>
+                            </form>
+                            <text> | </text>
+                            @* @Html.ActionLink("Details", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "d-inline" }) *@
+                            @Html.ActionLink(" ", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "fas fa-info-circle action-icon d-inline mx-2", title = "Details" })
+                            <text> | </text>
+                            <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2">
+                                <i class="fas fa-trash action-icon" title="Delete"></i>
+                            </a>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

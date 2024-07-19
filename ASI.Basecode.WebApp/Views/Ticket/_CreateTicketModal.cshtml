@@ -9,7 +9,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createTicketModalLabel">Create Ticket</h5>
+                <h5 class="modal-title font-weight-bold" id="createTicketModalLabel">Create Ticket</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -22,31 +22,36 @@
                         <input asp-for="Subject" class="form-control" />
                         <span asp-validation-for="Subject" class="text-danger"></span>
                     </div>
+
+                    <div class="row">
+                        <div class="col form-group">
+                            <label asp-for="CategoryTypeId" class="control-label"></label>
+                            <select asp-for="CategoryTypeId" class="form-control">
+                                @foreach (var item in CategoryTypes)
+                                {
+                                    <option value="@item.CategoryTypeId">@item.CategoryName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryTypeId" class="text-danger"></span>
+                        </div>
+                        <div class="col form-group">
+                            <label asp-for="PriorityTypeId" class="control-label"></label>
+                            <select asp-for="PriorityTypeId" class="form-control">
+                                @foreach (var item in PriorityTypes)
+                                {
+                                    <option value="@item.PriorityTypeId">@item.PriorityName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="PriorityTypeId" class="text-danger"></span>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label asp-for="IssueDescription" class="control-label"></label>
                         <textarea asp-for="IssueDescription" class="form-control"></textarea>
                         <span asp-validation-for="IssueDescription" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="CategoryTypeId" class="control-label"></label>
-                        <select asp-for="CategoryTypeId" class="form-control">
-                            @foreach (var item in CategoryTypes)
-                            {
-                                <option value="@item.CategoryTypeId">@item.CategoryName</option>
-                            }
-                        </select>
-                        <span asp-validation-for="CategoryTypeId" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="PriorityTypeId" class="control-label"></label>
-                        <select asp-for="PriorityTypeId" class="form-control">
-                            @foreach (var item in PriorityTypes)
-                            {
-                                <option value="@item.PriorityTypeId">@item.PriorityName</option>
-                            }
-                        </select>
-                        <span asp-validation-for="PriorityTypeId" class="text-danger"></span>
-                    </div>
+
                     <div class="form-group">
                         <label for="File">Attachment</label>
                         <input type="file" name="File" class="form-control" />

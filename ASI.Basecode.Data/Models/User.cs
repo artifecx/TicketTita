@@ -11,6 +11,8 @@ namespace ASI.Basecode.Data.Models
             Comments = new HashSet<Comment>();
             Feedbacks = new HashSet<Feedback>();
             KnowledgeBaseArticles = new HashSet<KnowledgeBaseArticle>();
+            TicketAssignmentAgents = new HashSet<TicketAssignment>();
+            TicketAssignmentAssignedBies = new HashSet<TicketAssignment>();
             Tickets = new HashSet<Ticket>();
         }
 
@@ -23,6 +25,7 @@ namespace ASI.Basecode.Data.Models
         public DateTime CreatedTime { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedTime { get; set; }
+
         public virtual Admin CreatedByNavigation { get; set; }
         public virtual Role Role { get; set; }
         public virtual Admin UpdatedByNavigation { get; set; }
@@ -31,6 +34,8 @@ namespace ASI.Basecode.Data.Models
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
+        public virtual ICollection<TicketAssignment> TicketAssignmentAgents { get; set; }
+        public virtual ICollection<TicketAssignment> TicketAssignmentAssignedBies { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; }
     }
 }

@@ -40,9 +40,9 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.Comments)
                         .ThenInclude(c => c.InverseParent)
                     .Include(t => t.TicketAssignment)
-                        .ThenInclude(ta => ta.Team)
-                        .ThenInclude(team => team.TeamMembers)
-                        .ThenInclude(tm => tm.User);
+                        .ThenInclude(ta => ta.Agent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team);
         }
 
         /// <summary>
@@ -140,6 +140,16 @@ namespace ASI.Basecode.Data.Repositories
         public async Task AssignTicketAsync(TicketAssignment assignment)
         {
             await this.GetDbSet<TicketAssignment>().AddAsync(assignment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Updates a ticket assignment.
+        /// </summary>
+        /// <param name="assignment">The assignment.</param>
+        public async Task UpdateAssignmentAsync(TicketAssignment assignment)
+        {
+            this.GetDbSet<TicketAssignment>().Update(assignment);
             await UnitOfWork.SaveChangesAsync();
         }
 

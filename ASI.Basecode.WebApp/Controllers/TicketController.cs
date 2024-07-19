@@ -21,6 +21,7 @@ namespace ASI.Basecode.WebApp.Controllers
     {
         private readonly ITicketService _ticketService;
         private readonly IFeedbackService _feedbackService;
+        private readonly ITeamService _teamService;
         private readonly INotificationService _notificationService;
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace ASI.Basecode.WebApp.Controllers
             IConfiguration configuration,
             IMapper mapper,
             ITicketService ticketService,
+            ITeamService teamService,
             IFeedbackService feedbackService,
             INotificationService notificationService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
@@ -46,6 +48,7 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             this._ticketService = ticketService;
             this._feedbackService = feedbackService;
+            this._teamService = teamService;
             this._notificationService = notificationService;
         }
 
@@ -88,13 +91,15 @@ namespace ASI.Basecode.WebApp.Controllers
                 var ticket = await _ticketService.GetTicketByIdAsync(id);
                 if (ticket == null) return RedirectToAction("ViewAll");
                 var statusTypes = await _ticketService.GetStatusTypesAsync();
-                var users = await _ticketService.UserGetAllAsync();
+                var agents = await _teamService.GetAgentsAsync();
 
                 ticket.StatusTypes = User.IsInRole("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") : 
                         statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));
                 ticket.PriorityTypes = await _ticketService.GetPriorityTypesAsync();
                 ticket.CategoryTypes = await _ticketService.GetCategoryTypesAsync();
-                ticket.Agents = users.Where(x => x.RoleId == "Support Agent");
+                ticket.Teams = await _teamService.GetAllStrippedAsync();
+                ticket.Agents = agents;
+                ticket.AgentsWithNoTeam = agents.Where(x => x.TeamMember == null);
 
                 if (!string.IsNullOrEmpty(notificationId))
                 {
