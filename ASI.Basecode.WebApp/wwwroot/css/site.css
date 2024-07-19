@@ -101,3 +101,69 @@ html {
 .text-16px {
     font-size: 16px;
 }
+
+/* Custom styles for the performance report modal */
+.performance-report {
+    color: #003366; /* Adjust as needed */
+    padding: 20px;
+}
+
+    .performance-report .header {
+        background-color: #003366; /* Adjust as needed */
+        color: white;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .performance-report .summary {
+        margin-bottom: 15px;
+    }
+
+    .performance-report hr {
+        border-color: #003366; /* Adjust as needed */
+    }
+
+    .performance-report table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .performance-report table th,
+        .performance-report table td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        .performance-report table th {
+            background-color: #003366; /* Adjust as needed */
+            color: white;
+        }
+
+        .performance-report table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+/* Styles for average rating */
+.average-rating {
+    display: flex;
+    align-items: center; /* Align items vertically centered */
+}
+
+    .average-rating p {
+        margin-right: 10px;
+        margin-bottom: 0; /* Ensure the paragraph has no bottom margin */
+    }
+
+/* Styles for star ratings */
+.star-rating {
+    display: inline-block;
+}
+
+.star {
+    font-size: 1.5em;
+    color: #ccc; /* Color for empty stars */
+}
+
+    .star.filled {
+        color: #f39c12; /* Color for filled stars */
+    }

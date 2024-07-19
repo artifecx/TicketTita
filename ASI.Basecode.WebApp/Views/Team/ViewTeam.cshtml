@@ -93,7 +93,36 @@
 
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 
+<!-- Performance Report Modal -->
+<div class="modal fade" id="performanceReportModal" tabindex="-1" role="dialog" aria-labelledby="performanceReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="performanceReportModalLabel">Performance Report</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="performanceReportContent">
+                <!-- Performance report content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section Scripts {
     <script src="~/js/team.js"></script>
     <script src="~/js/toastrNotification.js"></script>
+    <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function displayPerformanceReport(userId) {
+            var url = '@Url.Action("PerformanceReport", "User")?userId=' + userId;
+            $.get(url, function (data) {
+                $('#performanceReportContent').html(data);
+                $('#performanceReportModal').modal('show');
+            });
+        }
+    </script>
 }

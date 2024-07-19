@@ -16,10 +16,10 @@
         border-color: white;
         color: white;
     }
-
     .custom-close-button:active, .custom-close-button:focus {
         background-color: var(--primary-color);
         border-color: white;
         color: white;
         box-shadow: none;
     }
+
