@@ -89,7 +89,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="filterBy">User defined filter category</param>
         /// <param name="filterValue">User defined filter value</param>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, int pageIndex, int pageSize)
+        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, string search, int pageIndex, int pageSize)
         {
             var tickets = await GetAllAsync();
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -115,17 +115,24 @@ namespace ASI.Basecode.Services.Services
                 foreach (var ticket in tickets)
                 {
                     /// Agent is assigned to a team
-                    if (ticket.TicketAssignment?.TeamId == agentTeamId)
+                    if(agentTeamId != null)
                     {
-                        assignedToAgentTeam.Add(ticket);
+                        if (ticket.TicketAssignment?.TeamId == agentTeamId)
+                        {
+                            assignedToAgentTeam.Add(ticket);
+                        }
                     }
                     /// Agent is not assigned to a team
-                    else if (ticket.TicketAssignment?.AgentId == agentTeamId && ticket.TicketAssignment?.TeamId == null)
+                    else
                     {
-                        assignedToAgentNoTeam.Add(ticket);
+                        if (ticket.TicketAssignment?.AgentId == userId && ticket.TicketAssignment?.TeamId == null)
+                        {
+                            assignedToAgentNoTeam.Add(ticket);
+                        }
                     }
+
                     /// Ticket is open and not assigned to a team/agent
-                    else if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
+                    if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
                     {
                         /// Ticket falls under a team specialization
                         if (ticket.CategoryTypeId == teamSpecializationId)
@@ -170,6 +177,11 @@ namespace ASI.Basecode.Services.Services
                     "user" => tickets.Where(t => t.User.Name == filterValue).ToList(),
                     _ => tickets
                 };
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                tickets = tickets.Where(t => t.Subject.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             tickets = sortBy switch

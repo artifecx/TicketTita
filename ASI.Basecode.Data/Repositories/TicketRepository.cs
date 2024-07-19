@@ -45,12 +45,27 @@ namespace ASI.Basecode.Data.Repositories
                         .ThenInclude(ta => ta.Team);
         }
 
+        private IQueryable<Ticket> GetTicketsWithLimitedIncludes()
+        {
+            return this.GetDbSet<Ticket>()
+                    .Where(t => !t.IsDeleted)
+                    .Include(t => t.CategoryType)
+                    .Include(t => t.PriorityType)
+                    .Include(t => t.StatusType)
+                    .Include(t => t.User)
+                    .Include(t => t.Feedback)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Agent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team);
+        }
+
         /// <summary>
         /// Get all tickets
         /// </summary>
         /// <returns>List Ticket</returns>
         public async Task<List<Ticket>> GetAllAsync() =>
-            await GetTicketsWithIncludes().AsNoTracking().ToListAsync();
+            await GetTicketsWithLimitedIncludes().AsNoTracking().ToListAsync();
 
         /// <summary>
         /// Gets all tickets including the deleted.

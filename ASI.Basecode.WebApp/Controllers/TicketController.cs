@@ -61,16 +61,17 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="filterValue">User defined, taken from the page</param>
         /// <returns>ViewAll page</returns>
         [Authorize]
-        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue, int pageIndex = 1)
+        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue, string search, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
                 await PopulateViewBagAsync();
-                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue, pageIndex, 10);
+                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue, search, pageIndex, 10);
 
                 ViewData["FilterBy"] = filterBy;
                 ViewData["FilterValue"] = filterValue;
                 ViewData["SortBy"] = sortBy;
+                ViewData["Search"] = search;
 
                 return View(tickets);
             }, "ViewAll");
