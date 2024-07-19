@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-
 @inject ASI.Basecode.Services.Interfaces.INotificationService NotificationService
 
 @{
@@ -8,6 +7,7 @@
     var userId = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     bool hasUnreadNotifications = false;
     int notificationCount = 0;
+    var role = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
 
     if (!string.IsNullOrEmpty(userId))
     {
@@ -16,14 +16,14 @@
     }
 }
 
-<div class="@((ViewBag.LoginView == true || ViewBag.create == true) ? "hide-navbar" : "") sidebar">
+<div class="@((ViewBag.LoginView == true || ViewBag.create == true) ? "hide-navbar" : "sidebar") ">
     <div class="logosec hover-pointer">
         <img src="~/img/ticketita-logo.svg"
              style="width: 185px;" alt="logo"
              onclick="window.location.href = '@Url.Action("Index", "Home")';">
     </div>
     <div class="sidebar-header mt-5 mb-2">Navigation</div>
-    <ul class="list-unstyled">
+    <ul class="list-unstyled flex-grow-1">
         @if (isAdmin)
         {
             <li class="py-2">
@@ -59,14 +59,15 @@
         </li>
         <li class="py-2">
             <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
-                <i class="fa fa-bell px-1"></i>
-                Notifications
-                @if (notificationCount > 0)
+                @if (hasUnreadNotifications)
                 {
-                    <span class="position-absolute translate-middle badge rounded-pill bg-danger">
-                        @notificationCount
-                        <span class="visually-hidden"></span>
-                    </span>
+                    <i class="fa fa-bell px-1" style="color: #f2476a;"></i>
+                    <span class="bold-notifications">Notifications</span>
+                }
+                else
+                {
+                    <i class="fa fa-bell px-1"></i>
+                    <div class="d-inline-flex">Notifications</div>
                 }
             </a>
         </li>
@@ -83,6 +84,14 @@
             </a>
         </li>
     </ul>
+    <hr>
+    <div class="user-info">
+        <i class="fa fa-user-circle icon"></i>
+        <div class="text">
+            <span>@HttpContextAccessor.HttpContext.User.Identity.Name</span>
+            <small class="text-muted">(@role)</small>
+        </div>
+    </div>
 </div>
 
 <!-- Logout Modal -->
@@ -126,14 +135,7 @@
 </script>
 
 <style>
-    .unread-notification {
-        background-color: #ffeb3b; /* Highlight color */
-    }
-
-    .badge-danger {
-        background-color: #dc3545;
-        color: white;
-        padding: 3px 7px;
-        border-radius: 50%;
+    .text-muted{
+    
     }
 </style>
