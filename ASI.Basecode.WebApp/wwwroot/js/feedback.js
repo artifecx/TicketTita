@@ -9,6 +9,16 @@
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('content');
+    var remainingCharsSpan = document.getElementById('remainingFeedbackChars');
+
+    contentTextarea.addEventListener('keyup', function () {
+        var remaining = 800 - this.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    });
+});
+
 var formData;
 function validateFeedback() {
     formData = {

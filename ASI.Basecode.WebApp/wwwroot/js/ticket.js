@@ -9,6 +9,20 @@
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('issueDescription');
+    var remainingCharsSpan = document.getElementById('remainingDescriptionChars');
+
+    function updateRemainingChars() {
+        var remaining = 800 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
 $('#createTicketModal').on('hidden.bs.modal', function () {
     toastr.info("Create cancelled, no changes were made");
 });

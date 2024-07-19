@@ -22,8 +22,9 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="IssueDescription" class="control-label"></label>
-                        <textarea asp-for="IssueDescription" class="form-control"></textarea>
+                        <textarea asp-for="IssueDescription" id="issueDescription" class="form-control"></textarea>
                         <span asp-validation-for="IssueDescription" class="text-danger"></span>
+                        <span id="remainingDescriptionChars" class="text-muted">800 characters remaining</span>
                     </div>
                     <div class="form-group">
                         <div id="attachmentDetails" style="display: @(Model.Attachment != null ? "block" : "none")">
