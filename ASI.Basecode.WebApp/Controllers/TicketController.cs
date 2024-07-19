@@ -87,27 +87,29 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                if (string.IsNullOrEmpty(id)) return RedirectToAction("ViewAll");
-                var ticket = await _ticketService.GetTicketByIdAsync(id);
-                if (ticket == null) return RedirectToAction("ViewAll");
-                var statusTypes = await _ticketService.GetStatusTypesAsync();
-                var agents = await _teamService.GetAgentsAsync();
-
-                ticket.StatusTypes = User.IsInRole("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") : 
-                        statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));
-                ticket.PriorityTypes = await _ticketService.GetPriorityTypesAsync();
-                ticket.CategoryTypes = await _ticketService.GetCategoryTypesAsync();
-                ticket.Teams = await _teamService.GetAllStrippedAsync();
-                ticket.Agents = agents;
-                ticket.AgentsWithNoTeam = agents.Where(x => x.TeamMember == null);
-
-                if (!string.IsNullOrEmpty(notificationId))
+                if (string.IsNullOrEmpty(id))
                 {
-                    _notificationService.MarkNotificationAsRead(notificationId);
+                    TempData["ErrorMessage"] = "Ticket ID is invalid!";
+                    return RedirectToAction("ViewAll");
                 }
-                ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
-                ViewBag.ShowModal = showModal;
-                return View(ticket);
+
+                var ticket = await _ticketService.GetFilteredTicketByIdAsync(id);
+                if (ticket == null)
+                {
+                    TempData["ErrorMessage"] = "Ticket not found!";
+                    return RedirectToAction("ViewAll");
+                }
+                if (ticket != null)
+                {
+                    ViewBag.ShowModal = showModal;
+                    ViewBag.UserId = UserId;
+                    if (!string.IsNullOrEmpty(notificationId))
+                    {
+                        _notificationService.MarkNotificationAsRead(notificationId);
+                    }
+                    return View(ticket);
+                }
+                return RedirectToAction("ViewAll");
             }, "ViewTicket");
         }
         #endregion GET methods
@@ -149,10 +151,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (model != null)
                 {
                     await _ticketService.UpdateAsync(model,4);
-                    TempData["SuccessMessage"] = "Ticket edited successfully!";
+                    TempData["SuccessMessage"] = "Ticket updated successfully!";
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while editing the ticket. Please try again.";
+                TempData["ErrorMessage"] = "An error occurred while updating the ticket. Please try again.";
                 return Json(new { success = false });
             }, "Edit");
         }

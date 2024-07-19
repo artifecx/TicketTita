@@ -76,6 +76,7 @@ namespace ASI.Basecode.Services.Services
 
                 var newTicket = _mapper.Map<Ticket>(model);
                 newTicket.CreatedDate = DateTime.Now;
+                newTicket.UpdatedDate = DateTime.Now;
                 newTicket.UserId = userId;
 
                 AssignTicketProperties(newTicket);
@@ -106,6 +107,16 @@ namespace ASI.Basecode.Services.Services
 
             if (ticket != null)
             {
+                if (!string.IsNullOrEmpty(model.CategoryTypeId))
+                {
+                    if(!string.IsNullOrEmpty(model.CategoryTypeId) && ticket.CategoryTypeId == model.CategoryTypeId)
+                        throw new TicketException("Ticket is already in the selected category.");
+
+                    ticket.CategoryTypeId = model.CategoryTypeId;
+                    await _repository.UpdateAsync(ticket);
+                    return;
+                }
+
                 if (model.Subject.Length > 100)
                     throw new TicketException("Subject has exceeded maximum allowed characters of 100.");
                 if (model.IssueDescription.Length > 800)
@@ -230,9 +241,8 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket</param>
         private void AssignTicketProperties(Ticket ticket)
         {
-            var tickets = _repository.GetAllAndDeletedAsync().Result;
             string CC = ticket.CategoryTypeId;
-            int NN = tickets.Count;
+            int NN = _repository.CountAllAndDeletedTicketsAsync().Result;
 
             ticket.TicketId = $"{CC}-{NN + 1:0000}";
 
@@ -240,8 +250,6 @@ namespace ASI.Basecode.Services.Services
             ticket.CategoryType = GetCategoryTypesAsync().Result.Single(x => x.CategoryTypeId == ticket.CategoryTypeId);
             ticket.PriorityType = GetPriorityTypesAsync().Result.Single(x => x.PriorityTypeId == ticket.PriorityTypeId);
             ticket.StatusType = GetStatusTypesAsync().Result.Single(x => x.StatusTypeId == ticket.StatusTypeId);
-            ticket.User = _repository.UserFindByIdAsync(ticket.UserId).Result;
-            ticket.User.Tickets.Add(ticket);
         }
 
         /// <summary>

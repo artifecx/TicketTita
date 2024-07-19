@@ -14,13 +14,13 @@
                     <div class="form-group">
                         <label for="teamId" class="control-label">Team</label>
                         <select asp-for="Team.TeamId" id="teamId" class="form-control">
-                            <option value="no_team" data-team-members='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AgentsWithNoTeam.Select(tm => new { tm.UserId, UserName = tm.Name })))'>@(string.IsNullOrEmpty(Model.Team?.TeamId) ? "-- No Team --" : "-- Unassign --")</option>
+                            <option value="no_team" data-team-members='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AgentsWithNoTeam?.Select(tm => new { tm.UserId, UserName = tm.Name })))'>@(string.IsNullOrEmpty(Model.Team?.TeamId) ? "-- No Team --" : "-- Unassign --")</option>
                             @foreach (var teamGroup in Model.Teams.OrderBy(t => t.Specialization.CategoryName).GroupBy(t => t.Specialization.CategoryName))
                             {
                                 <optgroup label="@teamGroup.Key">
                                     @foreach (var team in teamGroup)
                                     {
-                                        <option value="@team.TeamId" data-team-members='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(team.TeamMembers.Select(tm => new { tm.UserId, UserName = tm.User.Name })))'>
+                                        <option value="@team.TeamId" data-team-members='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(team.TeamMembers?.Select(tm => new { tm.UserId, UserName = tm.User.Name })))'>
                                             @team.Name
                                         </option>
                                     }

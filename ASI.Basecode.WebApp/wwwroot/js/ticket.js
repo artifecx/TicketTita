@@ -31,7 +31,6 @@ function submitCreateTicket() {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#createTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -84,7 +83,6 @@ function submitEditTicket() {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#editTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -95,6 +93,51 @@ function submitEditTicket() {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
             $('#editTicketModal').modal('hide');
+        }
+    });
+}
+
+var categoryId;
+function validateCategory(currentCategoryId) {
+    categoryId = $('#categoryId').val();
+
+    if (categoryId === currentCategoryId) {
+        toastr.info("Category remains unchanged.");
+    } else {
+        $('#updateCategoryModal').modal('hide');
+        setTimeout(function () {
+            var message = 'Changing the category might result in you losing access to this ticket';
+            displayConfirmationModal(saveCategory, message, 'updateCategoryModal');
+        }, 250);
+    }
+}
+
+function saveCategory() {
+    var ticketId = $('#ticketId').val();
+
+    $.ajax({
+        url: '/Ticket/Edit',
+        type: 'POST',
+        data: {
+            TicketId: ticketId,
+            CategoryTypeId: categoryId,
+        },
+        success: function (response) {
+            if (response.success) {
+                categoryId = null;
+                location.reload();
+            } else {
+                categoryId = null;
+                var errorMessage = response.error || "An error occurred.";
+                toastr.error(errorMessage);
+                $('#confirmationModal').modal('hide');
+            }
+        },
+        error: function (xhr, status, error) {
+            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
+            categoryId = null;
+            toastr.error(errorMessage);
+            $('#confirmationModal').modal('hide');
         }
     });
 }
@@ -136,7 +179,6 @@ function saveTracking() {
         success: function (response) {
             if (response.success) {
                 statusId = null;
-                $('#updateTrackingModal').modal('hide');
                 location.reload();
             } else {
                 statusId = null;
@@ -169,7 +211,6 @@ $('#saveAssignmentBtn').click(function () {
         }),
         success: function (response) {
             if (response.success) {
-                $('#updateAssignmentModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
