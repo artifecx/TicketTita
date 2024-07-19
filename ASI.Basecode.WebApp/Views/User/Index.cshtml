@@ -14,8 +14,6 @@
     string roleSortParm = sortOrder == "Role" ? "role_desc" : "Role";
     string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
     bool isSuper = User.HasClaim("IsSuperAdmin", "true");
-
-    
 }
 
 @section styles { 
@@ -115,12 +113,12 @@
                                 <a href="javascript:void(0);" class="fas fa-edit action-icon" data-toggle="modal" data-target="#editUserModal" data-userid="@item.UserId" data-toggle="tooltip" title="Edit"></a>
                             }
 
-                            <a href="javascript:void(0);" class="fas fa-info-circle action-icon" data-toggle="modal" data-target="#userDetailsModal-@item.UserId" data-toggle="tooltip" title="View Details"></a>
-
+                            <text> | </text>
+                            @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
                             @if (isSuper || item.RoleId != "Admin")
                             {
-                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon" data-toggle="tooltip" title="Delete"></a>
-                            }
+                                <text> | </text>
+                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
 
                             @if (item.RoleId.Equals("Support Agent"))
                             {
@@ -134,14 +132,14 @@
                 }
             </tbody>
         }
-        
     </table>
 </div>
+
 @* Please change width of button *@
 <div class="d-flex justify-content-end px-4 py-3">
     @if (Model.HasPreviousPage)
     {
-        <a class="btn btn-info mx-2" asp-action="Index"
+        <a class="btn btn-primary mx-2" asp-action="Index"
            asp-route-sortOrder="@sortOrder"
            asp-route-currentFilter="@currentFilter"
            asp-route-roleFilter="@ViewData["RoleFilter"]"
@@ -149,7 +147,7 @@
     }
     @if (Model.HasNextPage)
     {
-        <a class="btn btn-info mx-2" asp-action="Index"
+        <a class="btn btn-primary mx-2" asp-action="Index"
            asp-route-sortOrder="@sortOrder"
            asp-route-currentFilter="@currentFilter"
            asp-route-roleFilter="@ViewData["RoleFilter"]"
@@ -157,19 +155,18 @@
     }
 </div>
 
-
 <!-- Add User Modal -->
 <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" id="createUserModalContent">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content modal-content-user" id="createUserModalContent">
         </div>
     </div>
 </div>
 
 <!-- Edit User Modal -->
 <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" id="editUserModalContent">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content modal-content-user" id="editUserModalContent">
         </div>
     </div>
 </div>
@@ -177,18 +174,21 @@
 <!-- User Details Modal -->
 @foreach (var item in Model)
 {
-    <div class="modal fixed-right fade" id="userDetailsModal-@item.UserId" tabindex="-1" role="dialog" aria-labelledby="userDetailsModalLabel-@item.UserId" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-aside" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <i class="fa fa-arrow-left-long" data-dismiss="modal"></i>
-                    <h5 class="modal-title p-3" id="userDetailsModalLabel-@item.UserId">User Details</h5>
-                    <dl class="row px-4 py-2">
+    <div class="modal fade" id="userDetailsModal-@item.UserId" tabindex="-1" role="dialog" aria-labelledby="userDetailsModalLabel-@item.UserId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content modal-content-user">
+                <div class="d-flex justify-content-end mx-4 mt-3 mb-2">
+                    <button type="button" class="btn-close custom-close-button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <h5 class="modal-title mb-3 font-weight-bold d-flex justify-content-center">
+                    @Html.DisplayFor(model => item.Name)
+                </h5>
+                <div class="modal-body mx-5">
+                    <dl class="row">
                         <dt class="col-sm-4">User ID</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.UserId)</dd>
-
-                        <dt class="col-sm-4">Name</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => item.Name)</dd>
 
                         <dt class="col-sm-4">Email</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.Email)</dd>
