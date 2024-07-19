@@ -72,19 +72,15 @@ namespace ASI.Basecode.Services.Services
 
                 foreach (var ticket in tickets)
                 {
-                    /// Agent is assigned to ticket //TODO: SWITCH THIS, CANT ENTER TO CHECK IF ASSIGNED TO TEAM
-                    if (ticket.TicketAssignment?.AgentId == userId)
+                    /// Agent is assigned to a team
+                    if (ticket.TicketAssignment?.TeamId == agentTeamId)
                     {
-                        /// Agent is assigned to a team
-                        if (ticket.TicketAssignment.TeamId == agentTeamId)
-                        {
-                            assignedToAgentTeam.Add(ticket);
-                        }
-                        /// Agent is not assigned to a team
-                        else if (ticket.TicketAssignment.TeamId == null)
-                        {
-                            assignedToAgentNoTeam.Add(ticket);
-                        }
+                        assignedToAgentTeam.Add(ticket);
+                    }
+                    /// Agent is not assigned to a team
+                    else if (ticket.TicketAssignment?.AgentId == agentTeamId && ticket.TicketAssignment?.TeamId == null)
+                    {
+                        assignedToAgentNoTeam.Add(ticket);
                     }
                     /// Ticket is open and not assigned to a team/agent
                     else if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
