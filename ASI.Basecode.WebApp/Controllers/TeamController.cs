@@ -20,6 +20,7 @@ namespace ASI.Basecode.WebApp.Controllers
     public class TeamController : ControllerBase<TeamController>
     {
         private readonly ITeamService _teamService;
+        private readonly ITicketService _ticketService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamController"/> class.
@@ -37,12 +38,15 @@ namespace ASI.Basecode.WebApp.Controllers
             IConfiguration configuration,
             IMapper mapper,
             ITeamService teamService,
+            ITicketService ticketService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
         {
             this._teamService = teamService;
+            this._ticketService = ticketService;
         }
 
+        #region GET Methods 
         /// <summary>Show all teams</summary>
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ViewAll(string sortBy, string filterBy, int pageIndex = 1)
@@ -53,12 +57,14 @@ namespace ASI.Basecode.WebApp.Controllers
 
                 ViewData["FilterBy"] = filterBy;
                 ViewData["SortBy"] = sortBy;
+                ViewBag.CTs = (await _ticketService.GetCategoryTypesAsync())
+                                .Where(ct => !ct.CategoryName.Contains("Other"))
+                                .OrderBy(ct => ct.CategoryName).ToList();
 
                 return View(teams);
             }, "ViewAll");
         }
-
-        #region GET Methods        
+               
         /// <summary>
         /// Views the selected team.
         /// </summary>
@@ -79,6 +85,9 @@ namespace ASI.Basecode.WebApp.Controllers
                 ViewBag.AssignedAgents = agents.Where(x => x.TeamMember?.TeamId == id).ToList();
                 ViewBag.UnassignedAgents = agents.Where(x => x.TeamMember == null).ToList();
                 ViewBag.Teams = teams.Where(x => x.TeamId != id).ToList();
+                ViewBag.CTs = (await _ticketService.GetCategoryTypesAsync())
+                                .Where(ct => !ct.CategoryName.Contains("Other"))
+                                .OrderBy(ct => ct.CategoryName).ToList();
 
                 return View(team);
             }, "ViewTeam");

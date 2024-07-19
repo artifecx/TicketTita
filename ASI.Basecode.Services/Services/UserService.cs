@@ -301,7 +301,7 @@ namespace ASI.Basecode.Services.Services
 
             if (user != null)
             {
-                var teamMember = _teamRepository.FindTeamMemberByIdAsync(userId).Result;
+                /*var teamMember = _teamRepository.FindTeamMemberByIdAsync(userId).Result;
                 var tickets = _teamRepository.GetResolvedTicketsAssignedToTeamAsync(teamMember.TeamId).Result;
                 var feedbacks = tickets
                 .Where(t => t.Feedback != null)
@@ -323,10 +323,10 @@ namespace ASI.Basecode.Services.Services
                             Feedbacks = feedbacks
                         };
                     }
-                }
+                }*/
             }
             return null;
-        }
+        } // TODO: Implement this method
 
         private double CalculateAverageRating(List<Ticket> tickets)
         {

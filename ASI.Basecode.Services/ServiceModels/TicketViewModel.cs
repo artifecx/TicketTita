@@ -64,10 +64,15 @@ namespace ASI.Basecode.Services.ServiceModels
 
         #region Relationships
         public string AgentId { get; set; }
+        public string TeamId { get; set; }
 
         /// <summary>The agent assigned to the ticket.</summary>
-        [Display(Name = "Assignee")]
+        [Display(Name = "Agent")]
         public User Agent { get; set; }
+
+        /// <summary>The team assigned to the ticket.</summary>
+        [Display(Name = "Team")]
+        public Team Team { get; set; }
 
         /// <summary>Holds the ticket assignment values.</summary>
         [Display(Name = "Ticket Assignee")]
@@ -105,8 +110,12 @@ namespace ASI.Basecode.Services.ServiceModels
 
 
         #region Dropdown Population
+        [Display(Name = "Teams")]
+        public IEnumerable<Team> Teams { get; set; }
         [Display(Name = "Support Agents")]
         public IEnumerable<User> Agents { get; set; }
+        public IEnumerable<User> AgentsWithNoTeam { get; set; }
+
         [Display(Name = "Users")]
         public IEnumerable<User> Users { get; set; }
 

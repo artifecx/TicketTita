@@ -77,10 +77,20 @@
             </div>
             <div class="pb-4 text-muted d-flex justify-content-between">
                 <div class="my-0">
-                    @Html.DisplayNameFor(model => model.TicketAssignment):
-                    @if (Model.TicketAssignment == null)
+                    @Html.DisplayNameFor(model => model.Team):
+                    @if (Model.TicketAssignment?.Team == null)
                     {
-                        @:No Assignee
+                        @:--Unavailable--
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Team.Name)
+                    }
+                    <br />
+                    @Html.DisplayNameFor(model => model.Agent):
+                    @if (Model.TicketAssignment?.Agent == null)
+                    {
+                        @:--Unavailable--
                     }
                     else
                     {
@@ -192,7 +202,50 @@
         var addCommentUrl = '@Url.Action("AddComment", "Ticket")';
         var deleteCommentUrl = '@Url.Action("DeleteComment", "Ticket")';
         var ticketId = '@Model.TicketId';
+
+        $('#teamId').change(function () {
+            var selectedTeamMembers = $('#teamId option:selected').data('team-members');
+            var agentDropdown = $('#agentId');
+            var currentAgentId = $('#currentAgentId').val();
+            var agentFound = false;
+
+            agentDropdown.empty();
+
+            if (!selectedTeamMembers || selectedTeamMembers.length === 0) {
+                agentDropdown.append('<option value="no_agent">-- No agents available --</option>');
+                agentDropdown.prop('disabled', true);
+            } else {
+                selectedTeamMembers.forEach(function (member) {
+                    if (member.UserId == currentAgentId) {
+                        agentFound = true;
+                    }
+                });
+
+                if (agentFound) {
+                    agentDropdown.append('<option value="no_agent">-- Unassign Agent --</option>');
+                } else {
+                    agentDropdown.append(`<option value="no_agent">-- Select Agent: ${selectedTeamMembers.length} Available --</option>`);
+                }
+
+                selectedTeamMembers.forEach(function (member) {
+                    agentDropdown.append('<option value="' + member.UserId + '">' + member.UserName + '</option>');
+                });
+
+                agentDropdown.prop('disabled', false);
+            }
+
+            if (currentAgentId && agentFound) {
+                agentDropdown.val(currentAgentId);
+            } else {
+                agentDropdown.val("no_agent");
+            }
+        });
+
+        $('#teamId').trigger('change');
     </script>
+
+
+
     <script src="~/js/comment.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>

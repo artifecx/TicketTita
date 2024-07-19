@@ -245,19 +245,6 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Extracts the agent identifier from the assignment identifier.
-        /// </summary>
-        /// <param name="assignmentId">The assignment identifier</param>
-        /// <returns>string UserId</returns>
-        private string ExtractAgentId(string assignmentId)
-        {
-            if (string.IsNullOrEmpty(assignmentId)) return string.Empty;
-
-            string[] parts = assignmentId.Split('-');
-            return parts.Length >= 5 ? string.Join("-", parts.Take(5)) : assignmentId;
-        }
-
-        /// <summary>
         /// Helper method to update the ticket resolved date based on status.
         /// </summary>
         /// <param name="ticket">The ticket</param>

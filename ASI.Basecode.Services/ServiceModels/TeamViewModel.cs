@@ -21,13 +21,15 @@ namespace ASI.Basecode.Services.ServiceModels
 
         [Display(Name = "Description")]
         public string Description { get; set; }
-        #endregion
 
+        [Display(Name = "Specialization")]
+        public string SpecializationId { get; set; }
+        #endregion
 
         #region Team Navigation Properties
         [Display(Name = "Number of Agents")]
         public IEnumerable<TeamMember> TeamMembers { get; set; }
-
+        public CategoryType Specialization { get; set; }
         public IEnumerable<TicketAssignment> TicketAssignments { get; set; }
         #endregion
 

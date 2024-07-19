@@ -1,4 +1,9 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.TeamViewModel
+@using ASI.Basecode.Data.Models;
+
+@{
+    var teams = ViewBag.Teams as List<Team>;
+}
 
 <div class="modal fade" id="reassignAgentModal" tabindex="-1" role="dialog" aria-labelledby="reassignAgentModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -17,9 +22,14 @@
                         <label for="newTeamId" class="control-label">Select New Team</label>
                         <select id="newTeamId" name="newTeamId" class="form-control">
                             <option value="">-- Unassign --</option>
-                            @foreach (var team in ViewBag.Teams)
+                            @foreach (var teamGroup in teams.OrderBy(t => t.Specialization.CategoryName).GroupBy(t => t.Specialization.CategoryName))
                             {
-                                <option value="@team.TeamId">@team.Name</option>
+                                <optgroup label="@teamGroup.Key">
+                                    @foreach(var team in teamGroup)
+                                    {
+                                        <option value="@team.TeamId">@team.Name</option>
+                                    }
+                                </optgroup>
                             }
                         </select>
                     </div>

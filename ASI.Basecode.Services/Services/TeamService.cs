@@ -23,6 +23,7 @@ namespace ASI.Basecode.Services.Services
         private readonly ITeamRepository _repository;
         private readonly IMapper _mapper;
         private readonly INotificationService _notificationService;
+        private readonly ITicketService _ticketService;
         private readonly IPerformanceReportRepository _performanceReportRepository;
 
         /// <summary>
@@ -36,6 +37,7 @@ namespace ASI.Basecode.Services.Services
             ITeamRepository repository,
             IMapper mapper,
             INotificationService notificationService,
+            ITicketService ticketService,
             ILogger<TeamService> logger,
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository)
@@ -43,6 +45,7 @@ namespace ASI.Basecode.Services.Services
             _repository = repository;
             _mapper = mapper;
             _notificationService = notificationService;
+            _ticketService = ticketService;
             _performanceReportRepository = performanceReportRepository;
         }
 
@@ -52,6 +55,10 @@ namespace ASI.Basecode.Services.Services
         /// <param name="team">The team.</param>
         public async Task AddAsync(TeamViewModel team)
         {
+            string[] validSpecializationIds = { "C1", "C2", "C3", "C4" };
+            if (!validSpecializationIds.Contains(team.SpecializationId))
+                throw new TeamException("Invalid specialization.", team.TeamId);
+
             var teams = await _repository.GetAllAsync();
             if (teams.Any(t => t.Name.ToLower() == team.Name.ToLower()))
                 throw new TeamException("Team name already exists.");
@@ -63,6 +70,7 @@ namespace ASI.Basecode.Services.Services
                     TeamId = Guid.NewGuid().ToString(),
                     Name = team.Name,
                     Description = team.Description,
+                    SpecializationId = team.SpecializationId
                 };
 
                 await _repository.AddAsync(newTeam);
@@ -75,14 +83,19 @@ namespace ASI.Basecode.Services.Services
         /// <param name="team">The team.</param>
         public async Task UpdateAsync(TeamViewModel team)
         {
+            string[] validSpecializationIds = { "C1", "C2", "C3", "C4" };
+            if (!validSpecializationIds.Contains(team.SpecializationId))
+                throw new TeamException("Invalid specialization.", team.TeamId);
+
             var existingTeam = await _repository.FindByIdAsync(team.TeamId);
             if (existingTeam != null)
             {
                 bool hasChanges = existingTeam.Name != team.Name ||
-                                  existingTeam.Description != team.Description;
+                                  existingTeam.Description != team.Description ||
+                                  existingTeam.SpecializationId != team.SpecializationId;
 
                 if (!hasChanges)
-                    throw new TeamException("No changes were made to the team.", team.TeamId);
+                    throw new TeamException("No changes were made to the team.", team.TeamId); 
 
                 var teamMembers = existingTeam.TeamMembers;
                 var ticketAssignments = existingTeam.TicketAssignments;
@@ -136,7 +149,6 @@ namespace ASI.Basecode.Services.Services
                 var team = await _repository.FindByIdAsync(teamId);
                 var agent = await _repository.FindAgentByIdAsync(agentId);
 
-                // Create a new performance report for the new team member
                 var performanceReport = new PerformanceReport
                 {
                     ReportId = Guid.NewGuid().ToString(),
@@ -145,7 +157,16 @@ namespace ASI.Basecode.Services.Services
                     AssignedDate = DateTime.UtcNow
                 };
                 await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
-                
+
+                var model = new TicketViewModel();
+                foreach (var ticketAssignment in agent.TicketAssignmentAgents)
+                {
+                    model.AgentId = agentId;
+                    model.TicketId = ticketAssignment.TicketId;
+                    model.TeamId = teamId;
+                    await _ticketService.UpdateAssignmentAsync(model);
+                }
+
                 var teamMember = new TeamMember
                 {
                     TeamId = team.TeamId,
@@ -175,6 +196,15 @@ namespace ASI.Basecode.Services.Services
                 var agent = await _repository.FindAgentByIdAsync(agentId);
                 var teamMember = await _repository.FindTeamMemberByIdAsync(agentId);
 
+                var model = new TicketViewModel();
+                foreach(var ticketAssignment in agent.TicketAssignmentAgents)
+                {
+                    model.AgentId = "no_agent";
+                    model.TicketId = ticketAssignment.TicketId;
+                    model.TeamId = ticketAssignment.TeamId;
+                    await _ticketService.UpdateAssignmentAsync(model);
+                }
+
                 agent.TeamMember = null;
                 team.TeamMembers.Remove(teamMember);
                 await _repository.RemoveTeamMemberAsync(teamMember);
@@ -193,13 +223,15 @@ namespace ASI.Basecode.Services.Services
             if (!string.IsNullOrEmpty(filterBy))
             {
                 teams = teams.Where(team => team.Name.Contains(filterBy, StringComparison.OrdinalIgnoreCase) ||
-                                   (team.Description != null && team.Description.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
+                                   (team.Specialization.CategoryName.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
                              .ToList();
             }
             
             teams = sortBy switch
             {
                 "name_desc" => teams.OrderByDescending(t => t.Name).ToList(),
+                "specialization_desc" => teams.OrderByDescending(t => t.Specialization.CategoryName).ToList(),
+                "specialization" => teams.OrderBy(t => t.Specialization.CategoryName).ToList(),
                 "agents_desc" => teams.OrderByDescending(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "agents" => teams.OrderBy(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "active_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),

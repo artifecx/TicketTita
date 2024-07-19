@@ -12,7 +12,8 @@ namespace ASI.Basecode.Data.Migrations
             migrationBuilder.InsertData(
                 table: "Admin",
                 columns: new[] { "admin_ID", "name", "email", "password", "isSuper" },
-                values: new object[,] { 
+                values: new object[,] 
+                {
                     { "D56F556E-50A4-4240-A0FF-9A6898B3A03B", "Joel", "joel@example.com", "securepassword", true },
                     { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", true },
                 }
@@ -26,15 +27,15 @@ namespace ASI.Basecode.Data.Migrations
                     { "Admin", "Admin", "Administrator with full access to the system" },
                     { "Support Agent", "Support Agent", "Support agent with access to help desk functionalities" },
                     { "Employee", "Employee", "Employee with basic access to the system" }
-                } 
+                }
             );
 
             migrationBuilder.InsertData(
                 table: "User",
                 columns: new[] { "user_ID", "name", "email", "password", "role_ID", "createdBy", "createdTime", "updatedTime", "updatedBy" },
-                values: new object[,] 
+                values: new object[,]
                 {
-                    { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", "Admin", 
+                    { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", "Admin",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
                     { "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", "Agent A", "agenta@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
@@ -50,8 +51,8 @@ namespace ASI.Basecode.Data.Migrations
             migrationBuilder.InsertData(
                 table: "PriorityType",
                 columns: new[] { "priorityType_ID", "priorityName", "description" },
-                values: new object[,] 
-                { 
+                values: new object[,]
+                {
                     { "P1", "Critical", "Ticket with the highest priority." },
                     { "P2", "High", "Ticket with high priority." },
                     { "P3", "Medium", "Ticket with medium priority." },
@@ -86,21 +87,13 @@ namespace ASI.Basecode.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "Team",
-                columns: new[] { "team_ID", "name", "description" },
+                columns: new[] { "team_ID", "name", "description", "specialization_ID" },
                 values: new object[,]
                 {
-                    { "33e3e490-cf80-428b-b1d6-67c3455ac462", "A-Team", "Amazing team." },
-                    { "0ee1f465-9b7d-4199-b384-121990d92f9d", "B-Team", "Bmazing team." }
-                }
-            );
-
-            migrationBuilder.InsertData(
-                table: "TeamMember",
-                columns: new[] { "team_ID", "user_ID", "report_ID" },
-                values: new object[,]
-                {
-                    { "33e3e490-cf80-428b-b1d6-67c3455ac462", "5c8185f8-a1ce-4175-8179-f9a055c8d3c4", null },
-                    { "0ee1f465-9b7d-4199-b384-121990d92f9d", "71e6123f-641d-42fe-937f-07a5cd27977f", null }
+                    { $"{Guid.NewGuid().ToString()}", "Software Saviors", "The team specializes in software related issues.", "C1" },
+                    { $"{Guid.NewGuid().ToString()}", "Hardware Heroes", "The team specializes in hardware related issues.", "C2" },
+                    { $"{Guid.NewGuid().ToString()}", "Network Ninjas", "The team specializes in network related issues.", "C3" },
+                    { $"{Guid.NewGuid().ToString()}", "Access Aces", "The team specializes in account related issues.", "C4" },
                 }
             );
 
