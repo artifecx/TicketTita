@@ -112,21 +112,24 @@
                         <td>
                             @if (isSuper || item.RoleId != "Admin")
                             {
-                                @Html.ActionLink("", "Update", new { SelectedUserId = item.UserId }, new { @class = "fas fa-edit action-icon", data_toggle = "modal", data_target = "#editUserModal", data_userid = @item.UserId })
+                                <a href="javascript:void(0);" class="fas fa-edit action-icon" data-toggle="modal" data-target="#editUserModal" data-userid="@item.UserId" data-toggle="tooltip" title="Edit"></a>
                             }
-                            
-                            @Html.ActionLink("", "Details", new { SelectedUserId = item.UserId }, new { @class = "fas fa-info-circle action-icon", data_toggle = "modal", data_target = "#userDetailsModal-" + @item.UserId })
+
+                            <a href="javascript:void(0);" class="fas fa-info-circle action-icon" data-toggle="modal" data-target="#userDetailsModal-@item.UserId" data-toggle="tooltip" title="View Details"></a>
+
                             @if (isSuper || item.RoleId != "Admin")
                             {
-                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon"></a>
+                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.UserId')" class="fas fa-trash-alt action-icon" data-toggle="tooltip" title="Delete"></a>
                             }
+
                             @if (item.RoleId.Equals("Support Agent"))
                             {
-                                <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId">
-                                    View Performance
+                                <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId" data-toggle="tooltip" title="View Performance">
+                                    <i class="fa fa-tachometer-alt"></i>
                                 </button>
                             }
                         </td>
+
                     </tr>
                 }
             </tbody>
@@ -317,5 +320,10 @@
             toastr.success(deleteMessage);
             sessionStorage.removeItem("DeleteSuccess");
         }
+
+        $(document).ready(function () {
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     </script>
 }
