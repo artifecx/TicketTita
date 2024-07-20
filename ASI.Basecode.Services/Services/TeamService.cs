@@ -99,11 +99,13 @@ namespace ASI.Basecode.Services.Services
 
                 var teamMembers = existingTeam.TeamMembers;
                 var ticketAssignments = existingTeam.TicketAssignments;
+                var specialization = existingTeam.Specialization;
 
                 _mapper.Map(team, existingTeam);
 
                 existingTeam.TeamMembers = teamMembers;
                 existingTeam.TicketAssignments = ticketAssignments;
+                existingTeam.Specialization = specialization;
 
                 await _repository.UpdateAsync(existingTeam);
             }

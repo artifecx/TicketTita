@@ -31,17 +31,14 @@ namespace ASI.Basecode.Services.ServiceModels
 
         /// <summary>a foreign key pointing to the Category table.</summary>
         [Display(Name = "Category")]
-        [Required(ErrorMessage = "Category is required.")]
         public string CategoryTypeId { get; set; }
 
         /// <summary>a foreign key pointing to the Priority table.</summary>
         [Display(Name = "Priority")]
-        [Required(ErrorMessage = "Priority is required.")]
         public string PriorityTypeId { get; set; }
 
         /// <summary>a foreign key pointing to the Status table.</summary>
         [Display(Name = "Status")]
-        [Required(ErrorMessage = "Status is required.")]
         public string StatusTypeId { get; set; }
 
         /// <summary>The date the ticket was created</summary>

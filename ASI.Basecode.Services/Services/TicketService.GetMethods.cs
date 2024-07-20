@@ -52,6 +52,7 @@ namespace ASI.Basecode.Services.Services
             if (currentUserId == null || currentUserRole == null) return null;
 
             var ticket = await GetTicketByIdAsync(id);
+            if (ticket == null) return null;
             if (ticket.StatusTypeId == "S4" && ticket.UserId != currentUserId) return null;
             
             if (currentUserRole.Contains("Support Agent"))
