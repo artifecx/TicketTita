@@ -5,18 +5,40 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>View Article List</h1>
 
-@if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
-{
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
-}
+
+
+<div class="d-flex justify-content-between nav-header">
+    <h1 class=" display-6">Articles</h1>
+    <div class="d-flex justify-content-between">
+        <form method="get" asp-action="Index">
+            <div class="form-group input-group">
+                <input type="text" name="searchTerm" class="form-control btn-radius px-3" placeholder="Search Articles..." value="@ViewBag.SearchTerm" />
+                <span class="input-group-append">
+                    <button type="submit" class="btn btn-primary btn-radius-r px-3">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+                @* <a asp-action="Index" class="btn btn-secondary">Clear Filters</a> *@
+            </div>
+        </form>
+
+        @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+        {
+            <div class="mx-3">
+                <button type="button" class="btn btn-primary btn-radius px-3" onclick="window.location.href='@Url.Action("Create")'">
+                    <i class="fa fa-plus"></i>
+                    Create New
+                </button>
+            </div>
+
+        }
+    </div>
+</div>
 
 
 <form asp-action="Index" method="get">
-    <input type="text" name="searchTerm" placeholder="Search Articles..." value="@ViewBag.SearchTerm"/>
+
     <select id="categories" name="selectedCategories" multiple="multiple">
         @foreach (var category in ViewBag.Categories as IEnumerable<ArticleCategory>)
         {

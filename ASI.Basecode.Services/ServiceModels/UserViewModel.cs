@@ -26,7 +26,7 @@ namespace ASI.Basecode.Services.ServiceModels
         /// Gets or sets the password.
         /// </summary>
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(8, ErrorMessage = "Password length must be between 5 and 8.", MinimumLength = 5)]
+        [StringLength(100, ErrorMessage = "Password must be 5 characters minimum", MinimumLength = 5)]
         public string Password { get; set; }
         /// <summary>
         /// Gets or sets the role identifier.

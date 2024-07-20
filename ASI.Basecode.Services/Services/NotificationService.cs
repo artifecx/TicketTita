@@ -146,5 +146,11 @@ namespace ASI.Basecode.Services.Services
         {
             _notificationRepository.Delete(notificationId);
         }
+
+        public int GetUnreadNotificationCount(string userId)
+        {
+            return _notificationRepository.RetrieveAll().Count(n => n.UserId == userId && !n.IsRead);
+        }
+
     }
 }
