@@ -15,6 +15,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Success result</returns>
         [HttpPost]
         [Authorize(Policy = "Employee")]
+        [Route("providefeedback")]
         public async Task<IActionResult> ProvideFeedback(FeedbackViewModel model)
         {
             return await HandleExceptionAsync(async () =>
@@ -22,7 +23,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     if (string.IsNullOrEmpty(model.UserId) || string.IsNullOrEmpty(model.TicketId))
-                        return RedirectToAction("ViewAll");
+                        return RedirectToAction("GetAll");
 
                     await _feedbackService.AddAsync(model);
 

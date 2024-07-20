@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    [Route("team")]
     public class TeamController : ControllerBase<TeamController>
     {
         private readonly ITeamService _teamService;
@@ -49,7 +50,9 @@ namespace ASI.Basecode.WebApp.Controllers
         #region GET Methods 
         /// <summary>Show all teams</summary>
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, int pageIndex = 1)
+        [HttpGet]
+        [Route("all")]
+        public async Task<IActionResult> GetAll(string sortBy, string filterBy, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
@@ -61,8 +64,8 @@ namespace ASI.Basecode.WebApp.Controllers
                                 .Where(ct => !ct.CategoryName.Contains("Other"))
                                 .OrderBy(ct => ct.CategoryName).ToList();
 
-                return View(teams);
-            }, "ViewAll");
+                return View("ViewAll", teams);
+            }, "GetAll");
         }
                
         /// <summary>
@@ -73,6 +76,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>View</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
+        [Route("view")]
         public async Task<IActionResult> ViewTeam(string id, string showModal = null)
         {
             return await HandleExceptionAsync(async () =>
@@ -80,14 +84,14 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (string.IsNullOrEmpty(id))
                 {
                     TempData["ErrorMessage"] = "Team ID is invalid!";
-                    return RedirectToAction("ViewAll");
+                    return RedirectToAction("GetAll");
                 }
 
                 var team = await _teamService.GetTeamByIdAsync(id);
                 if(team == null)
                 {
                     TempData["ErrorMessage"] = "Team not found!";
-                    return RedirectToAction("ViewAll");
+                    return RedirectToAction("GetAll");
                 }
                 var agents = await _teamService.GetAgentsAsync();
                 var teams = await _teamService.GetAllStrippedAsync();
@@ -100,7 +104,7 @@ namespace ASI.Basecode.WebApp.Controllers
                                 .Where(ct => !ct.CategoryName.Contains("Other"))
                                 .OrderBy(ct => ct.CategoryName).ToList();
 
-                return View(team);
+                return View("ViewTeam", team);
             }, "ViewTeam");
         }
         #endregion GET Methods
@@ -113,6 +117,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [Route("create")]
         public async Task<IActionResult> Create(TeamViewModel model)
         {
             return await HandleExceptionAsync(async () =>
@@ -129,13 +134,14 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         /// <summary>
-        /// Edits the selected team.
+        /// Updates the selected team.
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> Edit(TeamViewModel model)
+        [Route("update")]
+        public async Task<IActionResult> Update(TeamViewModel model)
         {
             return await HandleExceptionAsync(async () =>
             {
@@ -147,7 +153,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 }
                 TempData["ErrorMessage"] = "An error occurred while updating the team. Please try again.";
                 return Json(new { success = false });
-            }, "Edit");
+            }, "Update");
         }
 
         /// <summary>
@@ -157,6 +163,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [Route("delete")]
         public async Task<IActionResult> Delete(string id)
         {
             return await HandleExceptionAsync(async () =>
@@ -180,6 +187,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [Route("assignagent")]
         public async Task<IActionResult> AssignAgent(string teamId, string agentId)
         {
             return await HandleExceptionAsync(async () =>
@@ -204,6 +212,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
+        [Route("reassignagent")]
         public async Task<IActionResult> ReassignAgent(string oldTeamId, string newTeamId, string agentId)
         {
             return await HandleExceptionAsync(async () =>

@@ -245,7 +245,7 @@ namespace ASI.Basecode.WebApp.Mvc
 
             if (actionName == "Delete")
             {
-                return RedirectToAction("ViewAll");
+                return RedirectToAction("GetAll");
             }
 
             return !string.IsNullOrEmpty(id) ? RedirectToAction(actionName, new { id }) : RedirectToAction(actionName);

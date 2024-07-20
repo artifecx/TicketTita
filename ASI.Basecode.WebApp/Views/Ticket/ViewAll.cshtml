@@ -29,7 +29,7 @@
 <div class="d-flex justify-content-between nav-header">
     <h1 class="display-6">Tickets</h1>
     <div class="d-flex justify-content-between">
-        <form method="get" asp-action="ViewAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">
+        <form method="get" asp-action="GetAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">
             <div class="form-group input-group">
                 <input type="text" name="search" class="form-control btn-radius px-3" placeholder="Search by subject" value="@search" />
                 <span class="input-group-append">
@@ -57,7 +57,7 @@
 </div>
 
 <div class="container-fluid px-4 py-3">
-    <form method="get" asp-action="ViewAll">
+    <form method="get" asp-action="GetAll">
         <label for="filterBy">Filter By: </label>
         <select asp-for="@filterBy" id="filterBy" name="filterBy">
             <option value="">No Filter</option>
@@ -78,13 +78,13 @@
                 <tr>
                     <th>
 
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().TicketId)
                             @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "id_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().Subject)
                             @(sortBy == "subject" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "subject_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
@@ -92,38 +92,38 @@
                     @if (!User.IsInRole("Employee"))
                     {
                         <th>
-                            <a asp-action="ViewAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                            <a asp-action="GetAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                                 @Html.DisplayNameFor(model => model.First().User)
                                 @(sortBy == "user" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "user_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                             </a>
                         </th>
                     }
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().UpdatedDate)
                             @(sortBy == "updated" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "updated_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().ResolvedDate)
                             @(sortBy == "resolved" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "resolved_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search"class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search"class="text-black">
                             @Html.DisplayNameFor(model => model.First().CategoryType)
                             @(sortBy == "category" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "category_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().PriorityType)
                             @(sortBy == "priority" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "priority_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
                     </th>
                     <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
+                        <a asp-action="GetAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
                             @Html.DisplayNameFor(model => model.First().StatusType)
                             @(sortBy == "status" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "status_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                         </a>
@@ -221,7 +221,7 @@
                                 }
                             </td>
                             <td>
-                                @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
+                                @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
                                 @if (User.IsInRole("Employee"))
                                 {
                                     @if (item.StatusType.StatusName.Contains("Resolved"))
@@ -229,17 +229,17 @@
                                         <text> | </text>
                                         @if (item.Feedback == null)
                                         {
-                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
+                                            @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
                                         }
                                         else
                                         {
-                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
+                                            @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
                                         }
                                     }
                                     else
                                     {
                                         <text> | </text>
-                                        @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
+                                        @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
                                     }
                                     <text> | </text>
                                     <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@(item.Subject.Length > 20 ? item.Subject.Substring(0, 20) + "..." : item.Subject)')">
@@ -257,19 +257,19 @@
                 @if (Model.HasPreviousPage)
                 {
                     <li class="page-item">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Previous</a>
+                        <a class="page-link" asp-action="GetAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Previous</a>
                     </li>
                 }
                 @for (int i = 1; i <= Model.TotalPages; i++)
                 {
                     <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">@i</a>
+                        <a class="page-link" asp-action="GetAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">@i</a>
                     </li>
                 }
                 @if (Model.HasNextPage)
                 {
                     <li class="page-item">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Next</a>
+                        <a class="page-link" asp-action="GetAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Next</a>
                     </li>
                 }
             </ul>

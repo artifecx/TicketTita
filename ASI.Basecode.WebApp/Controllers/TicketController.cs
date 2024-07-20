@@ -17,6 +17,7 @@ using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    [Route("ticket")]
     public partial class TicketController : ControllerBase<TicketController>
     {
         private readonly ITicketService _ticketService;
@@ -59,9 +60,11 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="sortBy">User defined, taken from the page</param>
         /// <param name="filterBy">User defined, taken from the page</param>
         /// <param name="filterValue">User defined, taken from the page</param>
-        /// <returns>ViewAll page</returns>
+        /// <returns>GetAll page</returns>
         [Authorize]
-        public async Task<IActionResult> ViewAll(string sortBy, string filterBy, string filterValue, string search, int pageIndex = 1)
+        [HttpGet]
+        [Route("all")]
+        public async Task<IActionResult> GetAll(string sortBy, string filterBy, string filterValue, string search, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
@@ -73,32 +76,33 @@ namespace ASI.Basecode.WebApp.Controllers
                 ViewData["SortBy"] = sortBy;
                 ViewData["Search"] = search;
 
-                return View(tickets);
-            }, "ViewAll");
+                return View("ViewAll", tickets);
+            }, "GetAll");
         }
 
         /// <summary>
         /// Shows a specific ticket
         /// </summary>
         /// <param name="id">Ticket identifier</param>
-        /// <returns>ViewTicket page</returns>
+        /// <returns>GetTicket page</returns>
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> ViewTicket(string id, string notificationId, string showModal = null)
+        [Route("view/{id}")]
+        public async Task<IActionResult> GetTicket(string id, string notificationId, string showModal = null)
         {
             return await HandleExceptionAsync(async () =>
             {
                 if (string.IsNullOrEmpty(id))
                 {
                     TempData["ErrorMessage"] = "Ticket ID is invalid!";
-                    return RedirectToAction("ViewAll");
+                    return RedirectToAction("GetAll");
                 }
 
                 var ticket = await _ticketService.GetFilteredTicketByIdAsync(id);
                 if (ticket == null)
                 {
                     TempData["ErrorMessage"] = "Ticket not found!";
-                    return RedirectToAction("ViewAll");
+                    return RedirectToAction("GetAll");
                 }
                 if (ticket != null)
                 {
@@ -108,10 +112,10 @@ namespace ASI.Basecode.WebApp.Controllers
                     {
                         _notificationService.MarkNotificationAsRead(notificationId);
                     }
-                    return View(ticket);
+                    return View("ViewTicket", ticket);
                 }
-                return RedirectToAction("ViewAll");
-            }, "ViewTicket");
+                return RedirectToAction("GetAll");
+            }, "GetTicket");
         }
         #endregion GET methods
 
@@ -120,9 +124,10 @@ namespace ASI.Basecode.WebApp.Controllers
         /// Allows the user to create a ticket
         /// </summary>
         /// <param name="model"></param>
-        /// <returns>ViewAll page</returns>
+        /// <returns>GetAll page</returns>
         [HttpPost]
         [Authorize]
+        [Route("create")]
         public async Task<IActionResult> Create(TicketViewModel model)
         {
             return await HandleExceptionAsync(async () =>
@@ -139,13 +144,14 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         /// <summary>
-        /// Allows the user to edit a ticket
+        /// Allows the user to update a ticket
         /// </summary>
         /// <param name="model"></param>
-        /// <returns>ViewAll page</returns>
+        /// <returns>GetAll page</returns>
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Edit(TicketViewModel model)
+        [Route("update")]
+        public async Task<IActionResult> Update(TicketViewModel model)
         {
             return await HandleExceptionAsync(async () =>
             {
@@ -157,7 +163,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 }
                 TempData["ErrorMessage"] = "An error occurred while updating the ticket. Please try again.";
                 return Json(new { success = false });
-            }, "Edit");
+            }, "Update");
         }
 
         /// <summary>
@@ -167,6 +173,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Json success status</returns>
         [HttpPost]
         [Authorize]
+        [Route("delete")]
         public async Task<IActionResult> Delete(string id)
         {
             return await HandleExceptionAsync(async () =>

@@ -16,7 +16,7 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    if (model == null) return RedirectToAction("ViewAll");
+                    if (model == null) return RedirectToAction("GetAll");
                     model.UserId = UserId;
                     await _ticketService.AddCommentAsync(model);
                     TempData["SuccessMessage"] = "Comment posted successfully!";

@@ -90,7 +90,7 @@ function submitEditTicket() {
     }
 
     $.ajax({
-        url: '/Ticket/Edit',
+        url: '/Ticket/Update',
         type: 'POST',
         data: formData,
         processData: false,
