@@ -38,5 +38,10 @@ namespace ASI.Basecode.Data.Repositories
                 await UnitOfWork.SaveChangesAsync();
             }
         }
+
+        public async Task<KeyValuePair<string,string>> FindUserPreferenceByKey(string userId, string key)
+        {
+            return GetUserPreferences(userId).FirstOrDefault(x => x.Key == key);
+        }
     }
 }

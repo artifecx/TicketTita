@@ -24,11 +24,12 @@ namespace ASI.Basecode.Services.Services
     public partial class TicketService : ITicketService
     {
         private readonly ITicketRepository _repository;
+        private readonly IUserPreferencesRepository _userPreferencesRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationService _notificationService;
-        private readonly IPerformanceReportRepository _performanceReportRepository;
         private readonly ITeamRepository _teamRepository;
+        private readonly IPerformanceReportRepository _performanceReportRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -39,6 +40,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="httpContextAccessor">The HTTP context accessor</param>
         public TicketService(
             ITicketRepository repository,
+            IUserPreferencesRepository userPreferencesRepository,
             IMapper mapper,
             INotificationService notificationService,
             IHttpContextAccessor httpContextAccessor,
@@ -46,6 +48,7 @@ namespace ASI.Basecode.Services.Services
             ITeamRepository teamRepository)
         {
             _repository = repository;
+            _userPreferencesRepository = userPreferencesRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;

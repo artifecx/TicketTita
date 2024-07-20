@@ -10,5 +10,6 @@ namespace ASI.Basecode.Data.Interfaces
     {
         Dictionary<string, string> GetUserPreferences(string userId);
         Task UpdateUserPreferences(string userId, Dictionary<string, string> updatedPreferences);
+        Task<KeyValuePair<string, string>> FindUserPreferenceByKey(string userId, string key);
     }
 }

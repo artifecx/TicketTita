@@ -47,7 +47,8 @@ namespace ASI.Basecode.WebApp.Controllers
                             IMapper mapper,
                             IAccountService userService,
                             TokenValidationParametersFactory tokenValidationParametersFactory,
-                            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                            IUserPreferencesService userPreferences,
+                            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
             this._sessionManager = new SessionManager(this._session);
             this._signInManager = signInManager;

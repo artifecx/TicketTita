@@ -41,7 +41,7 @@
             <form asp-action="UpdateUserPreferences" method="post">
                 <input type="hidden" asp-for="UserId" />
                 <div class="form-group">
-                    <label for="Preferences_pagination">Pagination Size</label>
+                    <label for="Preferences_pagination">Global Pagination Size</label>
                     <select class="form-control" id="Preferences_pagination" name="Preferences[pagination]">
                         @for (int i = 5; i <= 50; i += 5)
                         {

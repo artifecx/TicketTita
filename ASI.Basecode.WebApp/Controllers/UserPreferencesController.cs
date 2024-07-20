@@ -40,7 +40,7 @@ namespace ASI.Basecode.WebApp.Controllers
             IMapper mapper,
             IUserPreferencesService userPreferencesService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
-            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferencesService)
         {
             this._userPreferencesService = userPreferencesService;
         }

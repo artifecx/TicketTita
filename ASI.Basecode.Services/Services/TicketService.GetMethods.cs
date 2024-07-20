@@ -102,7 +102,7 @@ namespace ASI.Basecode.Services.Services
             var tickets = await GetAllAsync();
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
+            
             if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Employee"))
             {
                 tickets = tickets.Where(x => x.UserId == userId).ToList();

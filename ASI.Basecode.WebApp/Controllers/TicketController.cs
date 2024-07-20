@@ -1,4 +1,5 @@
-﻿using ASI.Basecode.Data.Models;
+﻿using ASI.Basecode.Data.Interfaces;
+using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using ASI.Basecode.WebApp.Authentication;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -22,7 +24,6 @@ namespace ASI.Basecode.WebApp.Controllers
     {
         private readonly ITicketService _ticketService;
         private readonly IFeedbackService _feedbackService;
-        private readonly ITeamService _teamService;
         private readonly INotificationService _notificationService;
 
         /// <summary>
@@ -41,15 +42,14 @@ namespace ASI.Basecode.WebApp.Controllers
             IConfiguration configuration,
             IMapper mapper,
             ITicketService ticketService,
-            ITeamService teamService,
             IFeedbackService feedbackService,
             INotificationService notificationService,
+            IUserPreferencesService userPreferences,
             TokenValidationParametersFactory tokenValidationParametersFactory,
-            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
             this._ticketService = ticketService;
             this._feedbackService = feedbackService;
-            this._teamService = teamService;
             this._notificationService = notificationService;
         }
 
@@ -67,10 +67,11 @@ namespace ASI.Basecode.WebApp.Controllers
         public async Task<IActionResult> GetAll(string sortBy, string filterBy, string filterValue, string search, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
-            {
-                await PopulateViewBagAsync();
-                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue, search, pageIndex, 10);
+            { 
+                var pageSize = UserPaginationPreference;
+                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(sortBy, filterBy, filterValue, search, pageIndex, pageSize);
 
+                await PopulateViewBagAsync();
                 ViewData["FilterBy"] = filterBy;
                 ViewData["FilterValue"] = filterValue;
                 ViewData["SortBy"] = sortBy;

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using ASI.Basecode.Services.Exceptions;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
+using ASI.Basecode.Services.Interfaces;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -34,6 +35,8 @@ namespace ASI.Basecode.WebApp.Mvc
         /// <summary>Session</summary>
         protected ISession _session => _httpContextAccessor.HttpContext.Session;
 
+        protected IUserPreferencesService _userPreferences { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the ControllerBase{TController} class.
         /// </summary>
@@ -46,8 +49,10 @@ namespace ASI.Basecode.WebApp.Mvc
                                 IHttpContextAccessor httpContextAccessor,
                                 ILoggerFactory loggerFactory,
                                 IConfiguration configuration,
-                                IMapper mapper = null)
+                                IMapper mapper = null,
+                                IUserPreferencesService userPreferences = null)
         {
+            this._userPreferences = userPreferences;
             this._httpContextAccessor = httpContextAccessor;
             this._configuration = configuration;
             this._logger = loggerFactory.CreateLogger<TController>();
@@ -112,6 +117,16 @@ namespace ASI.Basecode.WebApp.Mvc
         public string ClientUserRole
         {
             get { return User.FindFirst("ClientUserRole").Value; }
+        }
+
+        public int UserPaginationPreference
+        {
+            get
+            {
+                var paginationPreference = _userPreferences.GetUserPreferenceByKey(UserId, "pagination").Result;
+                if (paginationPreference.Value == null) return Convert.ToInt32("10");
+                else return Convert.ToInt32(paginationPreference.Value);
+            }
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
+using ASI.Basecode.Data.Repositories;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
@@ -73,6 +74,11 @@ namespace ASI.Basecode.Services.Services
                 }
                 await _repository.UpdateUserPreferences(model.UserId, existingPreferences);
             }
+        }
+
+        public async Task<KeyValuePair<string, string>> GetUserPreferenceByKey(string userId, string key)
+        {
+            return await _repository.FindUserPreferenceByKey(userId, key);
         }
     }
 }

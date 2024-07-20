@@ -40,8 +40,9 @@ namespace ASI.Basecode.WebApp.Controllers
             IMapper mapper,
             ITeamService teamService,
             ITicketService ticketService,
+            IUserPreferencesService userPreferences,
             TokenValidationParametersFactory tokenValidationParametersFactory,
-            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+            TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
             this._teamService = teamService;
             this._ticketService = ticketService;
@@ -56,7 +57,8 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                var teams = await _teamService.GetAllAsync(sortBy, filterBy, pageIndex, 10);
+                var pageSize = UserPaginationPreference;
+                var teams = await _teamService.GetAllAsync(sortBy, filterBy, pageIndex, pageSize);
 
                 ViewData["FilterBy"] = filterBy;
                 ViewData["SortBy"] = sortBy;

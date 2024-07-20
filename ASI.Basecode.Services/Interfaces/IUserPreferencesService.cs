@@ -11,5 +11,6 @@ namespace ASI.Basecode.Services.Interfaces
     {
         Task<UserPreferencesViewModel> GetUserPreferences(string userId);
         Task UpdateUserPreferences(UserPreferencesViewModel model);
+        Task<KeyValuePair<string, string>> GetUserPreferenceByKey(string userId, string key);
     }
 }
