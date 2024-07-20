@@ -21,7 +21,7 @@
 <div class="d-flex justify-content-between nav-header">
     <h1 class="display-6">Team Management</h1>
     <div class="d-flex justify-content-between">
-        <form method="get" asp-action="ViewAll" asp-route-sortBy="@sortByName" asp-route-filterBy="@filterBy">
+        <form method="get" asp-action="ViewAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy">
             <div class="form-group input-group">
                 <input type="text" name="filterBy" class="form-control btn-radius px-3" placeholder="Name or specialization" value="@filterBy" />
                 <span class="input-group-append">
@@ -30,6 +30,7 @@
                     </button>
                 </span>
             </div>
+            <input type="hidden" name="sortBy" value="@sortBy" />
         </form>
         <div class="mx-3">
             <p>

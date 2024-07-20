@@ -26,13 +26,14 @@ namespace ASI.Basecode.Services.Services
         /// ------------------------------
         /// existing assignment
         /// case 0: same team, same agent - exception
-        /// case 1: no team, no agent
-        /// case 2: same team, no agent
-        /// case 3: no team, different agent
-        /// case 4: same team, different agent
-        /// case 5: different team, no agent
-        /// case 6: different team, different agent
-        /// case 7: new team from no team, same agent -> no team agent with ticket was assigned to a team
+        /// case 1: same team, no agent assigned, no agent selected - exception
+        /// case 2: no team, no agent
+        /// case 3: same team, no agent
+        /// case 4: no team, different agent
+        /// case 5: same team, different agent
+        /// case 6: different team, no agent
+        /// case 7: different team, different agent
+        /// case 8: new team from no team, same agent -> no team agent with ticket was assigned to a team
         public async Task<string> UpdateAssignmentAsync(TicketViewModel model)
         {
             var currentUser = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -77,6 +78,10 @@ namespace ASI.Basecode.Services.Services
                 if (teamId == assignmentTeamId && agentId == assignmentAgentId)
                 {
                     throw new TicketException("Cannot reassign to the same team and agent.", ticketId);
+                }
+                if (teamId == assignmentTeamId && agentId == noAgent && assignmentAgentId == null)
+                {
+                    throw new TicketException("Cannot assign to the same team without an agent selected.", ticketId);
                 }
 
                 if (teamId == noTeam && agentId == noAgent)

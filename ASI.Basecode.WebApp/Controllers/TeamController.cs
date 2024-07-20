@@ -77,7 +77,18 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
+                if (string.IsNullOrEmpty(id))
+                {
+                    TempData["ErrorMessage"] = "Team ID is invalid!";
+                    return RedirectToAction("ViewAll");
+                }
+
                 var team = await _teamService.GetTeamByIdAsync(id);
+                if(team == null)
+                {
+                    TempData["ErrorMessage"] = "Team not found!";
+                    return RedirectToAction("ViewAll");
+                }
                 var agents = await _teamService.GetAgentsAsync();
                 var teams = await _teamService.GetAllStrippedAsync();
 

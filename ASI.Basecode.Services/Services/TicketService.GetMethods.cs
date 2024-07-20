@@ -41,13 +41,55 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
+        /// Gets the ticket and filters it
+        /// </summary>
+        /// <param name="id">The identifier</param>
+        /// <returns>TicketViewModel</returns>
+        public async Task<TicketViewModel> GetFilteredTicketByIdAsync(string id)
+        {
+            var currentUserId = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUserRole = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Role)?.Value;
+            if (currentUserId == null || currentUserRole == null) return null;
+
+            var ticket = await GetTicketByIdAsync(id);
+            if (ticket.StatusTypeId == "S4" && ticket.UserId != currentUserId) return null;
+            
+            if (currentUserRole.Contains("Support Agent"))
+            {
+                var agent = await _teamRepository.FindAgentByIdAsync(currentUserId);
+                if (ticket.CategoryType.CategoryName != "Others" &&
+                    ticket.TicketAssignment?.TeamId != agent.TeamMember?.TeamId &&
+                    ticket.TicketAssignment?.AgentId != agent.UserId &&
+                    ticket.CategoryTypeId != agent.TeamMember?.Team.SpecializationId)
+                    return null;
+            }
+
+            var agents = await _teamRepository.GetAgentsAsync();
+            var teams = await _teamRepository.GetAllStrippedAsync();
+            var statusTypes = await GetStatusTypesAsync();
+            var categoryTypes = await GetCategoryTypesAsync();
+            var priorityTypes = await GetPriorityTypesAsync();
+
+            ticket.StatusTypes = currentUserRole.Contains("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") :
+                    statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));
+            ticket.PriorityTypes = priorityTypes;
+            ticket.CategoryTypes = categoryTypes;
+            ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
+            ticket.Teams = currentUserRole.Contains("Admin") ? teams : teams.Where(x => x.TeamMembers != null && x.TeamMembers.Any(x => x.UserId == currentUserId));
+            ticket.Agents = agents;
+            ticket.AgentsWithNoTeam = currentUserRole.Contains("Admin") ? agents.Where(x => x.TeamMember == null) : null;
+
+            return ticket;
+        }
+
+        /// <summary>
         /// Calls GetAllAsync and filters the result based on sortBy, filterBy, and filterValue.
         /// </summary>
         /// <param name="sortBy">User defined sort order</param>
         /// <param name="filterBy">User defined filter category</param>
         /// <param name="filterValue">User defined filter value</param>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, int pageIndex, int pageSize)
+        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, string search, int pageIndex, int pageSize)
         {
             var tickets = await GetAllAsync();
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -73,17 +115,24 @@ namespace ASI.Basecode.Services.Services
                 foreach (var ticket in tickets)
                 {
                     /// Agent is assigned to a team
-                    if (ticket.TicketAssignment?.TeamId == agentTeamId)
+                    if(agentTeamId != null)
                     {
-                        assignedToAgentTeam.Add(ticket);
+                        if (ticket.TicketAssignment?.TeamId == agentTeamId)
+                        {
+                            assignedToAgentTeam.Add(ticket);
+                        }
                     }
                     /// Agent is not assigned to a team
-                    else if (ticket.TicketAssignment?.AgentId == agentTeamId && ticket.TicketAssignment?.TeamId == null)
+                    else
                     {
-                        assignedToAgentNoTeam.Add(ticket);
+                        if (ticket.TicketAssignment?.AgentId == userId && ticket.TicketAssignment?.TeamId == null)
+                        {
+                            assignedToAgentNoTeam.Add(ticket);
+                        }
                     }
+
                     /// Ticket is open and not assigned to a team/agent
-                    else if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
+                    if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
                     {
                         /// Ticket falls under a team specialization
                         if (ticket.CategoryTypeId == teamSpecializationId)
@@ -112,6 +161,10 @@ namespace ASI.Basecode.Services.Services
                 {
                     tickets = assignedToAgentNoTeam.Union(openTicketsNoTeam).Union(openTicketsOthers).ToList();
                 }
+            } 
+            else if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Admin"))
+            {
+                tickets = tickets.Where(x => x.StatusType.StatusName != "Closed").ToList();
             }
 
             if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
@@ -124,6 +177,11 @@ namespace ASI.Basecode.Services.Services
                     "user" => tickets.Where(t => t.User.Name == filterValue).ToList(),
                     _ => tickets
                 };
+            }
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                tickets = tickets.Where(t => t.Subject.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             tickets = sortBy switch

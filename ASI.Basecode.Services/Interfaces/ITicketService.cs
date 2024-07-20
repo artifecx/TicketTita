@@ -19,7 +19,8 @@ namespace ASI.Basecode.Services.Interfaces
         Task DeleteCommentAsync(string commentId);
         Task<List<TicketViewModel>> GetAllAsync();
         Task<TicketViewModel> GetTicketByIdAsync(string id);
-        Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, int pageIndex, int pageSize);
+        Task<TicketViewModel> GetFilteredTicketByIdAsync(string id);
+        Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, string search, int pageIndex, int pageSize);
         Task<Attachment> GetAttachmentByTicketIdAsync(string id);
         Task<TicketAssignment> GetAssignmentByTicketIdAsync(string id);
         Task<Team> GetTeamByUserIdAsync(string id);

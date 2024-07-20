@@ -133,6 +133,7 @@ namespace ASI.Basecode.Data.Repositories
                         .Include(u => u.ActivityLogs)
                         .Include(u => u.KnowledgeBaseArticles)
                         .Include(u => u.TicketAssignmentAgents)
+                            .ThenInclude(ta => ta.Ticket)
                         .FirstOrDefaultAsync(u => u.UserId == id);
         }
 

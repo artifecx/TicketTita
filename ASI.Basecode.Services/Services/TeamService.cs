@@ -161,6 +161,7 @@ namespace ASI.Basecode.Services.Services
                 var model = new TicketViewModel();
                 foreach (var ticketAssignment in agent.TicketAssignmentAgents)
                 {
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
                     model.AgentId = agentId;
                     model.TicketId = ticketAssignment.TicketId;
                     model.TeamId = teamId;
@@ -199,6 +200,7 @@ namespace ASI.Basecode.Services.Services
                 var model = new TicketViewModel();
                 foreach(var ticketAssignment in agent.TicketAssignmentAgents)
                 {
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
                     model.AgentId = "no_agent";
                     model.TicketId = ticketAssignment.TicketId;
                     model.TeamId = ticketAssignment.TeamId;
