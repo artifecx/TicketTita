@@ -292,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62668A4B0A")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62D54CA68C")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -608,7 +608,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306D7396162")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33061FADDCD1")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -753,7 +753,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD62BE17AD74")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD629D1463F6")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)
@@ -852,6 +852,8 @@ namespace ASI.Basecode.Data
                     .IsRequired()
                     .HasMaxLength(256)
                     .HasColumnName("password");
+
+                entity.Property(e => e.Preferences).HasColumnName("preferences");
 
                 entity.Property(e => e.RoleId)
                     .IsRequired()
