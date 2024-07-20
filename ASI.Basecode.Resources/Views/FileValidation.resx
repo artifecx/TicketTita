@@ -118,9 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AllowedFileTypes" xml:space="preserve">
-    <value>image/jpeg,image/png,video/mp4,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
+    <value>image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
   </data>
   <data name="MaxFileSizeMB" xml:space="preserve">
-    <value>200</value>
+    <value>5</value>
   </data>
 </root>
