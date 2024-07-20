@@ -65,11 +65,18 @@ namespace ASI.Basecode.Services.Services
                     return null;
             }
 
-            var agents = await _teamRepository.GetAgentsAsync();
-            var teams = await _teamRepository.GetAllStrippedAsync();
-            var statusTypes = await GetStatusTypesAsync();
-            var categoryTypes = await GetCategoryTypesAsync();
-            var priorityTypes = await GetPriorityTypesAsync();
+            var agentsTask = _teamRepository.GetAgentsAsync();
+            var teamsTask = _teamRepository.GetAllStrippedAsync();
+            var statusTypesTask = GetStatusTypesAsync();
+            var categoryTypesTask = GetCategoryTypesAsync();
+            var priorityTypesTask = GetPriorityTypesAsync();
+            await Task.WhenAll(agentsTask, teamsTask, statusTypesTask, categoryTypesTask, priorityTypesTask);
+
+            var agents = await agentsTask;
+            var teams = await teamsTask;
+            var statusTypes = await statusTypesTask;
+            var categoryTypes = await categoryTypesTask;
+            var priorityTypes = await priorityTypesTask;
 
             ticket.StatusTypes = currentUserRole.Contains("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") :
                     statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));

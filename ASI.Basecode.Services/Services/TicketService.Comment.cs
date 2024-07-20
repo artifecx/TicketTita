@@ -18,11 +18,16 @@ namespace ASI.Basecode.Services.Services
         public async Task AddCommentAsync(CommentViewModel model)
         {
             var comment = _mapper.Map<Comment>(model);
+            var user = _repository.UserFindByIdAsync(model.UserId);
+            var ticket = _repository.FindByIdAsync(model.TicketId);
+            var parent = model.ParentId != null ? _repository.FindCommentByIdAsync(model.ParentId) : null;
+            await Task.WhenAll(user, ticket, parent);
+
             comment.CommentId = Guid.NewGuid().ToString();
             comment.PostedDate = DateTime.Now;
-            comment.User = await _repository.UserFindByIdAsync(model.UserId);
-            comment.Ticket = await _repository.FindByIdAsync(model.TicketId);
-            comment.Parent = model.ParentId != null ? await _repository.FindCommentByIdAsync(model.ParentId) : null;
+            comment.User = await user;
+            comment.Ticket = await ticket;
+            comment.Parent = await parent;
 
             await _repository.AddCommentAsync(comment);
         }
