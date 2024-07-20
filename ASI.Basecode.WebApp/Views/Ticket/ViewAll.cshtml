@@ -177,7 +177,7 @@
                 </div>
                 <div class="card-body">
                     <form method="get" asp-action="GetAll">
-                        @if (!User.IsInRole("Support Agent"))
+                        @if (User.IsInRole("Support Agent"))
                         {
                             <div class="mb-3">
                                 <label for="showOption">Show Tickets: </label>
@@ -196,7 +196,7 @@
                                 <option value="">All</option>
                                 @foreach (var item in statusTypes)
                                 {
-                                    <option value="@item.StatusTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains(item.StatusTypeId) ? "selected" : null)">@item.StatusName</option>
+                                    <option value="status:@item.StatusTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("status:" + item.StatusTypeId) ? "selected" : null)">@item.StatusName</option>
                                 }
                             </select>
                         </div>
@@ -206,7 +206,7 @@
                                 <option value="">All</option>
                                 @foreach (var item in priorityTypes)
                                 {
-                                    <option value="@item.PriorityTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains(item.PriorityTypeId) ? "selected" : null)">@item.PriorityName</option>
+                                    <option value="priority:@item.PriorityTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("priority:" + item.PriorityTypeId) ? "selected" : null)">@item.PriorityName</option>
                                 }
                             </select>
                         </div>
@@ -216,7 +216,7 @@
                                 <option value="">All</option>
                                 @foreach (var item in categoryTypes)
                                 {
-                                    <option value="@item.CategoryTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains(item.CategoryTypeId) ? "selected" : null)">@item.CategoryName</option>
+                                    <option value="category:@item.CategoryTypeId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("category:" + item.CategoryTypeId) ? "selected" : null)">@item.CategoryName</option>
                                 }
                             </select>
                         </div>
@@ -229,7 +229,7 @@
                                     <option value="">All</option>
                                     @foreach (var item in users)
                                     {
-                                        <option value="employee-@item.UserId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("employee-" + item.UserId) ? "selected" : null)">@item.Name</option>
+                                        <option value="employee:@item.UserId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("employee:" + item.UserId) ? "selected" : null)">@item.Name</option>
                                     }
                                 </select>
                             </div>
@@ -242,7 +242,7 @@
                                     <option value="">All</option>
                                     @foreach (var item in agents)
                                     {
-                                        <option value="agent-@item.UserId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("agent-" + item.UserId) ? "selected" : null)">@item.Name</option>
+                                        <option value="agent:@item.UserId" selected="@(selectedFilters != null && ((List<string>)selectedFilters).Contains("agent:" + item.UserId) ? "selected" : null)">@item.Name</option>
                                     }
                                 </select>
                             </div>

@@ -47,18 +47,17 @@ namespace ASI.Basecode.Services.Services
         public async Task<UserPreferencesViewModel> GetUserPreferences(string userId)
         {
             var preferences = _repository.GetUserPreferences(userId);
-            var categoryTypes = _ticketRepository.GetCategoryTypesAsync();
-            var priorityTypes = _ticketRepository.GetPriorityTypesAsync();
-            var statusTypes = _ticketRepository.GetStatusTypesAsync();
-            await Task.WhenAll(categoryTypes, priorityTypes, statusTypes);
+            var categoryTypes = await _ticketRepository.GetCategoryTypesAsync();
+            var priorityTypes = await _ticketRepository.GetPriorityTypesAsync();
+            var statusTypes = await _ticketRepository.GetStatusTypesAsync();
 
             var model = new UserPreferencesViewModel
             {
                 UserId = userId,
                 Preferences = preferences,
-                CategoryTypes = await categoryTypes,
-                PriorityTypes = await priorityTypes,
-                StatusTypes = await statusTypes,
+                CategoryTypes = categoryTypes,
+                PriorityTypes = priorityTypes,
+                StatusTypes = statusTypes,
             };
             return model;
         }

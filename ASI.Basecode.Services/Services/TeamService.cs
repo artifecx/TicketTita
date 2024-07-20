@@ -148,12 +148,8 @@ namespace ASI.Basecode.Services.Services
             bool existingTeamMember = await _repository.IsExistingTeamMember(teamId, agentId);
             if (!existingTeamMember)
             {
-                var teamTask = _repository.FindByIdAsync(teamId);
-                var agentTask = _repository.FindAgentByIdAsync(agentId);
-                await Task.WhenAll(teamTask, agentTask);
-
-                var team = await teamTask;
-                var agent = await agentTask;
+                var team = await _repository.FindByIdAsync(teamId);
+                var agent = await _repository.FindAgentByIdAsync(agentId);
 
                 var performanceReport = new PerformanceReport
                 {
@@ -199,14 +195,9 @@ namespace ASI.Basecode.Services.Services
             bool existingTeamMember = await _repository.IsExistingTeamMember(teamId, agentId);
             if (existingTeamMember)
             {
-                var teamTask = _repository.FindByIdAsync(teamId);
-                var agentTask = _repository.FindAgentByIdAsync(agentId);
-                var teamMemberTask = _repository.FindTeamMemberByIdAsync(agentId);
-                await Task.WhenAll(teamTask, agentTask, teamMemberTask);
-
-                var team = await teamTask;
-                var agent = await agentTask;
-                var teamMember = await teamMemberTask;
+                var team = await _repository.FindByIdAsync(teamId);
+                var agent = await _repository.FindAgentByIdAsync(agentId);
+                var teamMember = await _repository.FindTeamMemberByIdAsync(agentId);
 
                 var model = new TicketViewModel();
                 foreach(var ticketAssignment in agent.TicketAssignmentAgents)

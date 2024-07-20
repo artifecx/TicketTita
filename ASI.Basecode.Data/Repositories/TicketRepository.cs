@@ -365,7 +365,7 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <returns>IQueryable User</returns>
         public async Task<IQueryable<User>> UserGetAllAsync() 
-            => await Task.FromResult(this.GetDbSet<User>());
+            => await Task.FromResult(this.GetDbSet<User>().Include(x => x.Tickets));
 
         /// <summary>
         /// Get all user identifiers with tickets submitted
