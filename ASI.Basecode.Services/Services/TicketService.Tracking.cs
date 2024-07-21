@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
+using System.Security.Claims;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -65,6 +66,13 @@ namespace ASI.Basecode.Services.Services
             await UpdateTicketDate(existingTicket);
 
             await _repository.UpdateAsync(existingTicket);
+
+            if (statusChanged || priorityChanged)
+            {
+                var updatedStatus = existingTicket.StatusType.StatusName.ToLower();
+                var updatedPriority = existingTicket.PriorityType.PriorityName;
+                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Tracking", $"Updated Status: {updatedStatus}, Updated Priority: {updatedPriority}");
+            }
         }
     }
 }

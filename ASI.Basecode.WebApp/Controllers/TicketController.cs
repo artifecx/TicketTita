@@ -96,6 +96,9 @@ namespace ASI.Basecode.WebApp.Controllers
                 ticket.CategoryTypes = await _ticketService.GetCategoryTypesAsync();
                 ticket.Agents = users.Where(x => x.RoleId == "Support Agent");
 
+                // Fetch activity logs and add them to the model
+                ticket.ActivityLogs = await _ticketService.GetActivityLogsByTicketIdAsync(id);
+
                 if (!string.IsNullOrEmpty(notificationId))
                 {
                     _notificationService.MarkNotificationAsRead(notificationId);

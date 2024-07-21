@@ -182,6 +182,34 @@
             }
         </div>
     </div>
+    <!-- Add Activity Logs Section -->
+    <div class="card px-5 py-4 mb-4" id="activity-logs-section" style="width: 100%; float: right;">
+        <div class="card-body">
+            <h3 class="card-title font-weight-bold mb-4">Activity Logs</h3>
+            @if (Model.ActivityLogs.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var log in Model.ActivityLogs.OrderBy(l => l.ActivityDate))
+                    {
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>@log.ActivityDate.ToString("g")</strong> by <strong>@log.User.Name</strong>:
+                                </div>
+                                <div>
+                                    @log.Details
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="alert alert-warning text-center" role="alert">No activity logs.</p>
+            }
+        </div>
+    </div>
 </div>
 
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>

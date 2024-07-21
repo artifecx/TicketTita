@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
+using System.Security.Claims;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -46,6 +47,8 @@ namespace ASI.Basecode.Services.Services
                     await _repository.AssignTicketAsync(assignment);
 
                     CreateNotification(ticket, null, true, model.AgentId);
+                    var team = _teamRepository.FindTeamMemberByIdAsync(model.AgentId).Result.Team;
+                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Assignment", $"Changed Assignment to: {team.Name}");
                 }
             }
             else

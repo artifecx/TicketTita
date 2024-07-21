@@ -31,5 +31,6 @@ namespace ASI.Basecode.Services.Interfaces
         Task<IEnumerable<string>> GetUserIdsWithTicketsAsync();
         Task<IEnumerable<User>> UserGetAllAsync();
         Task UpdateTrackingAsync(TicketViewModel ticketV = null, Ticket ticketT = null);
+        Task<IEnumerable<ActivityLog>> GetActivityLogsByTicketIdAsync(string ticketId);
     }
 }
