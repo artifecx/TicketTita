@@ -3,6 +3,10 @@
     background-color: var(--primary-color);
 }
 
+.modal-dialog-wide {
+    width: 500px; /* Adjust the width as needed */
+}
+
 .custom-close-button {
     background-color: var(--primary-color);
     color: white;

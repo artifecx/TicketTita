@@ -18,6 +18,15 @@
             return $"{averageResolutionTime:0.0} minutes";
         }
     }
+
+    string TruncateFeedback(string feedbackContent, int maxLength = 85)
+    {
+        if (feedbackContent.Length > maxLength)
+        {
+            return feedbackContent.Substring(0, maxLength) + "...";
+        }
+        return feedbackContent;
+    }
 }
 
 
@@ -61,7 +70,9 @@
                                     }
                                 </div>
                             </td>
-                            <td>@feedback.FeedbackContent</td>
+                            <td>
+                                <span class="feedback-content">@TruncateFeedback(feedback.FeedbackContent)</span>
+                            </td>
                         </tr>
                     }
                 }
