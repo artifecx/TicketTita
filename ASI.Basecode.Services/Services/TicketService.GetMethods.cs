@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Data.Entity;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -95,7 +96,17 @@ namespace ASI.Basecode.Services.Services
             var tickets = await GetAllAsync();
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
+            var userPreferences = _userPreferencesRepository.GetUserPreferences(userId);
+            userPreferences.TryGetValue("defaultShowOption", out var defaultShowOption);
+            userPreferences.TryGetValue("defaultSortBy", out var defaultSortBy);
+            userPreferences.TryGetValue("defaultStatusFilter", out var defaultStatusFilter);
+            userPreferences.TryGetValue("defaultPriorityFilter", out var defaultPriorityFilter);
+            userPreferences.TryGetValue("defaultCategoryFilter", out var defaultCategoryFilter);
+
+            showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
+            sortBy = string.IsNullOrEmpty(sortBy) ? defaultSortBy : sortBy;
+
             if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Employee"))
             {
                 tickets = tickets.Where(x => x.UserId == userId).ToList();
@@ -117,6 +128,23 @@ namespace ASI.Basecode.Services.Services
                 tickets = tickets.Where(x => x.StatusType.StatusName != "Closed").ToList();
             }
 
+            bool clear = false;
+            if (defaultStatusFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("status:"))))
+            {
+                selectedFilters.Add("status:" + defaultStatusFilter);
+                clear = true;
+            }
+            if (defaultPriorityFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("priority:"))))
+            {
+                selectedFilters.Add("priority:" + defaultPriorityFilter);
+                clear = true;
+            }
+            if (defaultCategoryFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("category:"))))
+            {
+                selectedFilters.Add("category:" + defaultCategoryFilter);
+                clear = true;
+            }
+
             if (selectedFilters.Any())
             {
                 foreach (var filter in selectedFilters)
@@ -126,6 +154,7 @@ namespace ASI.Basecode.Services.Services
                     var filterBy = filterParts[0];
                     var filterValue = filterParts[1];
 
+                    if (filterValue == "all") continue;
                     tickets = filterBy switch
                     {
                         "status" => tickets.Where(x => x.StatusTypeId == filterValue).ToList(),
@@ -133,9 +162,11 @@ namespace ASI.Basecode.Services.Services
                         "category" => tickets.Where(x => x.CategoryTypeId == filterValue).ToList(),
                         "employee" => tickets.Where(x => x.UserId == filterValue).ToList(),
                         "agent" => tickets.Where(x => x.TicketAssignment?.AgentId == filterValue).ToList(),
+                        "team" => tickets.Where(x => x.TicketAssignment?.TeamId == filterValue).ToList(),
                         _ => tickets
                     };
                 }
+                if (clear) selectedFilters.Clear();
             }
 
 

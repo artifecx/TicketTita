@@ -292,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62D54CA68C")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62CAA49A3A")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -608,7 +608,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33061FADDCD1")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF33065C0BF068")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -753,7 +753,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD629D1463F6")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD6239A5D41B")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)

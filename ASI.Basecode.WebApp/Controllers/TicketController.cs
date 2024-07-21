@@ -25,6 +25,7 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly ITicketService _ticketService;
         private readonly IFeedbackService _feedbackService;
         private readonly INotificationService _notificationService;
+        private readonly ITeamService _teamService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketController"/> class.
@@ -43,6 +44,7 @@ namespace ASI.Basecode.WebApp.Controllers
             IMapper mapper,
             ITicketService ticketService,
             IFeedbackService feedbackService,
+            ITeamService teamService,
             INotificationService notificationService,
             IUserPreferencesService userPreferences,
             TokenValidationParametersFactory tokenValidationParametersFactory,
@@ -51,6 +53,7 @@ namespace ASI.Basecode.WebApp.Controllers
             this._ticketService = ticketService;
             this._feedbackService = feedbackService;
             this._notificationService = notificationService;
+            this._teamService = teamService;
         }
 
         #region GET methods
@@ -69,9 +72,9 @@ namespace ASI.Basecode.WebApp.Controllers
             return await HandleExceptionAsync(async () =>
             { 
                 var pageSize = UserPaginationPreference;
-                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(showOption, sortBy, selectedFilters, search, pageIndex, pageSize);
-
                 await PopulateViewBagAsync(selectedFilters);
+                var tickets = await _ticketService.GetFilteredAndSortedTicketsAsync(showOption, sortBy, selectedFilters, search, pageIndex, pageSize);
+                
                 ViewData["SortBy"] = sortBy;
                 ViewData["Search"] = search;
                 ViewData["ShowOption"] = showOption;
@@ -200,12 +203,14 @@ namespace ASI.Basecode.WebApp.Controllers
             var statusTypes = await _ticketService.GetStatusTypesAsync();
             var categoryTypes = await _ticketService.GetCategoryTypesAsync();
             var users = await _ticketService.UserGetAllAsync();
+            var teams = await _teamService.GetAllStrippedAsync();
 
             ViewBag.PriorityTypes = priorityTypes.OrderBy(pt => pt.PriorityTypeId).ToList();
             ViewBag.StatusTypes = statusTypes.OrderBy(st => st.StatusTypeId).ToList();
             ViewBag.CategoryTypes = categoryTypes.OrderBy(ct => ct.CategoryTypeId).ToList();
             ViewBag.Users = users.Where(u => u.RoleId == "Employee" && u.Tickets.Any()).OrderBy(u => u.Name).Distinct().ToList();
             ViewBag.Agents = users.Where(u => u.RoleId == "Support Agent").OrderBy(u => u.Name).Distinct().ToList();
+            ViewBag.Teams = teams.OrderBy(t => t.Name).ToList();
             ViewBag.SelectedFilters = selectedFilters;
         }
     }
