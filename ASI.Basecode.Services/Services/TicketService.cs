@@ -30,6 +30,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IPerformanceReportRepository _performanceReportRepository;
         private readonly ITeamRepository _teamRepository;
         private readonly IActivityLogRepository _activityLogRepository;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -45,7 +46,8 @@ namespace ASI.Basecode.Services.Services
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository,
             ITeamRepository teamRepository,
-            IActivityLogRepository activityLogRepository)
+            IActivityLogRepository activityLogRepository,
+            IUserRepository userRepository)
         {
             _repository = repository;
             _mapper = mapper;
@@ -54,6 +56,7 @@ namespace ASI.Basecode.Services.Services
             _performanceReportRepository = performanceReportRepository;
             _teamRepository = teamRepository;
             _activityLogRepository = activityLogRepository;
+            _userRepository = userRepository;
         }
 
         #region Ticket CRUD Operations
@@ -84,9 +87,6 @@ namespace ASI.Basecode.Services.Services
 
                 AssignTicketProperties(newTicket);
 
-                // Log the creation activity
-                await LogActivityAsync(newTicket, userId, "Create", $"Ticket #{newTicket.TicketId} created.");
-
                 if (model.File != null && model.Attachment.AttachmentId != null)
                 {
                     model.Attachment.TicketId = newTicket.TicketId;
@@ -94,9 +94,12 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                    await _repository.AddAsync(newTicket);   
+                    await _repository.AddAsync(newTicket);
                 }
                 CreateNotification(newTicket, 1, null);
+
+                // Log the creation activity
+                await LogActivityAsync(newTicket, userId, "Create", $"Ticket #{newTicket.TicketId} created.");
             }
         }
 
@@ -322,7 +325,8 @@ namespace ASI.Basecode.Services.Services
                 UserId = userId,
                 ActivityType = activityType,
                 ActivityDate = DateTime.Now,
-                Details = details
+                Details = details,
+                User = _userRepository.FindById(userId)
             };
 
             // Add the log entry to the ticket's activity logs

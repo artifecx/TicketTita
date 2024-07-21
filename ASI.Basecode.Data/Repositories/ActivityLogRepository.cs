@@ -40,6 +40,8 @@ namespace ASI.Basecode.Data.Repositories
             // Fetch the activity logs from the database
             return await this.GetDbSet<ActivityLog>()
                              .Where(al => al.TicketId == ticketId)
+                             .Include(al => al.User)
+                             .Include(al => al.Ticket)
                              .OrderByDescending(al => al.ActivityDate) // Optional: Order logs by date
                              .ToListAsync();
         }

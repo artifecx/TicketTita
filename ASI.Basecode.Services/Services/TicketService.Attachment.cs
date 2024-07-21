@@ -27,7 +27,10 @@ namespace ASI.Basecode.Services.Services
                 ticket.Attachments.Add(attachment);
                 await _repository.AddAttachmentAsync(attachment);
             }
-            await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Add Attachment", $"Added an attachment: {attachment.Name}");
+            if (await _repository.FindByIdAsync(ticket.TicketId) != null)
+            {
+                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Add Attachment", $"Added an attachment: {attachment.Name}");
+            }
         }
 
         /// <summary>

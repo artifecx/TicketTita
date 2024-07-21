@@ -229,7 +229,7 @@
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <strong>@log.ActivityDate.ToString("g")</strong> by <strong>@log.User.Name</strong>:
+                                    <strong>@log.ActivityDate.ToString("g")</strong> by <strong>@log.User?.Name</strong>:
                                 </div>
                                 <div>
                                     @log.Details
