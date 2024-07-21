@@ -8,13 +8,15 @@ namespace ASI.Basecode.Data.Interfaces
     public interface ITicketRepository
     {
         Task<List<Ticket>> GetAllAsync();
-        Task<List<Ticket>> GetAllAndDeletedAsync();
+        Task<int> CountAllAndDeletedTicketsAsync();
         Task AddAsync(Ticket ticket);
         Task UpdateAsync(Ticket ticket);
         Task DeleteAsync(Ticket ticket);
+        Task DeleteHardAsync(Ticket ticket);
         Task AddAttachmentAsync(Attachment attachment);
         Task RemoveAttachmentAsync(Attachment attachment);
         Task AssignTicketAsync(TicketAssignment assignment);
+        Task UpdateAssignmentAsync(TicketAssignment assignment);
         Task RemoveAssignmentAsync(TicketAssignment assignment);
         Task AddCommentAsync(Comment comment);
         Task UpdateCommentAsync(Comment comment);

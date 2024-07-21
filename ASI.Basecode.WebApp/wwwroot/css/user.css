@@ -1,49 +1,25 @@
-﻿.modal .modal-dialog-aside {
-    width: contain;
-    height: 100%;
-    margin: 0;
-    transform: translate(0);
-    transition: transform .2s;
+﻿.modal-content-user {
+    color: white;
+    background-color: var(--primary-color);
 }
 
-    .modal .modal-dialog-aside .modal-content {
-        height: inherit;
-        border: 0;
-        border-radius: 0;
-        margin-top: 15%;
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-        .modal .modal-dialog-aside .modal-content .modal-body {
-            overflow-y: auto
-        }
-
-.modal.fixed-right .modal-dialog-aside {
-    margin-left: auto;
-    transform: translateX(100%);
-}
-
-.modal.fixed-left .modal-dialog-aside {
-    margin-right: auto;
-    transform: translateX(-100%);
-}
-
-.modal.show .modal-dialog-aside {
-    transform: translateX(0);
-}
-
-
-
-.fa-arrow-left-long {
-    margin: 10px;
-    cursor: pointer;
+.custom-close-button {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    border: none;
     font-size: 30px;
 }
 
-    .fa-arrow-left-long:hover {
-        cursor: pointer;
+    .custom-close-button:hover {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white;
     }
-
-
+    .custom-close-button:active, .custom-close-button:focus {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white;
+        box-shadow: none;
+    }
 

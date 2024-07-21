@@ -40,9 +40,24 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.Comments)
                         .ThenInclude(c => c.InverseParent)
                     .Include(t => t.TicketAssignment)
-                        .ThenInclude(ta => ta.Team)
-                        .ThenInclude(team => team.TeamMembers)
-                        .ThenInclude(tm => tm.User);
+                        .ThenInclude(ta => ta.Agent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team);
+        }
+
+        private IQueryable<Ticket> GetTicketsWithLimitedIncludes()
+        {
+            return this.GetDbSet<Ticket>()
+                    .Where(t => !t.IsDeleted)
+                    .Include(t => t.CategoryType)
+                    .Include(t => t.PriorityType)
+                    .Include(t => t.StatusType)
+                    .Include(t => t.User)
+                    .Include(t => t.Feedback)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Agent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team);
         }
 
         /// <summary>
@@ -50,33 +65,14 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <returns>List Ticket</returns>
         public async Task<List<Ticket>> GetAllAsync() =>
-            await GetTicketsWithIncludes().AsNoTracking().ToListAsync();
+            await GetTicketsWithLimitedIncludes().AsNoTracking().ToListAsync();
 
         /// <summary>
         /// Gets all tickets including the deleted.
         /// </summary>
         /// <returns>List Ticket</returns>
-        public Task<List<Ticket>> GetAllAndDeletedAsync()
-        {
-            return this.GetDbSet<Ticket>()
-                    .Include(t => t.CategoryType)
-                    .Include(t => t.PriorityType)
-                    .Include(t => t.StatusType)
-                    .Include(t => t.User)
-                    .Include(t => t.Feedback)
-                    .Include(t => t.Attachments)
-                    .Include(t => t.Comments)
-                        .ThenInclude(cu => cu.User)
-                    .Include(t => t.Comments)
-                        .ThenInclude(cp => cp.Parent)
-                    .Include(t => t.Comments)
-                        .ThenInclude(c => c.InverseParent)
-                    .Include(t => t.TicketAssignment)
-                        .ThenInclude(ta => ta.Team)
-                        .ThenInclude(team => team.TeamMembers)
-                        .ThenInclude(tm => tm.User)
-                    .AsNoTracking().ToListAsync();
-        }
+        public async Task<int> CountAllAndDeletedTicketsAsync() =>
+            await this.GetDbSet<Ticket>().AsNoTracking().CountAsync();
 
         /// <summary>
         /// Add a ticket
@@ -106,6 +102,21 @@ namespace ASI.Basecode.Data.Repositories
         {
             ticket.IsDeleted = true;
             this.GetDbSet<Ticket>().Update(ticket);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Hard delete a ticket
+        /// </summary>
+        /// <param name="ticket">The ticket</param>
+        public async Task DeleteHardAsync(Ticket ticket)
+        {
+            ticket.CategoryTypeId = null;
+            ticket.PriorityTypeId = null;
+            ticket.StatusTypeId = null;
+            ticket.UserId = null;
+
+            this.GetDbSet<Ticket>().Remove(ticket);
             await UnitOfWork.SaveChangesAsync();
         }
         #endregion Ticket Service Methods
@@ -140,6 +151,16 @@ namespace ASI.Basecode.Data.Repositories
         public async Task AssignTicketAsync(TicketAssignment assignment)
         {
             await this.GetDbSet<TicketAssignment>().AddAsync(assignment);
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Updates a ticket assignment.
+        /// </summary>
+        /// <param name="assignment">The assignment.</param>
+        public async Task UpdateAssignmentAsync(TicketAssignment assignment)
+        {
+            this.GetDbSet<TicketAssignment>().Update(assignment);
             await UnitOfWork.SaveChangesAsync();
         }
 

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASI.Basecode.Data.Migrations
 {
     [DbContext(typeof(AsiBasecodeDbContext))]
-    [Migration("20240702041930_AddDefaultValues")]
+    [Migration("20240718093935_AddDefaultValues")]
     partial class AddDefaultValues
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -61,9 +61,13 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("ActivityId");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex(new[] { "ActivityDate" }, "IX_ActivityLog_ActivityDate");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "ActivityType" }, "IX_ActivityLog_ActivityType");
+
+                    b.HasIndex(new[] { "TicketId" }, "IX_ActivityLog_TicketID");
+
+                    b.HasIndex(new[] { "UserId" }, "IX_ActivityLog_UserID");
 
                     b.ToTable("ActivityLog", (string)null);
                 });
@@ -99,6 +103,12 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("AdminId");
 
+                    b.HasIndex(new[] { "Email" }, "IX_Admin_Email");
+
+                    b.HasIndex(new[] { "IsSuper" }, "IX_Admin_IsSuper");
+
+                    b.HasIndex(new[] { "Name" }, "IX_Admin_Name");
+
                     b.ToTable("Admin", (string)null);
                 });
 
@@ -121,6 +131,8 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnName("description");
 
                     b.HasKey("CategoryId");
+
+                    b.HasIndex(new[] { "CategoryName" }, "IX_ArticleCategory_Name");
 
                     b.ToTable("ArticleCategory", (string)null);
                 });
@@ -163,7 +175,11 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("AttachmentId");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex(new[] { "Name" }, "IX_Attachment_Name");
+
+                    b.HasIndex(new[] { "TicketId" }, "IX_Attachment_TicketID");
+
+                    b.HasIndex(new[] { "UploadedDate" }, "IX_Attachment_UploadedDate");
 
                     b.ToTable("Attachment", (string)null);
                 });
@@ -188,7 +204,60 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("CategoryTypeId");
 
+                    b.HasIndex(new[] { "CategoryName" }, "IX_CategoryType_Name");
+
                     b.ToTable("CategoryType", (string)null);
+                });
+
+            modelBuilder.Entity("ASI.Basecode.Data.Models.Comment", b =>
+                {
+                    b.Property<string>("CommentId")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("comment_ID");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("content");
+
+                    b.Property<string>("ParentId")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("parent_ID");
+
+                    b.Property<DateTime>("PostedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasColumnName("postedDate")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<string>("TicketId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("ticket_ID");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("updatedDate");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("user_ID");
+
+                    b.HasKey("CommentId");
+
+                    b.HasIndex(new[] { "ParentId" }, "IX_Comment_ParentID");
+
+                    b.HasIndex(new[] { "TicketId" }, "IX_Comment_TicketID");
+
+                    b.HasIndex(new[] { "UserId" }, "IX_Comment_UserID");
+
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.Feedback", b =>
@@ -209,6 +278,10 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("feedbackContent");
 
+                    b.Property<int>("FeedbackRating")
+                        .HasColumnType("int")
+                        .HasColumnName("feedbackRating");
+
                     b.Property<string>("TicketId")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -223,9 +296,16 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("FeedbackId");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex(new[] { "CreatedDate" }, "IX_Feedback_CreatedDate");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "FeedbackRating" }, "IX_Feedback_Rating");
+
+                    b.HasIndex(new[] { "TicketId" }, "IX_Feedback_TicketID");
+
+                    b.HasIndex(new[] { "UserId" }, "IX_Feedback_UserID");
+
+                    b.HasIndex(new[] { "TicketId" }, "UQ__Feedback__D597FD62F2D4909F")
+                        .IsUnique();
 
                     b.ToTable("Feedback", (string)null);
                 });
@@ -260,6 +340,10 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnName("createdDate")
                         .HasDefaultValueSql("(getdate())");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("isDeleted");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -272,9 +356,17 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("ArticleId");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex(new[] { "AuthorId" }, "IX_KnowledgeBaseArticle_AuthorID");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex(new[] { "CategoryId" }, "IX_KnowledgeBaseArticle_CategoryID");
+
+                    b.HasIndex(new[] { "CreatedDate" }, "IX_KnowledgeBaseArticle_CreatedDate");
+
+                    b.HasIndex(new[] { "IsDeleted" }, "IX_KnowledgeBaseArticle_IsDeleted");
+
+                    b.HasIndex(new[] { "Title" }, "IX_KnowledgeBaseArticle_Title");
+
+                    b.HasIndex(new[] { "UpdatedDate" }, "IX_KnowledgeBaseArticle_UpdatedDate");
 
                     b.ToTable("KnowledgeBaseArticle", (string)null);
                 });
@@ -285,6 +377,15 @@ namespace ASI.Basecode.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("notification_ID");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("NotificationDate")
                         .ValueGeneratedOnAdd()
@@ -304,11 +405,25 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("ticket_ID");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("userId");
+
                     b.HasKey("NotificationId");
 
-                    b.HasIndex("NotificationTypeId");
+                    b.HasIndex(new[] { "NotificationDate" }, "IX_Notification_Date");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex(new[] { "TicketId" }, "IX_Notification_TicketID");
+
+                    b.HasIndex(new[] { "NotificationTypeId" }, "IX_Notification_TypeID");
 
                     b.ToTable("Notification", (string)null);
                 });
@@ -332,6 +447,8 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnName("title");
 
                     b.HasKey("NotificationTypeId");
+
+                    b.HasIndex(new[] { "Title" }, "IX_NotificationType_Title");
 
                     b.ToTable("NotificationType", (string)null);
                 });
@@ -359,6 +476,12 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("ReportId");
 
+                    b.HasIndex(new[] { "AssignedDate" }, "IX_PerformanceReport_AssignedDate");
+
+                    b.HasIndex(new[] { "AverageResolutionTime" }, "IX_PerformanceReport_AvgResolutionTime");
+
+                    b.HasIndex(new[] { "ResolvedTickets" }, "IX_PerformanceReport_ResolvedTickets");
+
                     b.ToTable("PerformanceReport", (string)null);
                 });
 
@@ -381,6 +504,8 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnName("priorityName");
 
                     b.HasKey("PriorityTypeId");
+
+                    b.HasIndex(new[] { "PriorityName" }, "IX_PriorityType_Name");
 
                     b.ToTable("PriorityType", (string)null);
                 });
@@ -405,6 +530,8 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("RoleId");
 
+                    b.HasIndex(new[] { "RoleName" }, "IX_Role_Name");
+
                     b.ToTable("Role", (string)null);
                 });
 
@@ -428,6 +555,8 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("StatusTypeId");
 
+                    b.HasIndex(new[] { "StatusName" }, "IX_StatusType_Name");
+
                     b.ToTable("StatusType", (string)null);
                 });
 
@@ -443,13 +572,29 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("description");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("isDeleted");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
+                    b.Property<string>("SpecializationId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("specialization_ID");
+
                     b.HasKey("TeamId");
+
+                    b.HasIndex(new[] { "IsDeleted" }, "IX_Team_IsDeleted");
+
+                    b.HasIndex(new[] { "Name" }, "IX_Team_Name");
+
+                    b.HasIndex(new[] { "SpecializationId" }, "IX_Team_SpecializationID");
 
                     b.ToTable("Team", (string)null);
                 });
@@ -473,9 +618,12 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("TeamId", "UserId");
 
-                    b.HasIndex("ReportId");
+                    b.HasIndex(new[] { "ReportId" }, "IX_TeamMember_ReportID");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "UserId" }, "IX_TeamMember_UserID");
+
+                    b.HasIndex(new[] { "UserId" }, "UQ__TeamMemb__B9BF330619573A22")
+                        .IsUnique();
 
                     b.ToTable("TeamMember", (string)null);
                 });
@@ -498,6 +646,10 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("createdDate")
                         .HasDefaultValueSql("(getdate())");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit")
+                        .HasColumnName("isDeleted");
 
                     b.Property<string>("IssueDescription")
                         .IsRequired()
@@ -539,13 +691,23 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("TicketId");
 
-                    b.HasIndex("CategoryTypeId");
+                    b.HasIndex(new[] { "CategoryTypeId" }, "IX_Ticket_CategoryTypeID");
 
-                    b.HasIndex("PriorityTypeId");
+                    b.HasIndex(new[] { "CreatedDate" }, "IX_Ticket_CreatedDate");
 
-                    b.HasIndex("StatusTypeId");
+                    b.HasIndex(new[] { "IsDeleted" }, "IX_Ticket_IsDeleted");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex(new[] { "PriorityTypeId" }, "IX_Ticket_PriorityTypeID");
+
+                    b.HasIndex(new[] { "ResolvedDate" }, "IX_Ticket_ResolvedDate");
+
+                    b.HasIndex(new[] { "StatusTypeId" }, "IX_Ticket_StatusTypeID");
+
+                    b.HasIndex(new[] { "Subject" }, "IX_Ticket_Subject");
+
+                    b.HasIndex(new[] { "UpdatedDate" }, "IX_Ticket_UpdatedDate");
+
+                    b.HasIndex(new[] { "UserId" }, "IX_Ticket_UserID");
 
                     b.ToTable("Ticket", (string)null);
                 });
@@ -557,11 +719,17 @@ namespace ASI.Basecode.Data.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("assignment_ID");
 
-                    b.Property<string>("AdminId")
+                    b.Property<string>("AgentId")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
-                        .HasColumnName("admin_ID");
+                        .HasColumnName("agent_ID");
+
+                    b.Property<string>("AssignedById")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("assignedBy_ID");
 
                     b.Property<DateTime>("AssignedDate")
                         .ValueGeneratedOnAdd()
@@ -570,7 +738,6 @@ namespace ASI.Basecode.Data.Migrations
                         .HasDefaultValueSql("(getdate())");
 
                     b.Property<string>("TeamId")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)")
                         .HasColumnName("team_ID");
@@ -583,11 +750,18 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("AssignmentId");
 
-                    b.HasIndex("AdminId");
+                    b.HasIndex(new[] { "AgentId" }, "IX_TicketAssignment_AgentID");
 
-                    b.HasIndex("TeamId");
+                    b.HasIndex(new[] { "AssignedById" }, "IX_TicketAssignment_AssignedByID");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex(new[] { "AssignedDate" }, "IX_TicketAssignment_AssignedDate");
+
+                    b.HasIndex(new[] { "TeamId" }, "IX_TicketAssignment_TeamID");
+
+                    b.HasIndex(new[] { "TicketId" }, "IX_TicketAssignment_TicketID");
+
+                    b.HasIndex(new[] { "TicketId" }, "UQ__TicketAs__D597FD62C7FD3914")
+                        .IsUnique();
 
                     b.ToTable("TicketAssignment", (string)null);
                 });
@@ -646,11 +820,19 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex(new[] { "CreatedBy" }, "IX_User_CreatedBy");
 
-                    b.HasIndex("RoleId");
+                    b.HasIndex(new[] { "CreatedTime" }, "IX_User_CreatedTime");
 
-                    b.HasIndex("UpdatedBy");
+                    b.HasIndex(new[] { "Email" }, "IX_User_Email");
+
+                    b.HasIndex(new[] { "Name" }, "IX_User_Name");
+
+                    b.HasIndex(new[] { "RoleId" }, "IX_User_RoleID");
+
+                    b.HasIndex(new[] { "UpdatedBy" }, "IX_User_UpdatedBy");
+
+                    b.HasIndex(new[] { "UpdatedTime" }, "IX_User_UpdatedTime");
 
                     b.ToTable("User", (string)null);
                 });
@@ -685,11 +867,37 @@ namespace ASI.Basecode.Data.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("ASI.Basecode.Data.Models.Comment", b =>
+                {
+                    b.HasOne("ASI.Basecode.Data.Models.Comment", "Parent")
+                        .WithMany("InverseParent")
+                        .HasForeignKey("ParentId")
+                        .HasConstraintName("FK_Comment_Parent");
+
+                    b.HasOne("ASI.Basecode.Data.Models.Ticket", "Ticket")
+                        .WithMany("Comments")
+                        .HasForeignKey("TicketId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Comment_Ticket");
+
+                    b.HasOne("ASI.Basecode.Data.Models.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Comment_User");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ASI.Basecode.Data.Models.Feedback", b =>
                 {
                     b.HasOne("ASI.Basecode.Data.Models.Ticket", "Ticket")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("TicketId")
+                        .WithOne("Feedback")
+                        .HasForeignKey("ASI.Basecode.Data.Models.Feedback", "TicketId")
                         .IsRequired()
                         .HasConstraintName("FK_Feedback_Ticket");
 
@@ -742,6 +950,17 @@ namespace ASI.Basecode.Data.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("ASI.Basecode.Data.Models.Team", b =>
+                {
+                    b.HasOne("ASI.Basecode.Data.Models.CategoryType", "Specialization")
+                        .WithMany("Teams")
+                        .HasForeignKey("SpecializationId")
+                        .IsRequired()
+                        .HasConstraintName("FK_Team_Specialization");
+
+                    b.Navigation("Specialization");
+                });
+
             modelBuilder.Entity("ASI.Basecode.Data.Models.TeamMember", b =>
                 {
                     b.HasOne("ASI.Basecode.Data.Models.PerformanceReport", "Report")
@@ -756,8 +975,8 @@ namespace ASI.Basecode.Data.Migrations
                         .HasConstraintName("FK_TeamMember_Team");
 
                     b.HasOne("ASI.Basecode.Data.Models.User", "User")
-                        .WithMany("TeamMembers")
-                        .HasForeignKey("UserId")
+                        .WithOne("TeamMember")
+                        .HasForeignKey("ASI.Basecode.Data.Models.TeamMember", "UserId")
                         .IsRequired()
                         .HasConstraintName("FK_TeamMember_User");
 
@@ -805,25 +1024,32 @@ namespace ASI.Basecode.Data.Migrations
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.TicketAssignment", b =>
                 {
-                    b.HasOne("ASI.Basecode.Data.Models.Admin", "Admin")
-                        .WithMany("TicketAssignments")
-                        .HasForeignKey("AdminId")
+                    b.HasOne("ASI.Basecode.Data.Models.User", "Agent")
+                        .WithMany("TicketAssignmentAgents")
+                        .HasForeignKey("AgentId")
                         .IsRequired()
-                        .HasConstraintName("FK_TicketAssignment_Admin");
+                        .HasConstraintName("FK_TicketAssignment_Agent");
+
+                    b.HasOne("ASI.Basecode.Data.Models.User", "AssignedBy")
+                        .WithMany("TicketAssignmentAssignedBies")
+                        .HasForeignKey("AssignedById")
+                        .IsRequired()
+                        .HasConstraintName("FK_TicketAssignment_AssignedBy");
 
                     b.HasOne("ASI.Basecode.Data.Models.Team", "Team")
                         .WithMany("TicketAssignments")
                         .HasForeignKey("TeamId")
-                        .IsRequired()
                         .HasConstraintName("FK_TicketAssignment_Team");
 
                     b.HasOne("ASI.Basecode.Data.Models.Ticket", "Ticket")
-                        .WithMany("TicketAssignments")
-                        .HasForeignKey("TicketId")
+                        .WithOne("TicketAssignment")
+                        .HasForeignKey("ASI.Basecode.Data.Models.TicketAssignment", "TicketId")
                         .IsRequired()
                         .HasConstraintName("FK_TicketAssignment_Ticket");
 
-                    b.Navigation("Admin");
+                    b.Navigation("Agent");
+
+                    b.Navigation("AssignedBy");
 
                     b.Navigation("Team");
 
@@ -858,8 +1084,6 @@ namespace ASI.Basecode.Data.Migrations
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.Admin", b =>
                 {
-                    b.Navigation("TicketAssignments");
-
                     b.Navigation("UserCreatedByNavigations");
 
                     b.Navigation("UserUpdatedByNavigations");
@@ -872,7 +1096,14 @@ namespace ASI.Basecode.Data.Migrations
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.CategoryType", b =>
                 {
+                    b.Navigation("Teams");
+
                     b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("ASI.Basecode.Data.Models.Comment", b =>
+                {
+                    b.Navigation("InverseParent");
                 });
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.NotificationType", b =>
@@ -913,22 +1144,30 @@ namespace ASI.Basecode.Data.Migrations
 
                     b.Navigation("Attachments");
 
-                    b.Navigation("Feedbacks");
+                    b.Navigation("Comments");
+
+                    b.Navigation("Feedback");
 
                     b.Navigation("Notifications");
 
-                    b.Navigation("TicketAssignments");
+                    b.Navigation("TicketAssignment");
                 });
 
             modelBuilder.Entity("ASI.Basecode.Data.Models.User", b =>
                 {
                     b.Navigation("ActivityLogs");
 
+                    b.Navigation("Comments");
+
                     b.Navigation("Feedbacks");
 
                     b.Navigation("KnowledgeBaseArticles");
 
-                    b.Navigation("TeamMembers");
+                    b.Navigation("TeamMember");
+
+                    b.Navigation("TicketAssignmentAgents");
+
+                    b.Navigation("TicketAssignmentAssignedBies");
 
                     b.Navigation("Tickets");
                 });

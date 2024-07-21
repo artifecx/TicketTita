@@ -21,13 +21,14 @@ namespace ASI.Basecode.Data.Repositories
         private IQueryable<Team> GetTeamsWithIncludes()
         {
             return this.GetDbSet<Team>()
-                        .Where(team => !team.IsDeleted)
-                        .Include(f => f.TeamMembers)
+                        .Where(t => !t.IsDeleted)
+                        .Include(t => t.TeamMembers)
                             .ThenInclude(u => u.User)
-                        .Include(f => f.TeamMembers)
+                        .Include(t => t.TeamMembers)
                             .ThenInclude(u => u.Report)
-                        .Include(f => f.TicketAssignments)
-                            .ThenInclude(a => a.Admin);
+                        .Include(t => t.TicketAssignments)
+                            .ThenInclude(a => a.Agent)
+                        .Include(t => t.Specialization);
         }
 
         public async Task<List<Team>> GetAllAsync() =>
@@ -66,13 +67,40 @@ namespace ASI.Basecode.Data.Repositories
 
         public async Task<IEnumerable<Team>> GetAllStrippedAsync()
         {
-            return await this.GetDbSet<Team>()
+            return this.GetDbSet<Team>()
                         .Where(team => !team.IsDeleted)
-                        .Select(team => new Team
+                        .Select(team => new
                         {
-                            TeamId = team.TeamId,
-                            Name = team.Name
-                        }).ToListAsync();
+                            team.TeamId,
+                            team.Name,
+                            TeamSpecialization = new CategoryType
+                            {
+                                CategoryTypeId = team.Specialization.CategoryTypeId,
+                                CategoryName = team.Specialization.CategoryName
+                            },
+                            TeamMembers = team.TeamMembers
+                                .Select(member => new
+                                {
+                                    member.UserId,
+                                    member.User.Name
+                                })
+                        })
+                        .AsEnumerable()
+                        .Select(t => new Team
+                        {
+                            TeamId = t.TeamId,
+                            Name = t.Name,
+                            TeamMembers = t.TeamMembers.Select(m => new TeamMember
+                            {
+                                UserId = m.UserId,
+                                User = new User
+                                {
+                                    Name = m.Name
+                                }
+                            })
+                            .ToList(),
+                            Specialization = t.TeamSpecialization
+                        });
         }
 
         public async Task<IEnumerable<User>> GetAgentsAsync()
@@ -101,8 +129,11 @@ namespace ASI.Basecode.Data.Repositories
                         .Include(u => u.Role)
                         .Include(u => u.UpdatedByNavigation)
                         .Include(u => u.TeamMember)
+                            .ThenInclude(tm => tm.Team)
                         .Include(u => u.ActivityLogs)
                         .Include(u => u.KnowledgeBaseArticles)
+                        .Include(u => u.TicketAssignmentAgents)
+                            .ThenInclude(ta => ta.Ticket)
                         .FirstOrDefaultAsync(u => u.UserId == id);
         }
 

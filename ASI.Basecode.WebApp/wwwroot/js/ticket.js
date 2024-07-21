@@ -9,6 +9,20 @@
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('issueDescription');
+    var remainingCharsSpan = document.getElementById('remainingDescriptionChars');
+
+    function updateRemainingChars() {
+        var remaining = 800 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
 $('#createTicketModal').on('hidden.bs.modal', function () {
     toastr.info("Create cancelled, no changes were made");
 });
@@ -31,7 +45,6 @@ function submitCreateTicket() {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#createTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -84,7 +97,6 @@ function submitEditTicket() {
         contentType: false,
         success: function (response) {
             if (response.success) {
-                $('#editTicketModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -95,6 +107,51 @@ function submitEditTicket() {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
             $('#editTicketModal').modal('hide');
+        }
+    });
+}
+
+var categoryId;
+function validateCategory(currentCategoryId) {
+    categoryId = $('#categoryId').val();
+
+    if (categoryId === currentCategoryId) {
+        toastr.info("Category remains unchanged.");
+    } else {
+        $('#updateCategoryModal').modal('hide');
+        setTimeout(function () {
+            var message = 'Changing the category might result in you losing access to this ticket';
+            displayConfirmationModal(saveCategory, message, 'updateCategoryModal');
+        }, 250);
+    }
+}
+
+function saveCategory() {
+    var ticketId = $('#ticketId').val();
+
+    $.ajax({
+        url: '/Ticket/Edit',
+        type: 'POST',
+        data: {
+            TicketId: ticketId,
+            CategoryTypeId: categoryId,
+        },
+        success: function (response) {
+            if (response.success) {
+                categoryId = null;
+                location.reload();
+            } else {
+                categoryId = null;
+                var errorMessage = response.error || "An error occurred.";
+                toastr.error(errorMessage);
+                $('#confirmationModal').modal('hide');
+            }
+        },
+        error: function (xhr, status, error) {
+            var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
+            categoryId = null;
+            toastr.error(errorMessage);
+            $('#confirmationModal').modal('hide');
         }
     });
 }
@@ -136,7 +193,6 @@ function saveTracking() {
         success: function (response) {
             if (response.success) {
                 statusId = null;
-                $('#updateTrackingModal').modal('hide');
                 location.reload();
             } else {
                 statusId = null;
@@ -154,6 +210,7 @@ function saveTracking() {
 }
 
 $('#saveAssignmentBtn').click(function () {
+    var teamId = $('#teamId').val();
     var agentId = $('#agentId').val();
     var ticketId = $('#ticketId').val();
 
@@ -163,11 +220,11 @@ $('#saveAssignmentBtn').click(function () {
         contentType: 'application/json',
         data: JSON.stringify({
             TicketId: ticketId,
+            TeamId: teamId,
             AgentId: agentId,
         }),
         success: function (response) {
             if (response.success) {
-                $('#updateAssignmentModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";

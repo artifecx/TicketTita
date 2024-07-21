@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -17,57 +18,122 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns>string assignment type: "assign", "unassign", "reassign"</returns>
+        /// new assignment
+        /// case 0: no team, no agent - exception
+        /// case 1: no team, new agent
+        /// case 2: new team, no agent
+        /// case 3: new team, new agent
+        /// ------------------------------
+        /// existing assignment
+        /// case 0: same team, same agent - exception
+        /// case 1: same team, no agent assigned, no agent selected - exception
+        /// case 2: no team, no agent
+        /// case 3: same team, no agent
+        /// case 4: no team, different agent
+        /// case 5: same team, different agent
+        /// case 6: different team, no agent
+        /// case 7: different team, different agent
+        /// case 8: new team from no team, same agent -> no team agent with ticket was assigned to a team
         public async Task<string> UpdateAssignmentAsync(TicketViewModel model)
         {
+            var currentUser = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var status = string.Empty;
-            var assignment = await _repository.FindAssignmentByTicketIdAsync(model.TicketId);
-            if (assignment != null)
+            var ticketId = model.TicketId;
+            var teamId = model.TeamId;
+            var agentId = model.AgentId;
+            var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
+            string noTeam = "no_team";
+            string noAgent = "no_agent";
+
+            if (assignment == null)
             {
-                if (model.AgentId == "remove")
+                status = "assign";
+                if (teamId == noTeam && agentId == noAgent)
                 {
-                    status = "unassign";
-                    await CheckAndModifyStatusByAssignment(model.TicketId, status);
-                    await _repository.RemoveAssignmentAsync(assignment);
+                    throw new TicketException("Please select either an agent or a team to continue.", ticketId);
+                }
+
+                if (teamId == noTeam && agentId != noAgent)
+                {
+                    assignment = await CreateTicketAssignmentAsync(ticketId, agentId);
+                }
+                else if (teamId != noTeam && agentId == noAgent)
+                {
+                    assignment = await CreateTicketAssignmentAsync(ticketId, teamId: teamId);
+                }
+                else if (teamId != noTeam && agentId != noAgent)
+                {
+                    assignment = await CreateTicketAssignmentAsync(ticketId, agentId, teamId);
                 }
                 else
                 {
-                    if (model.AgentId == ExtractAgentId(assignment.AssignmentId))
-                        throw new TicketException("Cannot reassign to the same agent.", model.TicketId);
-
-                    status = "reassign";
-                    await CheckAndModifyStatusByAssignment(model.TicketId, status);
-
-                    var ticket = await _repository.FindByIdAsync(model.TicketId);
-                    await _repository.RemoveAssignmentAsync(assignment);
-
-                    assignment = await CreateTicketAssignmentAsync(model.TicketId, model.AgentId);
-                    ticket.TicketAssignment = assignment;
-                    ticket.UpdatedDate = DateTime.Now;
-                    assignment.Ticket = ticket;
-                    await _repository.AssignTicketAsync(assignment);
-
-                    CreateNotification(ticket, null, true, model.AgentId);
-                    var team = _teamRepository.FindTeamMemberByIdAsync(model.AgentId).Result.Team;
-                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Assignment", $"Changed Assignment to: {team.Name}");
+                    throw new TicketException("Invalid assignment update. Please try again.", ticketId);
                 }
+                await _repository.AssignTicketAsync(assignment);
             }
             else
             {
-                if (model.AgentId == "remove")
-                    throw new TicketException("Please select an agent to continue.", model.TicketId);
+                var assignmentTeamId = assignment.TeamId;
+                var assignmentAgentId = assignment.AgentId;
+                if (teamId == assignmentTeamId && agentId == assignmentAgentId)
+                {
+                    throw new TicketException("Cannot reassign to the same team and agent.", ticketId);
+                }
+                if (teamId == assignmentTeamId && agentId == noAgent && assignmentAgentId == null)
+                {
+                    throw new TicketException("Cannot assign to the same team without an agent selected.", ticketId);
+                }
 
-                status = "assign";
-                await CheckAndModifyStatusByAssignment(model.TicketId, status);
-
-                var ticket = await _repository.FindByIdAsync(model.TicketId);
-                assignment = await CreateTicketAssignmentAsync(model.TicketId, model.AgentId);
-                ticket.TicketAssignment = assignment;
-                ticket.UpdatedDate = DateTime.Now;
-                assignment.Ticket = ticket;
-                await _repository.AssignTicketAsync(assignment);
-
-                CreateNotification(ticket, null, false, model.AgentId);
+                if (teamId == noTeam && agentId == noAgent)
+                {
+                    status = "unassign";
+                    await _repository.RemoveAssignmentAsync(assignment);
+                    return status;
+                }
+                
+                if (teamId == assignmentTeamId && agentId == noAgent)
+                {
+                    status = "unassign";
+                    assignment.AgentId = null;
+                }
+                else if (teamId == noTeam && agentId != assignmentAgentId)
+                {
+                    status = "reassign";
+                    assignment.TeamId = null;
+                    assignment.AgentId = agentId;
+                }
+                else if (teamId == assignmentTeamId && agentId != assignmentAgentId)
+                {
+                    status = "reassign";
+                    assignment.AgentId = agentId;
+                }
+                else if (teamId != assignmentTeamId && agentId == noAgent)
+                {
+                    status = "reassign";
+                    assignment.TeamId = teamId;
+                    assignment.AgentId = null;
+                }
+                else if (teamId != assignmentTeamId && agentId != assignmentAgentId)
+                {
+                    status = "reassign";
+                    assignment.TeamId = teamId;
+                    assignment.AgentId = agentId;
+                }
+                else if(string.IsNullOrEmpty(assignmentTeamId) && 
+                    !string.IsNullOrEmpty(teamId) && agentId == assignmentAgentId)
+                {
+                    status = "assign";
+                    assignment.TeamId = teamId;
+                }
+                else
+                {
+                    throw new TicketException("Invalid assignment update. Please try again.", ticketId);
+                }
+                assignment.AssignedDate = DateTime.Now;
+                assignment.AssignedById = currentUser;
+                await _repository.UpdateAssignmentAsync(assignment);
             }
+            await CheckAndModifyStatusByAssignment(ticketId, status);
             return status;
         }
 
@@ -117,24 +183,20 @@ namespace ASI.Basecode.Services.Services
         /// </summary>
         /// <param name="model">The model</param>
         /// <returns>TicketAssignment</returns>
-        /// AssignmentId format: {AgentId}-{Timestamp}-{RandomNumber}
-        private async Task<TicketAssignment> CreateTicketAssignmentAsync(string ticketId, string agentId)
+        private async Task<TicketAssignment> CreateTicketAssignmentAsync(string ticketId, string agentId = null, string teamId = null)
         {
-            var timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-            var randomNumber = new Random().Next(1000, 9999);
-            var assignmentId = $"{agentId}-{timestamp}-{randomNumber}";
-            var currentAdmin = await GetCurrentAdminAsync();
-            var team = await GetTeamByUserIdAsync(agentId);
+            var currentUser = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (currentUser == null)
+                throw new TicketException("Current user not found, unable to proceed.");
 
             return new TicketAssignment
             {
-                AssignmentId = assignmentId,
-                TeamId = team.TeamId,
+                AssignmentId = Guid.NewGuid().ToString(),
+                AgentId = agentId,
+                TeamId = teamId,
                 TicketId = ticketId,
                 AssignedDate = DateTime.Now,
-                AdminId = currentAdmin.AdminId, //TODO: remove, agent can now reassign
-                Team = team,
-                Admin = currentAdmin
+                AssignedById = currentUser,
             };
         }
     }

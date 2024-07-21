@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editTicketModalLabel">TICKET ID #@Model.TicketId</h5>
+                <h5 class="modal-title font-weight-bold" id="editTicketModalLabel">TICKET ID #@Model.TicketId</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -22,8 +22,9 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="IssueDescription" class="control-label"></label>
-                        <textarea asp-for="IssueDescription" class="form-control"></textarea>
+                        <textarea asp-for="IssueDescription" id="issueDescription" class="form-control"></textarea>
                         <span asp-validation-for="IssueDescription" class="text-danger"></span>
+                        <span id="remainingDescriptionChars" class="text-muted">800 characters remaining</span>
                     </div>
                     <div class="form-group">
                         <div id="attachmentDetails" style="display: @(Model.Attachment != null ? "block" : "none")">

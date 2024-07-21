@@ -1,27 +1,29 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-
 @inject ASI.Basecode.Services.Interfaces.INotificationService NotificationService
 
 @{
     bool isAdmin = HttpContextAccessor.HttpContext.User.IsInRole("Admin");
     var userId = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     bool hasUnreadNotifications = false;
-    
+    int notificationCount = 0;
+    var role = HttpContextAccessor.HttpContext.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
     if (!string.IsNullOrEmpty(userId))
     {
         hasUnreadNotifications = NotificationService.HasUnreadNotifications(userId);
+        notificationCount = NotificationService.GetUnreadNotificationCount(userId);
     }
 }
 
-<div class="@((ViewBag.LoginView == true || ViewBag.create == true) ? "hide-navbar" : "") sidebar">
+<div class="@((ViewBag.LoginView == true || ViewBag.create == true) ? "hide-navbar" : "sidebar") ">
     <div class="logosec hover-pointer">
         <img src="~/img/ticketita-logo.svg"
              style="width: 185px;" alt="logo"
              onclick="window.location.href = '@Url.Action("Index", "Home")';">
     </div>
     <div class="sidebar-header mt-5 mb-2">Navigation</div>
-    <ul class="list-unstyled">
+    <ul class="list-unstyled flex-grow-1">
         @if (isAdmin)
         {
             <li class="py-2">
@@ -55,17 +57,26 @@
                 Articles
             </a>
         </li>
-             <li class="py-2">
-                <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
+        <li class="py-2">
+            <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
+                @if (hasUnreadNotifications)
+                {
+                    <i class="fa fa-bell px-1" style="color: #f2476a;"></i>
+                    <span class="bold-notifications">Notifications</span>
+                }
+                else
+                {
                     <i class="fa fa-bell px-1"></i>
-                    Notifications
-                </a>
-            </li>
+                    <div class="d-inline-flex">Notifications</div>
+                }
+            </a>
+        </li>
         <li class="py-2">
             <a asp-controller="#" asp-action="#" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "#" ? "active" : "")">
                 <i class="fa fa-cog px-1"></i>
                 Settings
             </a>
+        </li>
         <li class="py-2">
             <a href="#" data-toggle="modal" data-target="#logoutModal">
                 <i class="fa fa-sign-out px-1"></i>
@@ -73,6 +84,14 @@
             </a>
         </li>
     </ul>
+    <hr>
+    <div class="user-info">
+        <i class="fa fa-user-circle icon"></i>
+        <div class="text">
+            <span>@HttpContextAccessor.HttpContext.User.Identity.Name</span>
+            <small class="text-muted">(@role)</small>
+        </div>
+    </div>
 </div>
 
 <!-- Logout Modal -->
@@ -116,12 +135,7 @@
 </script>
 
 <style>
-        .unread-notification {
-            background-color: #ffeb3b; /* Highlight color */
-        }
-    </style>
-
-
-
-
-
+    .text-muted{
+    
+    }
+</style>

@@ -8,6 +8,7 @@
     await Html.RenderPartialAsync("_UpdateTrackingModal", Model);
     await Html.RenderPartialAsync("_ReopenTicketModal", Model);
     await Html.RenderPartialAsync("_UpdateAssignmentModal", Model);
+    await Html.RenderPartialAsync("_UpdateCategoryModal", Model);
     await Html.RenderPartialAsync("_ConfirmationModal");
 }
 
@@ -21,12 +22,36 @@
     {
         if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
         {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
-                Update Tracking
-            </button>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
-                Update Assignment
-            </button>
+            if (!User.IsInRole("Admin") && (Model.TicketAssignment?.AgentId == null || Model.TicketAssignment?.AgentId == ViewBag.UserId))
+            {
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
+                    Update Status/Priority
+                </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
+                    Update Assignment
+                </button>
+                if(Model.TicketAssignment == null)
+                {
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
+                        Update Category
+                    </button>
+                }
+            }
+            else if (User.IsInRole("Admin"))
+            {
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
+                    Update Tracking
+                </button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
+                    Update Assignment
+                </button>
+                if (Model.TicketAssignment == null)
+                {
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
+                        Update Category
+                    </button>
+                }
+            }
         }
     } 
     else
@@ -34,11 +59,11 @@
         if(Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
         {
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
-                Update Ticket
+                Update Tracking
             </button>
 
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editTicketModal">
-                Edit Ticket
+                Update Ticket
             </button>
         }
         if (Model.StatusType.StatusName == "Closed")
@@ -77,10 +102,20 @@
             </div>
             <div class="pb-4 text-muted d-flex justify-content-between">
                 <div class="my-0">
-                    @Html.DisplayNameFor(model => model.TicketAssignment):
-                    @if (Model.TicketAssignment == null)
+                    @Html.DisplayNameFor(model => model.Team):
+                    @if (Model.TicketAssignment?.Team == null)
                     {
-                        @:No Assignee
+                        @:--Unavailable--
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Team.Name)
+                    }
+                    <br />
+                    @Html.DisplayNameFor(model => model.Agent):
+                    @if (Model.TicketAssignment?.Agent == null)
+                    {
+                        @:--Unavailable--
                     }
                     else
                     {
@@ -220,6 +255,50 @@
         var addCommentUrl = '@Url.Action("AddComment", "Ticket")';
         var deleteCommentUrl = '@Url.Action("DeleteComment", "Ticket")';
         var ticketId = '@Model.TicketId';
+        var currentUserId = '@ViewBag.UserId';
+
+        $('#teamId').change(function () {
+            var selectedTeamMembers = $('#teamId option:selected').data('team-members');
+            var agentDropdown = $('#agentId');
+            var currentAgentId = $('#currentAgentId').val();
+            var agentFound = false;
+
+            agentDropdown.empty();
+
+            if (!selectedTeamMembers || selectedTeamMembers.length === 0) {
+                agentDropdown.append('<option value="no_agent">-- No agents available --</option>');
+                agentDropdown.prop('disabled', true);
+            } else {
+                selectedTeamMembers.forEach(function (member) {
+                    if (member.UserId == currentAgentId) {
+                        agentFound = true;
+                    }
+                });
+
+                if (agentFound) {
+                    agentDropdown.append('<option value="no_agent">-- Unassign Agent --</option>');
+                } else {
+                    agentDropdown.append(`<option value="no_agent">-- Select Agent: ${selectedTeamMembers.length} Available --</option>`);
+                }
+
+                selectedTeamMembers.sort((a, b) => (a.UserId === currentUserId ? -1 : (b.UserId === currentUserId ? 1 : 0)));
+
+                selectedTeamMembers.forEach(function (member) {
+                    var optionText = member.UserId == currentUserId ? member.UserName + ' (me)' : member.UserName;
+                    agentDropdown.append('<option value="' + member.UserId + '">' + optionText + '</option>');
+                });
+
+                agentDropdown.prop('disabled', false);
+            }
+
+            if (currentAgentId && agentFound) {
+                agentDropdown.val(currentAgentId);
+            } else {
+                agentDropdown.val("no_agent");
+            }
+        });
+
+        $('#teamId').trigger('change');
     </script>
     <script src="~/js/comment.js"></script>
     <script src="~/js/feedback.js"></script>

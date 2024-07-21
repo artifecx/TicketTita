@@ -14,8 +14,10 @@ namespace ASI.Basecode.Data.Models
         public string TeamId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+        public string SpecializationId { get; set; }
         public bool IsDeleted { get; set; }
 
+        public virtual CategoryType Specialization { get; set; }
         public virtual ICollection<TeamMember> TeamMembers { get; set; }
         public virtual ICollection<TicketAssignment> TicketAssignments { get; set; }
     }
