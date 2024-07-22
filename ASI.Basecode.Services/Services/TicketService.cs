@@ -102,7 +102,7 @@ namespace ASI.Basecode.Services.Services
                 CreateNotification(newTicket, 1, null);
 
                 // Log the creation activity
-                await LogActivityAsync(newTicket, userId, "Create", $"Ticket #{newTicket.TicketId} created.");
+                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
             }
         }
 
@@ -156,7 +156,7 @@ namespace ASI.Basecode.Services.Services
                 ticket.IssueDescription = model.IssueDescription != null ? model.IssueDescription : ticket.IssueDescription;
                 if(model.File != null) ticket.Attachments.Add(model.Attachment);
 
-                model.UpdatedDate = DateTime.Now;
+                ticket.UpdatedDate = DateTime.Now;
                 await UpdateTicketDate(ticket);
                 
                 if (model.File != null && model.Attachment.AttachmentId != null)
@@ -169,9 +169,9 @@ namespace ASI.Basecode.Services.Services
                     await _repository.UpdateAsync(ticket);
                 }
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
-                if (ticket.IssueDescription != model.IssueDescription || ticket.Subject != model.Subject)
+                if (hasChanges || hasAttachmentChanges)
                 {
-                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update", $"Ticket #{ticket.TicketId} updated. Subject: {ticket.Subject}, Description: {ticket.IssueDescription}");
+                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update", $"Ticket updated by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
                 }
             }
             else
@@ -192,7 +192,7 @@ namespace ASI.Basecode.Services.Services
             {
                 await _repository.DeleteAsync(ticket);
 
-                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket #{ticket.TicketId} deleted.");
+                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket #{ticket.TicketId} deleted");
             }
             else throw new TicketException("Ticket does not exist.");
 
@@ -329,7 +329,6 @@ namespace ASI.Basecode.Services.Services
                 ActivityType = activityType,
                 ActivityDate = DateTime.Now,
                 Details = details,
-                User = _userRepository.FindById(userId)
             };
 
             // Add the log entry to the ticket's activity logs

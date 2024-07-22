@@ -1,7 +1,7 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
 
 @{
-    ViewData["Title"] = "ViewTicket";
+    ViewData["Title"] = $"View Ticket";
     await Html.RenderPartialAsync("_FeedbackModal", Model);
     await Html.RenderPartialAsync("_EditTicketModal", Model);
     await Html.RenderPartialAsync("_DeleteModal");
