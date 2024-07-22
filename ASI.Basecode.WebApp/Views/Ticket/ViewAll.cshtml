@@ -3,7 +3,8 @@
 @using Humanizer
 
 @{
-    ViewData["Title"] = "ViewAll";
+    ViewData["Title"] = "All Tickets";
+    await Html.RenderPartialAsync("_ConfirmationModal");
     await Html.RenderPartialAsync("_DeleteModal");
     await Html.RenderPartialAsync("_CreateTicketModal", new ASI.Basecode.Services.ServiceModels.TicketViewModel());
 
@@ -155,7 +156,7 @@
                                     <p class="card-text mb-2">@((item.IssueDescription.Length > 50) ? item.IssueDescription.Substring(0, 50) + "..." : item.IssueDescription)</p>
                                     <div>
                                         <p class="card-text">
-                                            <small class="text-muted">Recent activity: --<i>Ticket created</i>--</small>
+                                            <small class="text-muted">Recent activity: --<i>@item.ActivityLogs.OrderBy(x => x.ActivityDate).LastOrDefault()?.Details</i>--</small>
                                             <small class="text-muted"><i title="@item.UpdatedDate">@item.UpdatedDate?.ToUniversalTime().Humanize()</i></small>
                                         </p>
                                     </div>
@@ -339,10 +340,10 @@
 <input type="hidden" id="deleteUrl" value="@Url.Action("Delete", "Ticket")" />
 
 @section Scripts {
+    <script src="~/js/confirm.js"></script>
     <script src="~/js/delete.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
-    <script src="~/js/confirm.js"></script>
     <script src="~/js/ticket.js"></script>
 }
 
