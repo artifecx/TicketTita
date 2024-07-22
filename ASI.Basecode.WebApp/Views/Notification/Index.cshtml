@@ -10,9 +10,12 @@
 
 <h1 class="nav-header display-6">Notifications</h1>
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#notificationModal">
-    Launch demo modal
-</button>
+<div>
+    <button type="button" class="btn notif-bell" data-toggle="modal" data-target="#notificationModal">
+        <i class="fa fa-bell px-1"></i>
+    </button>
+</div>
+
 
 <div id="notificationModal" class="modal fixed-right fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-aside" role="document">
@@ -54,22 +57,12 @@
                             </button>
                             </form>
                             <span> | </span> *@
-                                @Html.ActionLink("View", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "action-icon d-inline mx-2", title = "View" })
+                                @Html.ActionLink("Details", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "action-icon d-inline mx-2", title = "Details" })
                                 <span> | </span>
-                                @* <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2">
-                            <i class="fas fa-trash action-icon" title="Delete"></i>
-                            </a> *@
                                 <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2 action-icon" title="Delete">
                                     Delete
                                 </a>
                             </div>
-                            <text> | </text>
-                            @* @Html.ActionLink("Details", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "d-inline" }) *@
-                            @Html.ActionLink(" ", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "fas fa-info-circle action-icon d-inline mx-2", title = "Details" })
-                            <text> | </text>
-                            <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2">
-                                <i class="fas fa-trash action-icon" title="Delete"></i>
-                            </a>
                         </div>
                         <hr />
                     }

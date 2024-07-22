@@ -1,34 +1,25 @@
-﻿.read-notification {
+﻿@import url('notification.css');
+.read-notification {
     background-color: #F0F0F0;
 }
 
-
-.btn-with-icon {
-    color: var(--background-color6);
-    text-decoration: none;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 0px;
-    padding-bottom: 0px;
+.btn:active {
+    color: var(--primary-color) !important;
 }
-    .btn-with-icon:hover {
-        background-color: var(--background-color6);
-        color: black;
-        border-radius: 4px;
-        text-decoration: none;
-        padding-left: 5px;
-        padding-right: 5px;
-        padding-top: 0px;
-        padding-bottom: 0px;
-    }
 
-    .btn-with-icon:active, .btn-with-icon:focus {
-        box-shadow: none !important;
-        background-color: var(--background-color6);
-        padding-left: 5px;
-        padding-right: 5px;
-        padding-top: 0px;
-        padding-bottom: 0px;
+.btn:focus {
+    box-shadow: none !important;
+}
+
+.notif-bell {
+    text-decoration: none;
+    color: var(--text-color-gray);
+}
+
+    .notif-bell:hover,
+    .notif-bell:active {
+        text-decoration: none;
+        color: var(--primary-color);
     }
 
 .modal {
