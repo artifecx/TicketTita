@@ -29,6 +29,8 @@ namespace ASI.Basecode.Services.Services
         private readonly INotificationService _notificationService;
         private readonly IPerformanceReportRepository _performanceReportRepository;
         private readonly ITeamRepository _teamRepository;
+        private readonly IActivityLogRepository _activityLogRepository;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -43,7 +45,9 @@ namespace ASI.Basecode.Services.Services
             INotificationService notificationService,
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository,
-            ITeamRepository teamRepository)
+            ITeamRepository teamRepository,
+            IActivityLogRepository activityLogRepository,
+            IUserRepository userRepository)
         {
             _repository = repository;
             _mapper = mapper;
@@ -51,6 +55,8 @@ namespace ASI.Basecode.Services.Services
             _notificationService = notificationService;
             _performanceReportRepository = performanceReportRepository;
             _teamRepository = teamRepository;
+            _activityLogRepository = activityLogRepository;
+            _userRepository = userRepository;
         }
 
         #region Ticket CRUD Operations
@@ -88,9 +94,12 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                    await _repository.AddAsync(newTicket);   
+                    await _repository.AddAsync(newTicket);
                 }
                 CreateNotification(newTicket, 1, null);
+
+                // Log the creation activity
+                await LogActivityAsync(newTicket, userId, "Create", $"Ticket #{newTicket.TicketId} created.");
             }
         }
 
@@ -157,7 +166,10 @@ namespace ASI.Basecode.Services.Services
                     await _repository.UpdateAsync(ticket);
                 }
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
-
+                if (ticket.IssueDescription != model.IssueDescription || ticket.Subject != model.Subject)
+                {
+                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update", $"Ticket #{ticket.TicketId} updated. Subject: {ticket.Subject}, Description: {ticket.IssueDescription}");
+                }
             }
             else
             {
@@ -173,8 +185,14 @@ namespace ASI.Basecode.Services.Services
         public async Task DeleteAsync(string id)
         {
             var ticket = await _repository.FindByIdAsync(id);
-            if (ticket != null) await _repository.DeleteAsync(ticket);
+            if (ticket != null)
+            {
+                await _repository.DeleteAsync(ticket);
+
+                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket #{ticket.TicketId} deleted.");
+            }
             else throw new TicketException("Ticket does not exist.");
+
         }
         #endregion Ticket CRUD Operations
 
@@ -295,6 +313,50 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        #endregion
+
+        #region Activity Log Update
+        private async Task LogActivityAsync(Ticket ticket, string userId, string activityType, string details)
+        {
+            var activityLog = new ActivityLog
+            {
+                ActivityId = Guid.NewGuid().ToString(),
+                TicketId = ticket.TicketId,
+                UserId = userId,
+                ActivityType = activityType,
+                ActivityDate = DateTime.Now,
+                Details = details,
+                User = _userRepository.FindById(userId)
+            };
+
+            // Add the log entry to the ticket's activity logs
+            ticket.ActivityLogs.Add(activityLog);
+
+            await _activityLogRepository.AddActivityLogAsync(activityLog);
+        }
+
+        /// <summary>
+        /// Retrieves all activity logs associated with a specific ticket.
+        /// </summary>
+        /// <param name="ticketId">The identifier of the ticket</param>
+        /// <returns>A list of activity logs for the specified ticket</returns>
+        public async Task<IEnumerable<ActivityLog>> GetActivityLogsByTicketIdAsync(string ticketId)
+        {
+            if (string.IsNullOrEmpty(ticketId))
+            {
+                throw new ArgumentException("Ticket ID cannot be null or empty.", nameof(ticketId));
+            }
+
+            // Fetch the activity logs from the repository
+            var activityLogs = await _activityLogRepository.GetActivityLogsByTicketIdAsync(ticketId);
+
+            if (activityLogs == null)
+            {
+                throw new TicketException("No activity logs found for the specified ticket.");
+            }
+
+            return activityLogs;
+        }
         #endregion
     }
 }
