@@ -103,6 +103,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 }
 
                 var ticket = await _ticketService.GetFilteredTicketByIdAsync(id);
+                ticket.ActivityLogs = await _ticketService.GetActivityLogsByTicketIdAsync(id);
                 if (ticket == null)
                 {
                     TempData["ErrorMessage"] = "Ticket not found!";

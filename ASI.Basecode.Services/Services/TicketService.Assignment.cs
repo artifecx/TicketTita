@@ -44,6 +44,9 @@ namespace ASI.Basecode.Services.Services
             var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
             string noTeam = "no_team";
             string noAgent = "no_agent";
+            string activityLogDetail = "";
+            var agent = _userRepository.FindById(agentId)?.Name;
+            var team = _teamRepository.FindByIdAsync(teamId).Result?.Name;
 
             if (assignment == null)
             {
@@ -56,14 +59,17 @@ namespace ASI.Basecode.Services.Services
                 if (teamId == noTeam && agentId != noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, agentId);
+                    activityLogDetail = $"Assigned ticket to Agent: {agent}";
                 }
                 else if (teamId != noTeam && agentId == noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, teamId: teamId);
+                    activityLogDetail = $"Assigned ticket to Team: {team}";
                 }
                 else if (teamId != noTeam && agentId != noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, agentId, teamId);
+                    activityLogDetail = $"Assigned ticket to Team: {team} and Agent: {agent}";
                 }
                 else
                 {
@@ -75,6 +81,8 @@ namespace ASI.Basecode.Services.Services
             {
                 var assignmentTeamId = assignment.TeamId;
                 var assignmentAgentId = assignment.AgentId;
+                var assignmentTeam = _teamRepository.FindByIdAsync(assignmentTeamId).Result?.Name;
+                var assignmentAgent = _userRepository.FindById(assignmentAgentId)?.Name;
                 if (teamId == assignmentTeamId && agentId == assignmentAgentId)
                 {
                     throw new TicketException("Cannot reassign to the same team and agent.", ticketId);
@@ -95,35 +103,41 @@ namespace ASI.Basecode.Services.Services
                 {
                     status = "unassign";
                     assignment.AgentId = null;
+                    activityLogDetail = $"Unassigned Agent: {assignmentAgent}";
                 }
                 else if (teamId == noTeam && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.TeamId = null;
                     assignment.AgentId = agentId;
+                    activityLogDetail = $"Reassign Agent to {agent}";
                 }
                 else if (teamId == assignmentTeamId && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.AgentId = agentId;
+                    activityLogDetail = $"Reassign Agent to {agent}";
                 }
                 else if (teamId != assignmentTeamId && agentId == noAgent)
                 {
                     status = "reassign";
                     assignment.TeamId = teamId;
                     assignment.AgentId = null;
+                    activityLogDetail = $"Reassign Team to {team}";
                 }
                 else if (teamId != assignmentTeamId && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.TeamId = teamId;
                     assignment.AgentId = agentId;
+                    activityLogDetail = $"Reassign Team to {team} and Agent to {agent}";
                 }
                 else if(string.IsNullOrEmpty(assignmentTeamId) && 
                     !string.IsNullOrEmpty(teamId) && agentId == assignmentAgentId)
                 {
                     status = "assign";
                     assignment.TeamId = teamId;
+                    activityLogDetail = $"Assign Team to {team}";
                 }
                 else
                 {
@@ -134,6 +148,8 @@ namespace ASI.Basecode.Services.Services
                 await _repository.UpdateAssignmentAsync(assignment);
             }
             await CheckAndModifyStatusByAssignment(ticketId, status);
+            var ticket = await _repository.FindByIdAsync(model.TicketId);
+            await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Assignment Changes", activityLogDetail);
             return status;
         }
 

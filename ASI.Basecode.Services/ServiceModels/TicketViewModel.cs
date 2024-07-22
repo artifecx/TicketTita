@@ -123,6 +123,9 @@ namespace ASI.Basecode.Services.ServiceModels
         public IEnumerable<PriorityType> PriorityTypes { get; set; }
 
         public IEnumerable<StatusType> StatusTypes { get; set; }
+
+        public IEnumerable<ActivityLog> ActivityLogs { get; set; }
+
         #endregion
     }
 }
