@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = "All Tickets";
+    await Html.RenderPartialAsync("_ConfirmationModal");
     await Html.RenderPartialAsync("_DeleteModal");
     await Html.RenderPartialAsync("_CreateTicketModal", new ASI.Basecode.Services.ServiceModels.TicketViewModel());
 
@@ -339,10 +340,10 @@
 <input type="hidden" id="deleteUrl" value="@Url.Action("Delete", "Ticket")" />
 
 @section Scripts {
+    <script src="~/js/confirm.js"></script>
     <script src="~/js/delete.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
-    <script src="~/js/confirm.js"></script>
     <script src="~/js/ticket.js"></script>
 }
 
