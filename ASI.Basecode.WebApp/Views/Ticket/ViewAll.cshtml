@@ -19,6 +19,23 @@
     var users = ViewBag.Users as List<User>;
     var agents = ViewBag.Agents as List<User>;
     var teams = ViewBag.Teams as List<Team>;
+    var userDefaults = ViewBag.UserDefaults as List<string>;
+
+    var statusDefault = string.Empty;
+    var priorityDefault = string.Empty;
+    var categoryDefault = string.Empty;
+    var sortByDefault = string.Empty;
+    foreach(var defaults in userDefaults)
+    {
+        var filterParts = defaults.Split(":");
+        var filterBy = filterParts[0];
+        var filterValue = filterParts[1];
+
+        if(filterBy == "s") statusDefault = filterValue;
+        if (filterBy == "p") priorityDefault = filterValue;
+        if (filterBy == "c") categoryDefault = filterValue;
+        if(filterBy == "sb") sortByDefault = filterValue;
+    }
 }
 
 <div class="d-flex justify-content-between nav-header">
@@ -218,7 +235,7 @@
                         <div class="mb-3">
                             <label for="selectedFilters">Status: </label>
                             <select id="selectedFilters" name="selectedFilters">
-                                <option value="">Default</option>
+                                <option value="">Default: @statusDefault</option>
                                 <option value="status:all" selected="@(selectedFilters != null && selectedFilters.Contains("status:all") ? "selected" : null)">All</option>
                                 @foreach (var item in statusTypes)
                                 {
@@ -230,7 +247,7 @@
                         <div class="mb-3">
                             <label for="selectedFilters">Priority: </label>
                             <select id="selectedFilters" name="selectedFilters">
-                                <option value="">Default</option>
+                                <option value="">Default: @priorityDefault</option>
                                 <option value="priority:all" selected="@(selectedFilters != null && selectedFilters.Contains("priority:all") ? "selected" : null)">All</option>
                                 @foreach (var item in priorityTypes)
                                 {
@@ -241,7 +258,7 @@
                         <div class="mb-3">
                             <label for="selectedFilters">Category: </label>
                             <select id="selectedFilters" name="selectedFilters">
-                                <option value="">Default</option>
+                                <option value="">Default: @categoryDefault</option>
                                 <option value="category:all" selected="@(selectedFilters != null && selectedFilters.Contains("category:all") ? "selected" : null)">All</option>
                                 @foreach (var item in categoryTypes)
                                 {
@@ -290,7 +307,7 @@
                         <div class="mb-3">
                             <label for="sortBy" class="mr-2 mb-0">Sort By:</label>
                             <select asp-for="@sortBy" id="sortBy" name="sortBy" class="form-select">
-                                <option value="" selected="@(string.IsNullOrEmpty(sortBy))">Default</option>
+                                <option value="" selected="@(string.IsNullOrEmpty(sortBy))">Default: @sortByDefault</option>
                                 <option value="updated_desc" selected="@(sortBy == "updated_desc")">Recently Updated</option>
                                 <option value="created_desc" selected="@(sortBy == "created_desc")">Newest</option>
                                 <option value="created_asc" selected="@(sortBy == "created_asc")">Oldest</option>
@@ -325,6 +342,7 @@
     <script src="~/js/delete.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
+    <script src="~/js/confirm.js"></script>
     <script src="~/js/ticket.js"></script>
 }
 

@@ -15,6 +15,7 @@ using ASI.Basecode.Services.Exceptions;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
 using ASI.Basecode.Services.Interfaces;
+using System.Collections.Generic;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -126,6 +127,24 @@ namespace ASI.Basecode.WebApp.Mvc
                 var paginationPreference = _userPreferences.GetUserPreferenceByKey(UserId, "pagination").Result;
                 if (paginationPreference.Value == null) return Convert.ToInt32("10");
                 else return Convert.ToInt32(paginationPreference.Value);
+            }
+        }
+
+        public List<string> UserFilterDefaults
+        {
+            get
+            {
+                var filterDefaults = new List<string>();
+                var statusFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultStatusFilter").Result;
+                var categoryFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultCategoryFilter").Result;
+                var priorityFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultPriorityFilter").Result;
+                var sortBy = _userPreferences.GetUserPreferenceByKey(UserId, "defaultSortBy").Result;
+                filterDefaults.Add(statusFilter.Value != null ? $"s:{statusFilter.Value}" : "s:All");
+                filterDefaults.Add(categoryFilter.Value != null ? $"c:{categoryFilter.Value}" : "c:All");
+                filterDefaults.Add(priorityFilter.Value != null ? $"p:{priorityFilter.Value}" : "p:All");
+                filterDefaults.Add(sortBy.Value != null ? $"sb:{sortBy.Value}" : "sb:Ticket ID (A-Z)");
+
+                return filterDefaults;
             }
         }
 
