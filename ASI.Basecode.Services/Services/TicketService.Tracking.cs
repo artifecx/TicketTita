@@ -69,9 +69,7 @@ namespace ASI.Basecode.Services.Services
 
             if (statusChanged || priorityChanged)
             {
-                var updatedStatus = existingTicket.StatusType.StatusName.ToLower();
-                var updatedPriority = existingTicket.PriorityType.PriorityName;
-                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Tracking", $"Updated Status: {updatedStatus}, Updated Priority: {updatedPriority}");
+                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Tracking", $"Ticket updated by {_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value}");
             }
         }
     }
