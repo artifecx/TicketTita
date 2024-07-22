@@ -10,6 +10,7 @@ namespace ASI.Basecode.WebApp.Controllers
     {
         [HttpPost]
         [Authorize]
+        [Route("addcomment")]
         public async Task<IActionResult> AddComment([FromBody] CommentViewModel model)
         {
             return await HandleExceptionAsync(async () =>
@@ -29,6 +30,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
         [HttpPost]
         [Authorize]
+        [Route("editcomment")]
         public async Task<IActionResult> EditComment([FromBody] CommentViewModel model)
         {
             return await HandleExceptionAsync(async () =>
@@ -47,6 +49,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
         [HttpPost]
         [Authorize]
+        [Route("deletecomment")]
         public async Task<IActionResult> DeleteComment([FromBody] CommentViewModel model)
         {
             return await HandleExceptionAsync(async () =>
