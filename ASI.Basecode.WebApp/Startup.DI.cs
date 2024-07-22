@@ -31,6 +31,7 @@ namespace ASI.Basecode.WebApp
             this._services.TryAddSingleton<TokenProviderOptionsFactory>();
             this._services.TryAddSingleton<TokenValidationParametersFactory>();
             this._services.AddScoped<IUnitOfWork, UnitOfWork>();
+
             // Services
             this._services.TryAddSingleton<TokenValidationParametersFactory>();
             this._services.AddScoped<IAccountService, AccountService>();
@@ -41,7 +42,7 @@ namespace ASI.Basecode.WebApp
             this._services.AddScoped<IUserService, UserService>();
             this._services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
             this._services.AddScoped<INotificationService, NotificationService>();
-
+            this._services.AddScoped<IUserPreferencesService, UserPreferencesService>();
 
             // Repositories
             this._services.AddScoped<IAccountRepository, AccountRepository>();
@@ -53,6 +54,8 @@ namespace ASI.Basecode.WebApp
             this._services.AddScoped<IKnowledgeBaseRepository, KnowledgeBaseRepository>();
             this._services.AddScoped<INotificationRepository, NotificationRepository>();
             this._services.AddScoped<IPerformanceReportRepository, PerformanceReportRepository>();
+            this._services.AddScoped<IUserPreferencesRepository, UserPreferencesRepository>();
+            this._services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
 
             // Manager Class
             this._services.AddScoped<SignInManager>();

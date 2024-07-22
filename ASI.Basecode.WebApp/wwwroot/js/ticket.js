@@ -90,7 +90,7 @@ function submitEditTicket() {
     }
 
     $.ajax({
-        url: '/Ticket/Edit',
+        url: '/Ticket/Update',
         type: 'POST',
         data: formData,
         processData: false,
@@ -120,7 +120,7 @@ function validateCategory(currentCategoryId) {
     } else {
         $('#updateCategoryModal').modal('hide');
         setTimeout(function () {
-            var message = 'Changing the category might result in you losing access to this ticket';
+            var message = 'You are about to change this ticket\'s category';
             displayConfirmationModal(saveCategory, message, 'updateCategoryModal');
         }, 250);
     }
@@ -130,7 +130,7 @@ function saveCategory() {
     var ticketId = $('#ticketId').val();
 
     $.ajax({
-        url: '/Ticket/Edit',
+        url: '/Ticket/Update',
         type: 'POST',
         data: {
             TicketId: ticketId,

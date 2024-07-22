@@ -1,35 +1,51 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.TicketViewModel>
+@using ASI.Basecode.Data.Models
+@using Humanizer
 
 @{
     ViewData["Title"] = "ViewAll";
     await Html.RenderPartialAsync("_DeleteModal");
     await Html.RenderPartialAsync("_CreateTicketModal", new ASI.Basecode.Services.ServiceModels.TicketViewModel());
 
-    string filterBy = ViewData["FilterBy"] as string;
-    string filterValue = ViewData["FilterValue"] as string;
+    List<string> selectedFilters = ViewBag.SelectedFilters;
     string sortBy = ViewData["SortBy"] as string;
     string search = ViewData["Search"] as string;
+    string showOption = ViewData["ShowOption"] as string;
     int pageIndex = Model.PageIndex;
 
-    string sortById = string.IsNullOrEmpty(sortBy) ? "id_desc" : null;
-    string sortBySubject = sortBy == "subject" ? "subject_desc" : "subject";
-    string sortByStatus = sortBy == "status" ? "status_desc" : "status";
-    string sortByPriority = sortBy == "priority" ? "priority_desc" : "priority";
-    string sortByCategory = sortBy == "category" ? "category_desc" : "category";
-    string sortByUser = sortBy == "user" ? "user_desc" : "user";
-    string sortByCreatedDate = sortBy == "created" ? "created_desc" : "created";
-    string sortByUpdatedDate = sortBy == "updated" ? "updated_desc" : "updated";
-    string sortByResolvedDate = sortBy == "resolved" ? "resolved_desc" : "resolved";
+    var priorityTypes = ViewBag.PriorityTypes as List<PriorityType>;
+    var statusTypes = ViewBag.StatusTypes as List<StatusType>;
+    var categoryTypes = ViewBag.CategoryTypes as List<CategoryType>;
+    var users = ViewBag.Users as List<User>;
+    var agents = ViewBag.Agents as List<User>;
+    var teams = ViewBag.Teams as List<Team>;
+    var userDefaults = ViewBag.UserDefaults as List<string>;
 
-    var priorityTypes = ViewBag.PriorityTypes as List<string>;
-    var statusTypes = ViewBag.StatusTypes as List<string>;
-    var categoryTypes = ViewBag.CategoryTypes as List<string>;
-    var users = ViewBag.Users as List<string>;
+    var statusDefault = string.Empty;
+    var priorityDefault = string.Empty;
+    var categoryDefault = string.Empty;
+    var sortByDefault = string.Empty;
+    foreach(var defaults in userDefaults)
+    {
+        var filterParts = defaults.Split(":");
+        var filterBy = filterParts[0];
+        var filterValue = filterParts[1];
+
+        if(filterBy == "s") statusDefault = filterValue;
+        if (filterBy == "p") priorityDefault = filterValue;
+        if (filterBy == "c") categoryDefault = filterValue;
+        if(filterBy == "sb") sortByDefault = filterValue;
+    }
 }
+
 <div class="d-flex justify-content-between nav-header">
     <h1 class="display-6">Tickets</h1>
     <div class="d-flex justify-content-between">
-        <form method="get" asp-action="ViewAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">
+        <form method="get" asp-action="GetAll" asp-route-sortBy="@sortBy" asp-route-search="@search" asp-route-showOption="@showOption" asp-route-pageIndex="@pageIndex">
+            @for (int i = 0; i < selectedFilters.Count; i++)
+            {
+                <input type="hidden" name="selectedFilters" value="@selectedFilters[i]" />
+            }
             <div class="form-group input-group">
                 <input type="text" name="search" class="form-control btn-radius px-3" placeholder="Search by subject" value="@search" />
                 <span class="input-group-append">
@@ -39,8 +55,6 @@
                 </span>
             </div>
             <input type="hidden" name="sortBy" value="@sortBy" />
-            <input type="hidden" name="filterBy" value="@filterBy" />
-            <input type="hidden" name="filterValue" value="@filterValue" />
         </form>
         <div class="mx-3">
             <p>
@@ -57,242 +71,278 @@
 </div>
 
 <div class="container-fluid px-4 py-3">
-    <form method="get" asp-action="ViewAll">
-        <label for="filterBy">Filter By: </label>
-        <select asp-for="@filterBy" id="filterBy" name="filterBy">
-            <option value="">No Filter</option>
-            <option value="priority">Priority</option>
-            <option value="status">Status</option>
-            <option value="category">Category</option>
-            <option value="user">User</option>
-        </select>
-        <select id="filterValue" name="filterValue" style="display: none;"></select>
-        <button type="submit" class="btn btn-primary">Apply Filter</button>
-        <input type="hidden" name="sortBy" value="@sortBy" />
-        <input type="hidden" name="search" value="@search" />
-    </form>
-
-    <div class="py-3">
-        <table class="table table-white">
-            <thead>
-                <tr>
-                    <th>
-
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortById" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().TicketId)
-                            @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "id_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortBySubject" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().Subject)
-                            @(sortBy == "subject" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "subject_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    @if (!User.IsInRole("Employee"))
-                    {
-                        <th>
-                            <a asp-action="ViewAll" asp-route-sortBy="@sortByUser" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                                @Html.DisplayNameFor(model => model.First().User)
-                                @(sortBy == "user" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "user_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                            </a>
-                        </th>
-                    }
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByUpdatedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().UpdatedDate)
-                            @(sortBy == "updated" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "updated_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByResolvedDate" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().ResolvedDate)
-                            @(sortBy == "resolved" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "resolved_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByCategory" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search"class="text-black">
-                            @Html.DisplayNameFor(model => model.First().CategoryType)
-                            @(sortBy == "category" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "category_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByPriority" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().PriorityType)
-                            @(sortBy == "priority" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "priority_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        <a asp-action="ViewAll" asp-route-sortBy="@sortByStatus" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-pageIndex="@pageIndex" asp-route-search="@search" class="text-black">
-                            @Html.DisplayNameFor(model => model.First().StatusType)
-                            @(sortBy == "status" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "status_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                        </a>
-                    </th>
-                    <th>
-                        Assignation
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="13" class="alert alert-warning text-center" role="alert">
-                            @(string.IsNullOrEmpty(filterBy) ? Html.Raw("No tickets found") : Html.Raw("No tickets found matching the criteria"))
-                        </td>
-                    </tr>
-                }
-                else
-                {
+    <div class="row">
+        <div class="col-9">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-warning text-center" role="alert">
+                    @(!selectedFilters.Any() ? Html.Raw("No tickets found") : Html.Raw("No tickets found matching the criteria"))
+                </div>
+            }
+            else
+            {
+                <div class="container py-3">
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.TicketId)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Subject)
-                            </td>
-                            @if (!User.IsInRole("Employee"))
-                            {
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.User.Name)
-                                </td>
-                            }
-                            <td>
-                                @if (item.UpdatedDate == null)
-                                {
-                                    @:No Updates
-                                }
-                                else
-                                {
-                                    @Html.DisplayFor(modelItem => item.UpdatedDate)
-                                }
-                            </td>
-                            <td>
-                                @if (item.ResolvedDate == null)
-                                {
-                                    @:Open
-                                }
-                                else
-                                {
-                                    @Html.DisplayFor(modelItem => item.ResolvedDate)
-                                }
-                            </td>
-                            <td>
-                                <span class="border mx-1 py-1 px-3 btn-radius @GetCategoryCssClass(item.CategoryType.CategoryName)">
-                                    @Html.DisplayFor(modelItem => item.CategoryType.CategoryName)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="border mx-1 py-1 px-3 btn-radius @GetPriorityCssClass(item.PriorityType.PriorityName)">
-                                    @Html.DisplayFor(modelItem => item.PriorityType.PriorityName)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="border mx-1 py-1 px-3 btn-radius @GetStatusCssClass(item.StatusType.StatusName)">
-                                    @Html.DisplayFor(modelItem => item.StatusType.StatusName)
-                                </span>
-                            </td>
-                            <td>
-                                @if (item.TicketAssignment != null)
-                                {
-                                    var teamName = item.TicketAssignment.Team?.Name;
-                                    var agentName = item.TicketAssignment.Agent?.Name;
-
-                                    if (teamName != null)
+                        <div class="card mb-3 mx-auto border-0 shadow-sm card-hover" style="max-width: 1000px; border-radius: 15px;">
+                            <div class="card-header bg-transparent d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
+                                <div>
+                                    <span class="ticket-id"><strong>TICKET ID# @item.TicketId</strong></span>
+                                    <span class="border mx-1 py-0.5 px-3 btn-radius @(GetStatusCssClass(item.StatusType.StatusName))">@item.StatusType.StatusName</span>
+                                    <span class="border mx-1 py-0.5 px-3 btn-radius @(GetPriorityCssClass(item.PriorityType.PriorityName))">@item.PriorityType.PriorityName</span>
+                                    <span class="border mx-1 py-0.5 px-3 btn-radius @(GetCategoryCssClass(item.CategoryType.CategoryName))">@item.CategoryType.CategoryName</span>
+                                </div>
+                                <div>
+                                    @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
+                                    @if (User.IsInRole("Employee"))
                                     {
-                                        @teamName
-                                    }
-                                    if (teamName != null && agentName != null)
-                                    {
-                                        <text> | </text>
-                                    }
-                                    if (agentName != null)
-                                    {
-                                        @agentName
-                                    }
-                                }
-                                else
-                                {
-                                    @:N/A
-                                }
-                            </td>
-                            <td>
-                                @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
-                                @if (User.IsInRole("Employee"))
-                                {
-                                    @if (item.StatusType.StatusName.Contains("Resolved"))
-                                    {
-                                        <text> | </text>
-                                        @if (item.Feedback == null)
+                                        @if (item.StatusType.StatusName.Contains("Resolved"))
                                         {
-                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
+                                            <text> | </text>
+                                            @if (item.Feedback == null)
+                                            {
+                                                @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId, showModal = "provideFeedback" }, new { @class = "fas fa-comment-dots action-icon", title = "Provide Feedback" })
+                                            }
+                                            else
+                                            {
+                                                @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
+                                            }
                                         }
                                         else
                                         {
-                                            @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
+                                            <text> | </text>
+                                            @Html.ActionLink(" ", "GetTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
                                         }
-                                    }
-                                    else
-                                    {
                                         <text> | </text>
-                                        @Html.ActionLink(" ", "ViewTicket", new { id = item.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
+                                        <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@(item.Subject.Length > 20 ? item.Subject.Substring(0, 20) + "..." : item.Subject)')">
+                                            <i class="fas fa-trash action-icon" title="Delete"></i>
+                                        </a>
                                     }
-                                    <text> | </text>
-                                    <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TicketId', '@(item.Subject.Length > 20 ? item.Subject.Substring(0, 20) + "..." : item.Subject)')">
-                                        <i class="fas fa-trash action-icon" title="Delete"></i>
-                                    </a>
-                                }
-                            </td>
-                        </tr>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-end">
+                                    @if (!User.IsInRole("Employee"))
+                                    {
+                                        <div>
+                                            <small class="text-muted"><strong>@item.User.Name</strong></small>
+                                        </div>
+                                    }
+                                    <div>
+                                        <small class="text-muted">
+                                            Assignation:
+                                            @if (item.TicketAssignment?.Team == null && item.TicketAssignment?.Agent == null)
+                                            {
+                                                <strong>None</strong>
+                                            }
+                                            @if (item.TicketAssignment?.Team != null)
+                                            {
+                                                <strong>@item.TicketAssignment.Team.Name</strong>
+                                            }
+                                            @if (item.TicketAssignment?.Team != null && item.TicketAssignment?.Agent != null)
+                                            {
+                                                <text> | </text>
+                                            }
+                                            @if (item.TicketAssignment?.Agent != null)
+                                            {
+                                                <strong>@(item.TicketAssignment.Agent.Name == User.Identity.Name ? "Me" : item.TicketAssignment.Agent.Name)</strong>
+                                            }
+                                        </small>
+                                    </div>
+                                </div>
+                                <h5 class="card-title my-2">@item.Subject</h5>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <p class="card-text mb-2">@((item.IssueDescription.Length > 50) ? item.IssueDescription.Substring(0, 50) + "..." : item.IssueDescription)</p>
+                                    <div>
+                                        <p class="card-text">
+                                            <small class="text-muted">Recent activity: --<i>Ticket created</i>--</small>
+                                            <small class="text-muted"><i title="@item.UpdatedDate">@item.UpdatedDate?.ToUniversalTime().Humanize()</i></small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
-                }
-            </tbody>
-        </table>
-        <nav>
-            <ul class="pagination">
-                @if (Model.HasPreviousPage)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Previous</a>
-                    </li>
-                }
-                @for (int i = 1; i <= Model.TotalPages; i++)
-                {
-                    <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">@i</a>
-                    </li>
-                }
-                @if (Model.HasNextPage)
-                {
-                    <li class="page-item">
-                        <a class="page-link" asp-action="ViewAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-filterValue="@filterValue" asp-route-search="@search">Next</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                </div>
+            }
+
+            <nav>
+                <ul class="pagination">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <form method="get" asp-action="GetAll" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-search="@search" asp-route-showOption="@showOption">
+                                @for (int i = 0; i < selectedFilters.Count; i++)
+                                {
+                                    <input type="hidden" name="selectedFilters" value="@selectedFilters[i]" />
+                                }
+                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex - 1)" />
+                                <button type="submit" class="page-link">Previous</button>
+                            </form>
+                        </li>
+                    }
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                            <form method="get" asp-action="GetAll" asp-route-pageIndex="@i" asp-route-sortBy="@sortBy" asp-route-search="@search" asp-route-showOption="@showOption">
+                                @for (int j = 0; j < selectedFilters.Count; j++)
+                                {
+                                    <input type="hidden" name="selectedFilters" value="@selectedFilters[j]" />
+                                }
+                                <input type="hidden" name="pageIndex" value="@i" />
+                                <button type="submit" class="page-link">@i</button>
+                            </form>
+                        </li>
+                    }
+                    @if (Model.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <form method="get" asp-action="GetAll" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-search="@search" asp-route-showOption="@showOption">
+                                @for (int i = 0; i < selectedFilters.Count; i++)
+                                {
+                                    <input type="hidden" name="selectedFilters" value="@selectedFilters[i]" />
+                                }
+                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex + 1)" />
+                                <button type="submit" class="page-link">Next</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </nav>
+
+        </div>
+
+        <div class="col-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Ticket Filters & Sort</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" asp-action="GetAll">
+                        @if (User.IsInRole("Support Agent"))
+                        {
+                            <div class="mb-3">
+                                <label for="showOption">Show Tickets: </label>
+                                <select asp-for="@showOption" id="showOption" name="showOption" class="form-select">
+                                    <option value="" selected="@(string.IsNullOrEmpty(showOption))">All</option>
+                                    <option value="assigned_me" selected="@(showOption == "assigned_me")">Assigned to me</option>
+                                    <option value="assigned_team" selected="@(showOption == "assigned_team")">Assigned to my team</option>
+                                    <option value="assigned_none" selected="@(showOption == "assigned_none")">No Assignment</option>
+                                </select>
+                            </div>
+                            <hr />
+                        }
+                        <div class="mb-3">
+                            <label for="selectedFilters">Status: </label>
+                            <select id="selectedFilters" name="selectedFilters">
+                                <option value="">Default: @statusDefault</option>
+                                <option value="status:all" selected="@(selectedFilters != null && selectedFilters.Contains("status:all") ? "selected" : null)">All</option>
+                                @foreach (var item in statusTypes)
+                                {
+                                    if (!User.IsInRole("Employee") && item.StatusTypeId == "S4") continue;
+                                    <option value="status:@item.StatusTypeId" selected="@(selectedFilters != null && selectedFilters.Contains("status:" + item.StatusTypeId) ? "selected" : null)">@item.StatusName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="selectedFilters">Priority: </label>
+                            <select id="selectedFilters" name="selectedFilters">
+                                <option value="">Default: @priorityDefault</option>
+                                <option value="priority:all" selected="@(selectedFilters != null && selectedFilters.Contains("priority:all") ? "selected" : null)">All</option>
+                                @foreach (var item in priorityTypes)
+                                {
+                                    <option value="priority:@item.PriorityTypeId" selected="@(selectedFilters != null && selectedFilters.Contains("priority:" + item.PriorityTypeId) ? "selected" : null)">@item.PriorityName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="selectedFilters">Category: </label>
+                            <select id="selectedFilters" name="selectedFilters">
+                                <option value="">Default: @categoryDefault</option>
+                                <option value="category:all" selected="@(selectedFilters != null && selectedFilters.Contains("category:all") ? "selected" : null)">All</option>
+                                @foreach (var item in categoryTypes)
+                                {
+                                    <option value="category:@item.CategoryTypeId" selected="@(selectedFilters != null && selectedFilters.Contains("category:" + item.CategoryTypeId) ? "selected" : null)">@item.CategoryName</option>
+                                }
+                            </select>
+                        </div>
+                        <hr />
+                        @if (!User.IsInRole("Employee"))
+                        {
+                            <div class="mb-3">
+                                <label for="selectedFilters">User: </label>
+                                <select id="selectedFilters" name="selectedFilters">
+                                    <option value="">All</option>
+                                    @foreach (var item in users)
+                                    {
+                                        <option value="employee:@item.UserId" selected="@(selectedFilters != null && selectedFilters.Contains("employee:" + item.UserId) ? "selected" : null)">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="mb-3">
+                                <label for="selectedFilters">Team: </label>
+                                <select id="selectedFilters" name="selectedFilters">
+                                    <option value="">All</option>
+                                    @foreach (var item in teams)
+                                    {
+                                        <option value="team:@item.TeamId" selected="@(selectedFilters != null && selectedFilters.Contains("team:" + item.TeamId) ? "selected" : null)">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="selectedFilters">Agent: </label>
+                                <select id="selectedFilters" name="selectedFilters">
+                                    <option value="">All</option>
+                                    @foreach (var item in agents)
+                                    {
+                                        <option value="agent:@item.UserId" selected="@(selectedFilters != null && selectedFilters.Contains("agent:" + item.UserId) ? "selected" : null)">@item.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <hr />
+                        }
+                        <div class="mb-3">
+                            <label for="sortBy" class="mr-2 mb-0">Sort By:</label>
+                            <select asp-for="@sortBy" id="sortBy" name="sortBy" class="form-select">
+                                <option value="" selected="@(string.IsNullOrEmpty(sortBy))">Default: @sortByDefault</option>
+                                <option value="updated_desc" selected="@(sortBy == "updated_desc")">Recently Updated</option>
+                                <option value="created_desc" selected="@(sortBy == "created_desc")">Newest</option>
+                                <option value="created_asc" selected="@(sortBy == "created_asc")">Oldest</option>
+                                <option value="ticket_asc" selected="@(sortBy == "ticket_asc")">Ticket ID (A-Z)</option>
+                                <option value="ticket_desc" selected="@(sortBy == "ticket_desc")">Ticket ID (Z-A)</option>
+                                <option value="subject_asc" selected="@(sortBy == "subject_asc")">Subject (A-Z)</option>
+                                <option value="subject_desc" selected="@(sortBy == "subject_desc")">Subject (Z-A)</option>
+                            </select>
+                        </div>
+                        <hr />
+                        @if (selectedFilters.Any() || !string.IsNullOrEmpty(sortBy) || !string.IsNullOrEmpty(search) || !string.IsNullOrEmpty(showOption))
+                        {
+                            <a href="@Url.Action("GetAll", "Ticket")" class="btn btn-secondary w-100 text-black">Clear Filters</a>
+                            <hr />
+                        }
+                        <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                        <input type="hidden" name="sortBy" value="@sortBy" />
+                        <input type="hidden" name="search" value="@search" />
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-
 @*---- Values passed to the js files ----*@
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
-<input type="hidden" id="baseUrl" value="@Url.Action("ViewAll", "Ticket")" />
+<input type="hidden" id="baseUrl" value="@Url.Action("GetAll", "Ticket")" />
 <input type="hidden" id="deleteUrl" value="@Url.Action("Delete", "Ticket")" />
-<input type="hidden" id="filterValueHidden" value="@filterValue" />
-<input type="hidden" id="priorityOptions" value='@Html.Raw(Json.Serialize(priorityTypes))' />
-<input type="hidden" id="statusOptions" value='@Html.Raw(Json.Serialize(statusTypes))' />
-<input type="hidden" id="categoryOptions" value='@Html.Raw(Json.Serialize(categoryTypes))' />
-<input type="hidden" id="userOptions" value='@Html.Raw(Json.Serialize(users))' />
 
 @section Scripts {
-    <script src="~/js/filterAndSort.js"></script>
     <script src="~/js/delete.js"></script>
     <script src="~/js/feedback.js"></script>
     <script src="~/js/toastrNotification.js"></script>
+    <script src="~/js/confirm.js"></script>
     <script src="~/js/ticket.js"></script>
 }
 

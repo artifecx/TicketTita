@@ -24,24 +24,21 @@ namespace ASI.Basecode.Services.ServiceModels
         public string Subject { get; set; }
 
         /// <summary>The ticket issue description.</summary>
-        [Display(Name = "Description")]
+        [Display(Name = "Please describe your issue below")]
         [StringLength(800)]
         [Required(ErrorMessage = "Description is required.")]
         public string IssueDescription { get; set; }
 
         /// <summary>a foreign key pointing to the Category table.</summary>
         [Display(Name = "Category")]
-        [Required(ErrorMessage = "Category is required.")]
         public string CategoryTypeId { get; set; }
 
         /// <summary>a foreign key pointing to the Priority table.</summary>
         [Display(Name = "Priority")]
-        [Required(ErrorMessage = "Priority is required.")]
         public string PriorityTypeId { get; set; }
 
         /// <summary>a foreign key pointing to the Status table.</summary>
         [Display(Name = "Status")]
-        [Required(ErrorMessage = "Status is required.")]
         public string StatusTypeId { get; set; }
 
         /// <summary>The date the ticket was created</summary>
@@ -126,6 +123,9 @@ namespace ASI.Basecode.Services.ServiceModels
         public IEnumerable<PriorityType> PriorityTypes { get; set; }
 
         public IEnumerable<StatusType> StatusTypes { get; set; }
+
+        public IEnumerable<ActivityLog> ActivityLogs { get; set; }
+
         #endregion
     }
 }

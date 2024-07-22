@@ -1,4 +1,5 @@
-﻿using ASI.Basecode.WebApp.Mvc;
+﻿using ASI.Basecode.Services.Interfaces;
+using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,8 @@ namespace ASI.Basecode.WebApp.Controllers
         public HomeController(IHttpContextAccessor httpContextAccessor,
                               ILoggerFactory loggerFactory,
                               IConfiguration configuration,
-                              IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                              IUserPreferencesService userPreferences,
+                              IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
 
         }

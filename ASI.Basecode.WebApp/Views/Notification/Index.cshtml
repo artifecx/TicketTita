@@ -53,6 +53,7 @@
                             <i class="fas fa-envelope"></i> Mark as Read
                             </button>
                             </form>
+<<<<<<< HEAD
                             <span> | </span> *@
                                 @Html.ActionLink("View", "ViewTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "action-icon d-inline mx-2", title = "View" })
                                 <span> | </span>
@@ -63,6 +64,15 @@
                                     Delete
                                 </a>
                             </div>
+=======
+                            <text> | </text>
+                            @* @Html.ActionLink("Details", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "d-inline" }) *@
+                            @Html.ActionLink(" ", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "fas fa-info-circle action-icon d-inline mx-2", title = "Details" })
+                            <text> | </text>
+                            <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2">
+                                <i class="fas fa-trash action-icon" title="Delete"></i>
+                            </a>
+>>>>>>> eb0b703ff08fe9bf57d622771241a434d1442f9b
                         </div>
                         <hr />
                     }
