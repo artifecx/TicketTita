@@ -3,6 +3,11 @@
 
 @{
     ViewData["Title"] = "Index";
+    await Html.RenderPartialAsync("_CreateArticleModal", new ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel()
+    {
+                ArticleCategories = ViewBag.Categories
+    });
+
 }
 
 <div class="d-flex justify-content-between nav-header">
@@ -23,12 +28,11 @@
         @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
         {
             <div class="mx-3">
-                <button type="button" class="btn btn-primary btn-radius px-3" onclick="window.location.href='@Url.Action("Create")'">
+                <button type="button" class="btn btn-primary btn-radius px-3" data-toggle="modal" data-target="#createModal">
                     <i class="fa fa-plus"></i>
                     Create New
                 </button>
             </div>
-
         }
     </div>
 </div>
@@ -36,7 +40,7 @@
 
 <div class="container-sm m-3 mt-5 mb-4">
     <div class="row mb-2 align-items-center">
-        <div class="col-sm text-left">
+        <div class="col text-left">
             @if (Model.HasPreviousPage)
             {
                 <a asp-action="Index"
@@ -56,7 +60,7 @@
             }
         </div>
 
-        <div class="col text-right">
+        <div class="col-md-auto text-right">
             <form asp-action="Index" method="get" class="form-inline d-inline-flex justify-content-end">
                 <div class="form-group mr-2">
                     <select id="categories" name="selectedCategories" multiple="multiple" class="form-control">
@@ -161,6 +165,8 @@
             })
         })
 
+        function displayCreateModal(){ 
+        }
     </script>
 
     <script>
