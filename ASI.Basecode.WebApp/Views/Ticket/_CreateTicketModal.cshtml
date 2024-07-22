@@ -1,8 +1,8 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.TicketViewModel
 
 @{
-    var PriorityTypes = ViewBag.PTs;
-    var CategoryTypes = ViewBag.CTs;
+    var PriorityTypes = ViewBag.PriorityTypes;
+    var CategoryTypes = ViewBag.CategoryTypes;
 }
 
 <div class="modal fade" id="createTicketModal" tabindex="-1" role="dialog" aria-labelledby="createTicketModalLabel" aria-hidden="true">
@@ -62,7 +62,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="submitCreateTicket()">Create</button>
+                <button type="button" class="btn btn-primary" onclick="validateCreateTicket()">Create</button>
             </div>
         </div>
     </div>

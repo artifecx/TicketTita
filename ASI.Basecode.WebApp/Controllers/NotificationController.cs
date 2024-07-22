@@ -24,7 +24,8 @@ namespace ASI.Basecode.WebApp.Controllers
                                       ILoggerFactory loggerFactory,
                                       IConfiguration configuration,
                                       INotificationRepository notificationRepository,
-                                      IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                                      IUserPreferencesService userPreferences,
+                                      IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
             _notificationService = notificationService;
             _httpContextAccessor = httpContextAccessor;

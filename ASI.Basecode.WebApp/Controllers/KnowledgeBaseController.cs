@@ -31,7 +31,8 @@ namespace ASI.Basecode.WebApp.Controllers
                                 IHttpContextAccessor httpContextAccessor,
                                 ILoggerFactory loggerFactory,
                                 IConfiguration configuration,
-                                IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                                IUserPreferencesService userPreferences,
+                                IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
             _knowledgeBaseService = knowledgeBaseService;
         }
@@ -46,7 +47,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize]
         public IActionResult Index(string searchTerm, List<string> selectedCategories, string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1)
         {
-            int pageSize = 5;
+            var pageSize = UserPaginationPreference;
 
             var totalArticlesCount = _knowledgeBaseService.CountArticles(searchTerm, selectedCategories);
             var articles = _knowledgeBaseService.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder, pageNumber, pageSize);

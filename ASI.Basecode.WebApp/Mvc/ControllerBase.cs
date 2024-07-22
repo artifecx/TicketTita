@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using ASI.Basecode.Services.Exceptions;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
+using ASI.Basecode.Services.Interfaces;
+using System.Collections.Generic;
 
 namespace ASI.Basecode.WebApp.Mvc
 {
@@ -34,6 +36,8 @@ namespace ASI.Basecode.WebApp.Mvc
         /// <summary>Session</summary>
         protected ISession _session => _httpContextAccessor.HttpContext.Session;
 
+        protected IUserPreferencesService _userPreferences { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the ControllerBase{TController} class.
         /// </summary>
@@ -46,8 +50,10 @@ namespace ASI.Basecode.WebApp.Mvc
                                 IHttpContextAccessor httpContextAccessor,
                                 ILoggerFactory loggerFactory,
                                 IConfiguration configuration,
-                                IMapper mapper = null)
+                                IMapper mapper = null,
+                                IUserPreferencesService userPreferences = null)
         {
+            this._userPreferences = userPreferences;
             this._httpContextAccessor = httpContextAccessor;
             this._configuration = configuration;
             this._logger = loggerFactory.CreateLogger<TController>();
@@ -112,6 +118,34 @@ namespace ASI.Basecode.WebApp.Mvc
         public string ClientUserRole
         {
             get { return User.FindFirst("ClientUserRole").Value; }
+        }
+
+        public int UserPaginationPreference
+        {
+            get
+            {
+                var paginationPreference = _userPreferences.GetUserPreferenceByKey(UserId, "pagination").Result;
+                if (paginationPreference.Value == null) return Convert.ToInt32("10");
+                else return Convert.ToInt32(paginationPreference.Value);
+            }
+        }
+
+        public List<string> UserFilterDefaults
+        {
+            get
+            {
+                var filterDefaults = new List<string>();
+                var statusFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultStatusFilter").Result;
+                var categoryFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultCategoryFilter").Result;
+                var priorityFilter = _userPreferences.GetUserPreferenceByKey(UserId, "defaultPriorityFilter").Result;
+                var sortBy = _userPreferences.GetUserPreferenceByKey(UserId, "defaultSortBy").Result;
+                filterDefaults.Add(statusFilter.Value != null ? $"s:{statusFilter.Value}" : "s:All");
+                filterDefaults.Add(categoryFilter.Value != null ? $"c:{categoryFilter.Value}" : "c:All");
+                filterDefaults.Add(priorityFilter.Value != null ? $"p:{priorityFilter.Value}" : "p:All");
+                filterDefaults.Add(sortBy.Value != null ? $"sb:{sortBy.Value}" : "sb:Ticket ID (A-Z)");
+
+                return filterDefaults;
+            }
         }
 
         /// <summary>
@@ -245,7 +279,7 @@ namespace ASI.Basecode.WebApp.Mvc
 
             if (actionName == "Delete")
             {
-                return RedirectToAction("ViewAll");
+                return RedirectToAction("GetAll");
             }
 
             return !string.IsNullOrEmpty(id) ? RedirectToAction(actionName, new { id }) : RedirectToAction(actionName);

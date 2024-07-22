@@ -33,6 +33,7 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.User)
                     .Include(t => t.Feedback)
                     .Include(t => t.Attachments)
+                    .Include(t => t.ActivityLogs)
                     .Include(t => t.Comments)
                         .ThenInclude(cu => cu.User)
                     .Include(t => t.Comments)
@@ -54,6 +55,7 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.StatusType)
                     .Include(t => t.User)
                     .Include(t => t.Feedback)
+                    .Include (t => t.ActivityLogs)
                     .Include(t => t.TicketAssignment)
                         .ThenInclude(ta => ta.Agent)
                     .Include(t => t.TicketAssignment)
@@ -365,7 +367,7 @@ namespace ASI.Basecode.Data.Repositories
         /// </summary>
         /// <returns>IQueryable User</returns>
         public async Task<IQueryable<User>> UserGetAllAsync() 
-            => await Task.FromResult(this.GetDbSet<User>());
+            => await Task.FromResult(this.GetDbSet<User>().Include(x => x.Tickets));
 
         /// <summary>
         /// Get all user identifiers with tickets submitted

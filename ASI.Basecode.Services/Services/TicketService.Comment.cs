@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
+using System.Security.Claims;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -18,13 +19,19 @@ namespace ASI.Basecode.Services.Services
         public async Task AddCommentAsync(CommentViewModel model)
         {
             var comment = _mapper.Map<Comment>(model);
+            var user = await _repository.UserFindByIdAsync(model.UserId);
+            var ticket = await _repository.FindByIdAsync(model.TicketId);
+            var parent = model.ParentId != null ? await _repository.FindCommentByIdAsync(model.ParentId) : null;
+
             comment.CommentId = Guid.NewGuid().ToString();
             comment.PostedDate = DateTime.Now;
-            comment.User = await _repository.UserFindByIdAsync(model.UserId);
-            comment.Ticket = await _repository.FindByIdAsync(model.TicketId);
-            comment.Parent = model.ParentId != null ? await _repository.FindCommentByIdAsync(model.ParentId) : null;
+            comment.User = user;
+            comment.Ticket = ticket;
+            comment.Parent = parent;
+            ticket.UpdatedDate = DateTime.Now;
 
             await _repository.AddCommentAsync(comment);
+            await LogActivityAsync(ticket, user.UserId, "New Comment", $"New comment by {user.Name}");
         }
 
         /// <summary>

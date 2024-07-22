@@ -9,15 +9,22 @@
 
     function populateOptions(options) {
         filterValueSelect.innerHTML = "";
-        options.forEach(option => {
+        if (options.length === 0 && filterBySelect.value === "user") {
             const opt = document.createElement("option");
-            opt.value = option;
-            opt.text = option;
-            if (option === document.getElementById("filterValueHidden").value) {
-                opt.selected = true;
-            }
+            opt.value = "";
+            opt.text = "No users found";
             filterValueSelect.add(opt);
-        });
+        } else {
+            options.forEach(option => {
+                const opt = document.createElement("option");
+                opt.value = option;
+                opt.text = option;
+                if (option === document.getElementById("filterValueHidden").value) {
+                    opt.selected = true;
+                }
+                filterValueSelect.add(opt);
+            });
+        }
     }
 
     function updateFilterValues() {

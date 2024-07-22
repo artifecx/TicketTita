@@ -1,0 +1,33 @@
+﻿@model ASI.Basecode.Services.ServiceModels.UserPreferencesViewModel
+
+@{
+    ViewData["Title"] = "Settings & Preferences";
+}
+
+<h1 class="nav-header display-6">
+    User Preferences
+</h1>
+
+<div class="container-fluid p-4">
+    <div class="card px-5 py-4 mb-4">
+        <div class="card-body">
+            <form asp-action="UpdateUserPreferences" method="post">
+                <input type="hidden" asp-for="UserId" />
+                <h4 class="pt-3">Global Preferences</h4>
+                <div class="form-group">
+                    <label for="Preferences_pagination">Pagination Size</label>
+                    <select class="form-control" id="Preferences_pagination" name="Preferences[pagination]">
+                        @for (int i = 5; i <= 50; i += 5)
+                        {
+                            <option value="@i" selected="@(i.ToString() == Model.Preferences.GetValueOrDefault("pagination", "10"))">@i</option>
+                        }
+                    </select>
+                    <small class="form-text text-muted">Please select a pagination size between 5 and 50. Default is 10.</small>
+                </div>
+                <h4 class="pt-3">Ticket Preferences</h4>
+                @await Html.PartialAsync("_TicketPreferences", Model)
+                <button type="submit" class="btn btn-primary">Save Preferences</button>
+            </form>
+        </div>
+    </div>
+</div>

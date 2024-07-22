@@ -15,6 +15,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Success or fail status</returns>
         [HttpPost]
         [Authorize]
+        [Route("updateassignment")]
         public async Task<IActionResult> UpdateAssignment([FromBody] TicketViewModel model)
         {
             return await HandleExceptionAsync(async () =>

@@ -24,7 +24,8 @@ using ASI.Basecode.Services.Interfaces;
                  IHttpContextAccessor httpContextAccessor,
                                    ILoggerFactory loggerFactory,
                                    IConfiguration configuration,
-                                   IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper)
+                                   IUserPreferencesService userPreferences,
+                                   IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
             {
                 _userService = userService;
             }
@@ -38,7 +39,7 @@ using ASI.Basecode.Services.Interfaces;
             /// <returns></returns>
             public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
             {
-                int pageSize = 10;
+                var pageSize = UserPaginationPreference;
 
                 var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
                 var FilteredUsersCount = _userService.CountFilteredUsers(users);

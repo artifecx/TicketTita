@@ -61,7 +61,7 @@ namespace ASI.Basecode.Resources.Views {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to image/jpeg,image/png,video/mp4,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document.
+        ///   Looks up a localized string similar to image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document.
         /// </summary>
         public static string AllowedFileTypes {
             get {
@@ -70,7 +70,7 @@ namespace ASI.Basecode.Resources.Views {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 200.
+        ///   Looks up a localized string similar to 5.
         /// </summary>
         public static string MaxFileSizeMB {
             get {

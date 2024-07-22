@@ -23,20 +23,31 @@ document.addEventListener('DOMContentLoaded', function () {
     contentTextarea.addEventListener('keyup', updateRemainingChars);
 });
 
-$('#createTicketModal').on('hidden.bs.modal', function () {
-    toastr.info("Create cancelled, no changes were made");
-});
-
-function submitCreateTicket() {
+var formData;
+var cancelled = true;
+function validateCreateTicket() {
     var form = $('#createTicketForm');
 
     form.validate();
     if (!form.valid()) {
         return;
+    } else {
+        cancelled = false;
+        formData = new FormData(form[0]);
+        $('#createTicketModal').modal('hide');
+        setTimeout(function () {
+            var message = 'Ensure all ticket details are correct before submitting';
+            displayConfirmationModal(submitCreateTicket, message, 'createTicketModal');
+        }, 250);
     }
+}
 
-    var formData = new FormData(form[0]);
+$('#createTicketModal').on('hidden.bs.modal', function () {
+    if(cancelled === true)
+        toastr.info("Create cancelled, no changes were made");
+});
 
+function submitCreateTicket() {
     $.ajax({
         url: '/Ticket/Create',
         type: 'POST',
@@ -45,13 +56,16 @@ function submitCreateTicket() {
         contentType: false,
         success: function (response) {
             if (response.success) {
+                formData = null;
                 location.reload();
             } else {
+                formData = null;
                 var errorMessage = response.error || "An error occurred.";
                 toastr.error(errorMessage);
             }
         },
         error: function (xhr, status, error) {
+            formData = null;
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
             $('#createTicketModal').modal('hide');
@@ -90,7 +104,7 @@ function submitEditTicket() {
     }
 
     $.ajax({
-        url: '/Ticket/Edit',
+        url: '/Ticket/Update',
         type: 'POST',
         data: formData,
         processData: false,
@@ -120,7 +134,7 @@ function validateCategory(currentCategoryId) {
     } else {
         $('#updateCategoryModal').modal('hide');
         setTimeout(function () {
-            var message = 'Changing the category might result in you losing access to this ticket';
+            var message = 'You are about to change this ticket\'s category';
             displayConfirmationModal(saveCategory, message, 'updateCategoryModal');
         }, 250);
     }
@@ -130,7 +144,7 @@ function saveCategory() {
     var ticketId = $('#ticketId').val();
 
     $.ajax({
-        url: '/Ticket/Edit',
+        url: '/Ticket/Update',
         type: 'POST',
         data: {
             TicketId: ticketId,
