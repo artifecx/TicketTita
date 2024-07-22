@@ -65,6 +65,12 @@
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editTicketModal">
                 Update Ticket
             </button>
+            if (Model.TicketAssignment == null)
+            {
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
+                    Update Category
+                </button>
+            }
         }
         if (Model.StatusType.StatusName == "Closed")
         {
@@ -157,7 +163,7 @@
             </div>
 
             <div>
-                <a asp-action="ViewAll">Back to List</a>
+                <a asp-action="GetAll">Back to List</a>
             </div>
         </div>
     </div>

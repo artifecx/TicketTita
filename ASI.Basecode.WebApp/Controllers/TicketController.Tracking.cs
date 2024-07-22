@@ -15,6 +15,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns>Success or fail status</returns>
         [HttpPost]
         [Authorize]
+        [Route("updatetracking")]
         public async Task<IActionResult> UpdateTracking([FromBody] TicketViewModel model)
         {
             return await HandleExceptionAsync(async () =>

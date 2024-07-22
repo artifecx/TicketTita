@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Data.Entity;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -52,17 +53,18 @@ namespace ASI.Basecode.Services.Services
             if (currentUserId == null || currentUserRole == null) return null;
 
             var ticket = await GetTicketByIdAsync(id);
+            if (ticket == null) return null;
             if (ticket.StatusTypeId == "S4" && ticket.UserId != currentUserId) return null;
             
-            if (currentUserRole.Contains("Support Agent"))
-            {
-                var agent = await _teamRepository.FindAgentByIdAsync(currentUserId);
-                if (ticket.CategoryType.CategoryName != "Others" &&
-                    ticket.TicketAssignment?.TeamId != agent.TeamMember?.TeamId &&
-                    ticket.TicketAssignment?.AgentId != agent.UserId &&
-                    ticket.CategoryTypeId != agent.TeamMember?.Team.SpecializationId)
-                    return null;
-            }
+            //if (currentUserRole.Contains("Support Agent"))
+            //{
+            //    var agent = await _teamRepository.FindAgentByIdAsync(currentUserId);
+            //    if (ticket.CategoryType.CategoryName != "Others" &&
+            //        ticket.TicketAssignment?.TeamId != agent.TeamMember?.TeamId &&
+            //        ticket.TicketAssignment?.AgentId != agent.UserId &&
+            //        ticket.CategoryTypeId != agent.TeamMember?.Team.SpecializationId)
+            //        return null;
+            //}
 
             var agents = await _teamRepository.GetAgentsAsync();
             var teams = await _teamRepository.GetAllStrippedAsync();
@@ -89,11 +91,21 @@ namespace ASI.Basecode.Services.Services
         /// <param name="filterBy">User defined filter category</param>
         /// <param name="filterValue">User defined filter value</param>
         /// <returns>IEnumerable TicketViewModel</returns>
-        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string sortBy, string filterBy, string filterValue, string search, int pageIndex, int pageSize)
+        public async Task<PaginatedList<TicketViewModel>> GetFilteredAndSortedTicketsAsync(string showOption, string sortBy, List<string> selectedFilters, string search, int pageIndex, int pageSize)
         {
             var tickets = await GetAllAsync();
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var userPreferences = _userPreferencesRepository.GetUserPreferences(userId);
+            userPreferences.TryGetValue("defaultShowOption", out var defaultShowOption);
+            userPreferences.TryGetValue("defaultSortBy", out var defaultSortBy);
+            userPreferences.TryGetValue("defaultStatusFilter", out var defaultStatusFilter);
+            userPreferences.TryGetValue("defaultPriorityFilter", out var defaultPriorityFilter);
+            userPreferences.TryGetValue("defaultCategoryFilter", out var defaultCategoryFilter);
+
+            showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
+            sortBy = string.IsNullOrEmpty(sortBy) ? defaultSortBy : sortBy;
 
             if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Employee"))
             {
@@ -103,106 +115,75 @@ namespace ASI.Basecode.Services.Services
             {
                 var agent = await _teamRepository.FindAgentByIdAsync(userId);
 
-                var agentTeamId = agent.TeamMember?.TeamId;
-                var teamSpecializationId = agent.TeamMember?.Team.SpecializationId;
-
-                var assignedToAgentTeam = new List<TicketViewModel>();
-                var openTicketsForTeam = new List<TicketViewModel>();
-                var assignedToAgentNoTeam = new List<TicketViewModel>();
-                var openTicketsNoTeam = new List<TicketViewModel>();
-                var openTicketsOthers = new List<TicketViewModel>();
-
-                foreach (var ticket in tickets)
+                tickets = showOption?.ToLower() switch
                 {
-                    /// Agent is assigned to a team
-                    if(agentTeamId != null)
-                    {
-                        if (ticket.TicketAssignment?.TeamId == agentTeamId)
-                        {
-                            assignedToAgentTeam.Add(ticket);
-                        }
-                    }
-                    /// Agent is not assigned to a team
-                    else
-                    {
-                        if (ticket.TicketAssignment?.AgentId == userId && ticket.TicketAssignment?.TeamId == null)
-                        {
-                            assignedToAgentNoTeam.Add(ticket);
-                        }
-                    }
-
-                    /// Ticket is open and not assigned to a team/agent
-                    if (ticket.TicketAssignment == null && ticket.StatusType.StatusName != "Resolved" && ticket.StatusType.StatusName != "Closed")
-                    {
-                        /// Ticket falls under a team specialization
-                        if (ticket.CategoryTypeId == teamSpecializationId)
-                        {
-                            openTicketsForTeam.Add(ticket);
-                        }
-                        /// Ticket falls under the "Others" category
-                        else if (ticket.CategoryType.CategoryName == "Others")
-                        {
-                            openTicketsOthers.Add(ticket);
-                        }
-                        /// All open tickets not assigned to a team/agent
-                        else
-                        {
-                            openTicketsNoTeam.Add(ticket);
-                        }
-                    }
-                }
-
-                /// Join relevant tickets based on agent's team membership
-                if (agent.TeamMember != null)
-                {
-                    tickets = assignedToAgentTeam.Union(openTicketsForTeam).Union(openTicketsOthers).ToList();
-                }
-                else
-                {
-                    tickets = assignedToAgentNoTeam.Union(openTicketsNoTeam).Union(openTicketsOthers).ToList();
-                }
+                    "assigned_me" => tickets.Where(t => t.TicketAssignment?.AgentId == userId).ToList(),
+                    "assigned_team" => tickets.Where(t => t.TicketAssignment?.TeamId == agent.TeamMember?.TeamId).ToList(),
+                    "assigned_none" => tickets.Where(t => t.TicketAssignment == null).ToList(),
+                    _ => tickets
+                };
             } 
             else if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Admin"))
             {
                 tickets = tickets.Where(x => x.StatusType.StatusName != "Closed").ToList();
             }
 
-            if (!string.IsNullOrEmpty(filterBy) && !string.IsNullOrEmpty(filterValue))
+            bool clear = false;
+            if (defaultStatusFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("status:"))))
             {
-                tickets = filterBy.ToLower() switch
-                {
-                    "priority" => tickets.Where(t => t.PriorityType.PriorityName == filterValue).ToList(),
-                    "status" => tickets.Where(t => t.StatusType.StatusName == filterValue).ToList(),
-                    "category" => tickets.Where(t => t.CategoryType.CategoryName == filterValue).ToList(),
-                    "user" => tickets.Where(t => t.User.Name == filterValue).ToList(),
-                    _ => tickets
-                };
+                selectedFilters.Add("status:" + defaultStatusFilter);
+                clear = true;
             }
+            if (defaultPriorityFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("priority:"))))
+            {
+                selectedFilters.Add("priority:" + defaultPriorityFilter);
+                clear = true;
+            }
+            if (defaultCategoryFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("category:"))))
+            {
+                selectedFilters.Add("category:" + defaultCategoryFilter);
+                clear = true;
+            }
+
+            if (selectedFilters.Any())
+            {
+                foreach (var filter in selectedFilters)
+                {
+                    if(filter == null) continue;
+                    var filterParts = filter.Split(":");
+                    var filterBy = filterParts[0];
+                    var filterValue = filterParts[1];
+
+                    if (filterValue == "all") continue;
+                    tickets = filterBy switch
+                    {
+                        "status" => tickets.Where(x => x.StatusTypeId == filterValue).ToList(),
+                        "priority" => tickets.Where(x => x.PriorityTypeId == filterValue).ToList(),
+                        "category" => tickets.Where(x => x.CategoryTypeId == filterValue).ToList(),
+                        "employee" => tickets.Where(x => x.UserId == filterValue).ToList(),
+                        "agent" => tickets.Where(x => x.TicketAssignment?.AgentId == filterValue).ToList(),
+                        "team" => tickets.Where(x => x.TicketAssignment?.TeamId == filterValue).ToList(),
+                        _ => tickets
+                    };
+                }
+                if (clear) selectedFilters.Clear();
+            }
+
 
             if (!string.IsNullOrEmpty(search))
             {
                 tickets = tickets.Where(t => t.Subject.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
-            tickets = sortBy switch
+            tickets = sortBy?.ToLower() switch
             {
-                "id_desc" => tickets.OrderByDescending(t => t.TicketId).ToList(),
+                "ticket_desc" => tickets.OrderByDescending(t => t.TicketId).ToList(),
+                "ticket_asc" => tickets.OrderBy(t => t.TicketId).ToList(),
                 "subject_desc" => tickets.OrderByDescending(t => t.Subject).ToList(),
-                "subject" => tickets.OrderBy(t => t.Subject).ToList(),
-                "status_desc" => tickets.OrderByDescending(t => t.StatusTypeId).ToList(),
-                "status" => tickets.OrderBy(t => t.StatusTypeId).ToList(),
-                "priority_desc" => tickets.OrderByDescending(t => t.PriorityTypeId).ToList(),
-                "priority" => tickets.OrderBy(t => t.PriorityTypeId).ToList(),
-                "category_desc" => tickets.OrderByDescending(t => t.CategoryType.CategoryName).ToList(),
-                "category" => tickets.OrderBy(t => t.CategoryType.CategoryName).ToList(),
-                "user_desc" => tickets.OrderByDescending(t => t.User.Name).ToList(),
-                "user" => tickets.OrderBy(t => t.User.Name).ToList(),
+                "subject_asc" => tickets.OrderBy(t => t.Subject).ToList(),
                 "created_desc" => tickets.OrderByDescending(t => t.CreatedDate).ToList(),
-                "created" => tickets.OrderBy(t => t.CreatedDate).ToList(),
+                "created_asc" => tickets.OrderBy(t => t.CreatedDate).ToList(),
                 "updated_desc" => tickets.OrderByDescending(t => t.UpdatedDate).ToList(),
-                "updated" => tickets.OrderBy(t => t.UpdatedDate).ToList(),
-                "resolved_desc" => tickets.OrderByDescending(t => t.ResolvedDate).ToList(),
-                "resolved" => tickets.OrderBy(t => t.ResolvedDate).ToList(),
                 _ => tickets.OrderBy(t => t.TicketId).ToList(),
             };
 

@@ -25,6 +25,7 @@ namespace ASI.Basecode.Data.Models
         public DateTime CreatedTime { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedTime { get; set; }
+        public string Preferences { get; set; }
 
         public virtual Admin CreatedByNavigation { get; set; }
         public virtual Role Role { get; set; }

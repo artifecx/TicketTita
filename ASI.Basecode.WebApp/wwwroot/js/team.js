@@ -34,7 +34,6 @@ function submitAddAgent() {
         data: formData,
         success: function (response) {
             if (response.success) {
-                $('#addAgentModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -44,7 +43,6 @@ function submitAddAgent() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#addAgentModal').modal('hide');
         }
     });
 }
@@ -75,7 +73,6 @@ function submitReassignAgent() {
         data: formData,
         success: function (response) {
             if (response.success) {
-                $('#reassignAgentModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -85,7 +82,6 @@ function submitReassignAgent() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#reassignAgentModal').modal('hide');
         }
     });
 }
@@ -114,7 +110,6 @@ function submitCreateTeam() {
         data: formData,
         success: function (response) {
             if (response.success) {
-                $('#createTeamModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -124,7 +119,6 @@ function submitCreateTeam() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#createTeamModal').modal('hide');
         }
     });
 }
@@ -151,12 +145,11 @@ function submitEditTeam() {
     var formData = form.serialize();
 
     $.ajax({
-        url: '/Team/Edit',
+        url: '/Team/Update',
         type: 'POST',
         data: formData,
         success: function (response) {
             if (response.success) {
-                $('#editTeamModal').modal('hide');
                 location.reload();
             } else {
                 var errorMessage = response.error || "An error occurred.";
@@ -166,7 +159,6 @@ function submitEditTeam() {
         error: function (xhr, status, error) {
             var errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "An unexpected error occurred.";
             toastr.error(errorMessage);
-            $('#editTeamModal').modal('hide');
         }
     });
 }
