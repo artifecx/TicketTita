@@ -120,14 +120,15 @@ namespace ASI.Basecode.Data.Migrations
                 columns: new[] { "notificationType_ID", "title", "description" },
                 values: new object[,]
                 {
-                    { "1", "Ticket Created", "Sends Notification upon Ticket Creation" },
-                    { "2", "Ticket Priority Updated", "Sends Notification upon Ticket Priority Update" },
-                    { "3", "Ticket Status Update", "Sends Notification upon Ticket Status Update" },
-                    { "4", "Ticket Attachment Update", "Sends Notification upon Ticket Attachment Update" },
-                    { "5", "Ticket Assignment", "Sends Notification to user and support agent upon Ticket assignment" },
-                    { "6", "Ticket Reassignment", "Sends Notification upon Ticket Reassignment" },
-                    { "7", "Ticket Reminder", "Sends Notification To Support Agents To Remind On Unresolved Tickets" },
-                    { "8", "Ticket Description Updated", "Sends Notification To Users and Support Agents on Changes on the Ticket Description" },
+                    { "1", "Ticket Created", "Notification to user upon ticket creation" },
+                    { "2", "Ticket Priority Update", "Notification to user and support agent upon ticket priority update" },
+                    { "3", "Ticket Status Update", "Notification to user and support agent upon ticket status update" },
+                    { "4", "Ticket Details Update", "Notification to user and support agent upon ticket details update" },
+                    { "5", "Ticket Assignment Update", "Notification to employee and support agent upon ticket assignment changes" },
+                    { "6", "Ticket New Comment", "Notification when there is a new ticket comment" },
+                    { "7", "Ticket New Feedback", "Notification when there is a new ticket feedback" },
+                    { "8", "Ticket Reminder", "Notification to support agents to remind on unresolved tickets" },
+                    { "9", "Team Assignment Update", "Notification to support agents when there are updates on their team assignment" },
                 }
             );
         }

@@ -26,6 +26,7 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly IFeedbackService _feedbackService;
         private readonly INotificationService _notificationService;
         private readonly ITeamService _teamService;
+        private readonly IActivityLogService _activityLogService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketController"/> class.
@@ -47,6 +48,7 @@ namespace ASI.Basecode.WebApp.Controllers
             ITeamService teamService,
             INotificationService notificationService,
             IUserPreferencesService userPreferences,
+            IActivityLogService activityLogService,
             TokenValidationParametersFactory tokenValidationParametersFactory,
             TokenProviderOptionsFactory tokenProviderOptionsFactory) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
@@ -54,6 +56,7 @@ namespace ASI.Basecode.WebApp.Controllers
             this._feedbackService = feedbackService;
             this._notificationService = notificationService;
             this._teamService = teamService;
+            this._activityLogService = activityLogService;
         }
 
         #region GET methods
@@ -102,23 +105,20 @@ namespace ASI.Basecode.WebApp.Controllers
                 }
 
                 var ticket = await _ticketService.GetFilteredTicketByIdAsync(id);
-                ticket.ActivityLogs = await _ticketService.GetActivityLogsByTicketIdAsync(id);
+                ticket.ActivityLogs = await _activityLogService.GetActivityLogsByTicketIdAsync(id);
                 if (ticket == null)
                 {
                     TempData["ErrorMessage"] = "Ticket not found!";
                     return RedirectToAction("GetAll");
                 }
-                if (ticket != null)
+
+                ViewBag.ShowModal = showModal;
+                ViewBag.UserId = UserId;
+                if (!string.IsNullOrEmpty(notificationId))
                 {
-                    ViewBag.ShowModal = showModal;
-                    ViewBag.UserId = UserId;
-                    if (!string.IsNullOrEmpty(notificationId))
-                    {
-                        _notificationService.MarkNotificationAsRead(notificationId);
-                    }
-                    return View("ViewTicket", ticket);
+                    _notificationService.MarkNotificationAsRead(notificationId);
                 }
-                return RedirectToAction("GetAll");
+                return View("ViewTicket", ticket);
             }, "GetTicket");
         }
         #endregion GET methods
@@ -161,7 +161,7 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 if (model != null)
                 {
-                    await _ticketService.UpdateAsync(model,4);
+                    await _ticketService.UpdateAsync(model);
                     TempData["SuccessMessage"] = "Ticket updated successfully!";
                     return Json(new { success = true });
                 }

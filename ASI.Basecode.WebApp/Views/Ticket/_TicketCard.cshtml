@@ -74,8 +74,13 @@
                 <p class="card-text">
                     <small class="text-muted">
                         Recent activity:
+                        
+                            @{
+                                var originalDetails = Model.ActivityLogs.OrderBy(x => x.ActivityDate).LastOrDefault()?.Details;
+                                var details = originalDetails?.Length > 30 ? originalDetails?.Substring(0, 30) + "..." : originalDetails;
+                            }
                         --<i>
-                            @Model.ActivityLogs.OrderBy(x => x.ActivityDate).LastOrDefault()?.Details by
+                            <text title="@originalDetails">@details</text> by
                             @Model.ActivityLogs.OrderBy(x => x.ActivityDate).LastOrDefault()?.User?.Name
                         </i>--
                     </small>

@@ -20,14 +20,17 @@ using ASI.Basecode.Services.Interfaces;
         public class UserController : ControllerBase<UserController>
         {
             private readonly IUserService _userService;
+            private readonly IPerformanceReportService _performanceReportService;
             public UserController(IUserService userService,
                  IHttpContextAccessor httpContextAccessor,
                                    ILoggerFactory loggerFactory,
                                    IConfiguration configuration,
                                    IUserPreferencesService userPreferences,
+                                   IPerformanceReportService performanceReportService,
                                    IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
             {
                 _userService = userService;
+                _performanceReportService = performanceReportService;
             }
 
             /// <summary>
@@ -121,23 +124,23 @@ using ASI.Basecode.Services.Interfaces;
 
             public IActionResult PerformanceReport(string userId)
             {
-                //var performanceReport = _userService.GetPerformanceReport(userId);
-                //if (performanceReport != null)
-                //{
-                //    return PartialView("_PerformanceReportModal", performanceReport);
-                //}
-                return NotFound(); // TODO: Performance report
+                var performanceReport = _performanceReportService.GetPerformanceReport(userId).Result;
+                if (performanceReport != null)
+                {
+                    return PartialView("_PerformanceReportModal", performanceReport);
+                }
+                return NotFound();
             }
-            #endregion
+        #endregion
 
-            #region POST Methods        
+        #region POST Methods        
 
-            /// <summary>
-            /// Posts the create.
-            /// </summary>
-            /// <param name="model">The model.</param>
-            /// <returns></returns>
-            [HttpPost]
+        /// <summary>
+        /// Posts the create.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        [HttpPost]
             [Authorize]
             public IActionResult PostCreate(UserViewModel model)
             {

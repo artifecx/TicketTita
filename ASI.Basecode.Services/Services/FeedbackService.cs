@@ -15,6 +15,8 @@ namespace ASI.Basecode.Services.Services
     {
         private readonly IFeedbackRepository _repository;
         private readonly ITicketRepository _ticketRepository;
+        private readonly IActivityLogService _activityLogService;
+        private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
 
         /// <summary>
@@ -24,11 +26,15 @@ namespace ASI.Basecode.Services.Services
         /// <param name="mapper">The mapper.</param>
         public FeedbackService(IFeedbackRepository repository,
                             ITicketRepository ticketRepository,
+                            IActivityLogService activityLogService,
+                            INotificationService notificationService,
                             IMapper mapper, ILogger<FeedbackService> logger)
         {
             _mapper = mapper;
             _repository = repository;
             _ticketRepository = ticketRepository;
+            _activityLogService = activityLogService;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -57,6 +63,8 @@ namespace ASI.Basecode.Services.Services
                     user.Feedbacks.Add(newFeedback);
 
                     await _repository.AddAsync(newFeedback);
+                    await _activityLogService.LogActivityAsync(ticket, user.UserId, "Add Feedback", $"Feedback created. Rating: {newFeedback.FeedbackRating}/5");
+                    _notificationService.CreateNotification(ticket, 7, null, ticket.TicketAssignment.AgentId);
                 }
             }
         }
