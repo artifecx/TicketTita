@@ -165,17 +165,21 @@ using ASI.Basecode.Services.Interfaces;
         [Authorize]
         public IActionResult PostUpdate(UserViewModel model)
         {
+            bool HasNullValues = CheckNullValues(model);
             bool exists = _userService.RetrieveAll().Any(s => (s.Name == model.Name || s.Email == model.Email) && s.UserId != model.UserId);
             if (exists)
             {
                 TempData["DuplicateErr"] = "A user with the same name or email already exists.";
-                return RedirectToAction("Index");
+                return Json(new { success = false });
             }
-
+            else if (HasNullValues) {
+                TempData["NullFieldsMessage"] = "Please input all user details";
+                return Json(new { success = false });
+            }
             var userToUpdate = _userService.RetrieveUser(model.UserId);
             if (userToUpdate != null)
             {
-                // Encrypt password if provided
+              
                 if (!string.IsNullOrEmpty(model.Password))
                 {
                     model.Password = PasswordManager.EncryptPassword(model.Password);
@@ -184,8 +188,6 @@ using ASI.Basecode.Services.Interfaces;
                 {
                     model.Password = userToUpdate.Password;
                 }
-
-                // Check if any property has changed
                 bool hasChanges = CheckForChanges(userToUpdate, model);
 
                 if (hasChanges)
@@ -195,11 +197,12 @@ using ASI.Basecode.Services.Interfaces;
                 }
                 else
                 {
-                    TempData["NoChangesMessage"] = "No changes were made to the user.";
+                    TempData["NoChangesMessage"] = "No Changes were seen";
+                    return Json(new { success = true });
                 }
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         private bool CheckForChanges(UserViewModel user, UserViewModel model)
@@ -209,7 +212,9 @@ using ASI.Basecode.Services.Interfaces;
                    user.Password != model.Password ||
                    user.RoleId != model.RoleId;
         }
-
+        private bool CheckNullValues(UserViewModel model) {
+            return string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.RoleId);
+     }
         /// <summary>
         /// Posts the delete.
         /// </summary>
