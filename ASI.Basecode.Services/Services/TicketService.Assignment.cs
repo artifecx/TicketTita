@@ -149,7 +149,7 @@ namespace ASI.Basecode.Services.Services
             }
             await CheckAndModifyStatusByAssignment(ticketId, status);
             var ticket = await _repository.FindByIdAsync(model.TicketId);
-            await LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail} by {_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value}");
+            await LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
             return status;
         }
 
