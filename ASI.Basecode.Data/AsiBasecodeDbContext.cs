@@ -292,7 +292,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_Feedback_UserID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD629E010856")
+                entity.HasIndex(e => e.TicketId, "UQ__Feedback__D597FD62FC460ADB")
                     .IsUnique();
 
                 entity.Property(e => e.FeedbackId)
@@ -489,6 +489,9 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_PerformanceReport_User");
 
+                entity.HasIndex(e => e.UserId, "UQ__Performa__B9BF3306C815C2E6")
+                    .IsUnique();
+
                 entity.Property(e => e.ReportId)
                     .HasMaxLength(256)
                     .HasColumnName("report_ID");
@@ -508,8 +511,8 @@ namespace ASI.Basecode.Data
                     .HasColumnName("user_ID");
 
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.PerformanceReports)
-                    .HasForeignKey(d => d.UserId)
+                    .WithOne(p => p.PerformanceReport)
+                    .HasForeignKey<PerformanceReport>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PerformanceReport_User");
             });
@@ -619,7 +622,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.UserId, "IX_TeamMember_UserID");
 
-                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306BE0B667F")
+                entity.HasIndex(e => e.UserId, "UQ__TeamMemb__B9BF3306B44EB2FF")
                     .IsUnique();
 
                 entity.Property(e => e.TeamId)
@@ -755,7 +758,7 @@ namespace ASI.Basecode.Data
 
                 entity.HasIndex(e => e.TicketId, "IX_TicketAssignment_TicketID");
 
-                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD624F62D212")
+                entity.HasIndex(e => e.TicketId, "UQ__TicketAs__D597FD620BBFF53F")
                     .IsUnique();
 
                 entity.Property(e => e.AssignmentId)

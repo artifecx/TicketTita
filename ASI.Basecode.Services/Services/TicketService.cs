@@ -293,32 +293,6 @@ namespace ASI.Basecode.Services.Services
         }
         #endregion Utility Methods
 
-        #region Performance Report Methods
-        private async Task UpdateTeamPerformanceReportsAsync(Ticket existingTicket)
-        {
-            if (existingTicket.TicketAssignment != null)
-            {
-                var team = await _teamRepository.FindByIdAsync(existingTicket.TicketAssignment.TeamId);
-                if (team != null)
-                {
-                    foreach (var teamMember in team.TeamMembers)
-                    {
-                        var performanceReport = teamMember.Report;
-                        if (performanceReport != null)
-                        {
-                            performanceReport.ResolvedTickets++;
-                            var resolutionTime = (existingTicket.UpdatedDate.Value - existingTicket.CreatedDate).TotalMinutes;
-                            performanceReport.AverageResolutionTime = ((performanceReport.AverageResolutionTime * (performanceReport.ResolvedTickets - 1)) + resolutionTime) / performanceReport.ResolvedTickets;
-
-                            await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
-                        }
-                    }
-                }
-            }
-        }
-
-        #endregion
-
         #region Activity Log Update
         private async Task LogActivityAsync(Ticket ticket, string userId, string activityType, string details)
         {
