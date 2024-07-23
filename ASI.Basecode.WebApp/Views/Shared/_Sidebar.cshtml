@@ -57,7 +57,7 @@
                 Articles
             </a>
         </li>
-        <li class="py-2">
+        @*<li class="py-2">
             <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
                 @if (hasUnreadNotifications)
                 {
@@ -70,7 +70,7 @@
                     <div class="d-inline-flex">Notifications</div>
                 }
             </a>
-        </li>
+        </li>*@
         <li class="py-2">
             <a asp-controller="UserPreferences" asp-action="GetUserPreferences" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "UserPreferences" ? "active" : "")">
                 <i class="fa fa-cog px-1"></i>

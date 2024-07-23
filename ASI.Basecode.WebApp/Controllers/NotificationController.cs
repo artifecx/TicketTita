@@ -39,7 +39,7 @@ namespace ASI.Basecode.WebApp.Controllers
 
             var notifications = _notificationService.RetrieveAll(userId).OrderByDescending(x => x.NotificationDate);
 
-            return View(notifications);
+            return PartialView("_NotificationModal", notifications);
         }
 
         public IActionResult Delete(string id)

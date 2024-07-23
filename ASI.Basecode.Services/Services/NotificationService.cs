@@ -205,7 +205,7 @@ namespace ASI.Basecode.Services.Services
 
         private string GetNotificationPreference(string userId, string key)
         {
-            var preference = _userPreferencesService.GetUserPreferenceByKey(userId, key);
+            var preference = _userPreferencesService.GetUserPreferenceByKeyAsync(userId, key);
             if (preference == null) return "yes";
             return preference.Result.Value;
         }

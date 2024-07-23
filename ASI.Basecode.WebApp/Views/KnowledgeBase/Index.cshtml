@@ -35,6 +35,18 @@
                 </button>
             </div>
         }
+        <div class="mx-3">
+            <button type="button" class="btn notif-bell" id="notifBellBtn">
+                <i class="fa fa-bell px-1"></i>
+            </button>
+        </div>
+        <div id="notificationModal" class="modal fixed-right fade" tabindex="-2" role="dialog">
+            <div class="modal-dialog modal-dialog-aside" role="document">
+                <div class="modal-content">
+                    <!-- Notification Modal -->
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -202,4 +214,22 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#notifBellBtn').click(function () {
+                $.ajax({
+                    url: '@Url.Action("Index", "Notification")',
+                    success: function (result) {
+                        $('#notificationModal .modal-content').html(result);
+                        $('#notificationModal').modal('show');
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/notification.css" />
 }
