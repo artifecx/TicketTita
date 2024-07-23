@@ -14,6 +14,8 @@
     string roleSortParm = sortOrder == "Role" ? "role_desc" : "Role";
     string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
     bool isSuper = User.HasClaim("IsSuperAdmin", "true");
+
+
 }
 
 @section styles { 
@@ -188,7 +190,7 @@
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.Email)</dd>
 
                         <dt class="col-sm-4">Password</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => item.Password)</dd>
+                        <dd class="col-sm-8">@Html.DisplayFor(model=>item.Password)</dd>
 
                         <dt class="col-sm-4">Role</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.RoleId)</dd>
