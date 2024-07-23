@@ -2,6 +2,7 @@
 using ASI.Basecode.Data.Models;
 using ASI.Basecode.Data.Repositories;
 using ASI.Basecode.Services.Interfaces;
+using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,7 @@ namespace ASI.Basecode.Services.Services
         private readonly IUserPreferencesRepository _repository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamService"/> class.
@@ -35,16 +37,18 @@ namespace ASI.Basecode.Services.Services
         public UserPreferencesService(
             IUserPreferencesRepository repository,
             ITicketRepository ticketRepository,
+            IUserRepository userRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository)
         {
             _repository = repository;
             _ticketRepository = ticketRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
-        public async Task<UserPreferencesViewModel> GetUserPreferences(string userId)
+        public async Task<UserPreferencesViewModel> GetUserPreferencesAsync(string userId)
         {
             var preferences = _repository.GetUserPreferences(userId);
             var categoryTypes = await _ticketRepository.GetCategoryTypesAsync();
@@ -62,7 +66,7 @@ namespace ASI.Basecode.Services.Services
             return model;
         }
 
-        public async Task UpdateUserPreferences(UserPreferencesViewModel model)
+        public async Task UpdateUserPreferencesAsync(UserPreferencesViewModel model)
         {
             var existingPreferences = _repository.GetUserPreferences(model.UserId);
             if (existingPreferences != null && model.Preferences != null)
@@ -71,13 +75,38 @@ namespace ASI.Basecode.Services.Services
                 {
                     existingPreferences[preference.Key] = preference.Value;
                 }
-                await _repository.UpdateUserPreferences(model.UserId, existingPreferences);
+                await _repository.UpdateUserPreferencesAsync(model.UserId, existingPreferences);
             }
         }
 
-        public async Task<KeyValuePair<string, string>> GetUserPreferenceByKey(string userId, string key)
+        public void UpdateUserPassword(UserPreferencesViewModel model)
         {
-            return await _repository.FindUserPreferenceByKey(userId, key);
+            var user = _userRepository.FindById(model.UserId);
+            if (user != null)
+            {
+                bool doesOldPasswordMatchWithCurrent = user.Password == PasswordManager.EncryptPassword(model.oldPassword);
+                bool doesNewPasswordMatchWithCurrent = user.Password == PasswordManager.EncryptPassword(model.newPassword);
+                if (doesOldPasswordMatchWithCurrent && !doesNewPasswordMatchWithCurrent)
+                {
+                    user.Password = PasswordManager.EncryptPassword(model.newPassword);
+                    _userRepository.Update(user);
+                }
+                else
+                {
+                    if (!doesOldPasswordMatchWithCurrent)
+                        throw new InvalidOperationException("Old password does not match with the existing password.");
+
+                    if (doesNewPasswordMatchWithCurrent)
+                        throw new InvalidOperationException("New password is the same with the existing password.");
+
+                    throw new InvalidOperationException("An error occurred while updating the password. Please try again.");
+                }
+            }
+        }
+
+        public async Task<KeyValuePair<string, string>> GetUserPreferenceByKeyAsync(string userId, string key)
+        {
+            return await _repository.FindUserPreferenceByKeyAsync(userId, key);
         }
     }
 }
