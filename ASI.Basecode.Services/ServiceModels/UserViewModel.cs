@@ -15,18 +15,20 @@ namespace ASI.Basecode.Services.ServiceModels
         /// Gets or sets the name.
         /// </summary>
         [Required(ErrorMessage = "Name is required.")]
+        [StringLength(50, ErrorMessage = "Maximum Length of a name is 50")]
         public string Name { get; set; }
         /// <summary>
         /// Gets or sets the email.
         /// </summary>
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid Email Address.")]
+        [StringLength(50, ErrorMessage ="Maximum Length of an email is 50")]
         public string Email { get; set; }
         /// <summary>
         /// Gets or sets the password.
         /// </summary>
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(100, ErrorMessage = "Password must be 5 characters minimum", MinimumLength = 5)]
+        [StringLength(20, ErrorMessage = "Password must be 5 characters minimum", MinimumLength = 5)]
         public string Password { get; set; }
         /// <summary>
         /// Gets or sets the role identifier.

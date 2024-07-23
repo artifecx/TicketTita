@@ -18,7 +18,9 @@ namespace ASI.Basecode.Services.ServiceModels
         [Required]
         [StringLength(100)]
         public string Title { get; set; }
+
         [Required]
+        [StringLength(800)]
         public string Content { get; set; }
         [Required]
         public DateTime CreatedDate { get; set; } = DateTime.Now;

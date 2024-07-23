@@ -8,7 +8,6 @@
                 ArticleCategories = ViewBag.Categories
     });
 
-
 }
 
 <div class="d-flex justify-content-between nav-header">
@@ -189,9 +188,62 @@
                 var url = '@Url.Action("Edit")?articleId=' + articleId;
                 $.get(url, function (data) {
                     $('#editArticleModalContent').html(data);
+
                 });
             });
         });
+     
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('DOM fully loaded and parsed');
+            var contentTextarea = document.getElementById('content');
+            var remainingCharsSpan = document.getElementById('remainingContentChars');
+
+            if (contentTextarea && remainingCharsSpan) {
+                console.log('Elements found:', contentTextarea, remainingCharsSpan);
+
+                function updateRemainingChars() {
+                    var remaining = 800 - contentTextarea.value.length;
+                    remainingCharsSpan.textContent = remaining + ' characters remaining';
+                    console.log('Remaining characters:', remaining);
+                }
+
+                updateRemainingChars();
+
+                contentTextarea.addEventListener('keyup', updateRemainingChars);
+            } else {
+                console.error('Elements not found:', contentTextarea, remainingCharsSpan);
+            }
+        });
+
+        function setupEditModal() {
+            var contentTextarea = document.getElementById('editContent');
+            var remainingCharsSpan = document.getElementById('editRemainingContentChars');
+
+            function editUpdateRemainingChars() {
+                var remaining = 800 - contentTextarea.value.length;
+                remainingCharsSpan.textContent = remaining + ' characters remaining';
+            }
+
+            editUpdateRemainingChars();
+
+            contentTextarea.addEventListener('keyup', editUpdateRemainingChars);
+            $('#editArticleModal').on('shown.bs.modal', function () {
+                editUpdateRemainingChars();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            setupEditModal();
+        });
+
+        $(document).ready(function () {
+            $('#editArticleModal').on('shown.bs.modal', function () {
+                setupEditModal();
+            });
+        });
+
+        
+     
     </script>
 
     <script>
