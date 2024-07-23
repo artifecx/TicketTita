@@ -33,9 +33,9 @@
                     </div>
                     <div class="form-group">
                         <label asp-for="Content" class="control-label"></label>
-                        <textarea asp-for="Content" id="Content" class="form-control"></textarea>
+                        <textarea asp-for="Content" id="content" class="form-control"></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
-                        @* <span id="remainingDescriptionChars" class="text-muted">800 characters remaining</span> *@
+                        <span id="remainingContentChars" class="text-muted">800 characters remaining</span>
                     </div>
                     <div class="form-group">
                         <input asp-for="AuthorId" type="hidden" />
@@ -45,7 +45,6 @@
                     </div>
                 </form>
             </div>
-          
         </div>
     </div>
 </div>
@@ -68,8 +67,8 @@
                                 location.reload();
                             }
                         },
-                    }
-                 });
+                    });
+                });
             });
         }
     </script>

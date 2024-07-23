@@ -51,7 +51,7 @@ namespace ASI.Basecode.Services.Services
                 Name = s.Name,
                 CreatedBy = s.CreatedBy,
                 CreatedByName = _adminRepository.FindById(s.CreatedBy)?.Name,
-                Password = PasswordManager.DecryptPassword(s.Password),
+                Password = new string('*', s.Password.Length),
                 RoleId = s.RoleId,
                 UpdatedBy = s.UpdatedBy,
                 UpdatedByName = _adminRepository.FindById(s.UpdatedBy)?.Name,
