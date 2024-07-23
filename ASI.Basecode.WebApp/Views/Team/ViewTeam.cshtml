@@ -9,88 +9,97 @@
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <h1 class=" display-6">View Team</h1>
+    <a asp-action="GetAll" class="text-black m-2"><h2 class="font-weight-bold"><i class="fa-solid fa-arrow-left mx-2"></i></h2></a>
 </div>
 
-<div class="container-fluid px-4 py-3">
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Team Details</h4>
-            <p>
-                @if (User.IsInRole("Admin"))
-                {
-                    <a href="javascript:void(0);" onclick="displayEditModal('@Model.TeamId', '@Model.Name', '@Model.Description')">Edit</a>
-                }
-            </p>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="container-fluid p-4">
+    <div class="card px-5 py-4 mb-4">
+        <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input value="@Model.Name" class="form-control" readonly />
+                <div class="col-lg-6">
+                    <div class="d-flex justify-content-lg-start">
+                        <h4>Team Details</h4>
+                        <p>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a href="javascript:void(0);" onclick="displayEditModal('@Model.TeamId', '@Model.Name', '@Model.Description')" class="fas fa-edit action-icon mx-2"></a>
+                            }
+                        </p>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="Specialization" class="control-label"></label>
-                        <input value="@Model.Specialization.CategoryName" class="form-control" readonly />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input value="@Model.Name" class="form-control" readonly />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Specialization" class="control-label"></label>
+                                <input value="@Model.Specialization.CategoryName" class="form-control" readonly />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input value="@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)" class="form-control" readonly />
-            </div>
-            <hr />
-            <h4>Agents</h4>
-            <p>
-                @if (User.IsInRole("Admin"))
-                {
-                    <a href="javascript:void(0);" onclick="displayAddModal('@Model.TeamId')">Add Agents</a>
-                }
-            </p>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.TeamMembers.Any())
-                    {
-                        <tr>
-                            <td colspan="3" class="alert alert-warning text-center" role="alert">
-                                No Agents in Team
-                            </td>
-                        </tr>
-                    }
-                    else
-                    {
-                        @foreach (var agent in Model.TeamMembers)
-                        {
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label"></label>
+                        <input value="@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)" class="form-control" readonly />
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-lg-between">
+                        <h4>Agents</h4>
+                        <p>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <button class="btn btn-primary btn-radius" href="javascript:void(0);" onclick="displayAddModal('@Model.TeamId')">
+                                    <i class="fa fa-plus"></i>
+                                    Add Agents
+                                </button>
+                            }
+                        </p>
+                    </div>
+                    <table class="table table-white">
+                        <thead>
                             <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => agent.User.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => agent.User.Email)
-                                </td>
-                                <td>
-                                    <a href="javascript:void(0);" onclick="displayPerformanceReport('@agent.UserId')">Performance Report</a>
-                                    <text> | </text>
-                                    <a href="javascript:void(0);" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')">Reassign</a>
-                                </td>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th></th>
                             </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+                        </thead>
+                        <tbody>
+                            @if (!Model.TeamMembers.Any())
+                            {
+                                <tr>
+                                    <td colspan="3" class="alert alert-warning text-center" role="alert">
+                                        No Agents in Team
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var agent in Model.TeamMembers)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => agent.User.Name)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => agent.User.Email)
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0);" onclick="displayPerformanceReport('@agent.UserId')">Performance Report</a>
+                                            <text> | </text>
+                                            <a href="javascript:void(0);" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')">Reassign</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-    <div>
-        <a asp-action="GetAll">Back to List</a>
     </div>
 </div>
 
