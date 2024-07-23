@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using System.Net.Sockets;
 using System.Security.Claims;
+using static ASI.Basecode.Resources.Constants.Enums;
 
 namespace ASI.Basecode.Services.Services
 {
@@ -26,10 +27,7 @@ namespace ASI.Basecode.Services.Services
             {
                 ticket.Attachments.Add(attachment);
                 await _repository.AddAttachmentAsync(attachment);
-            }
-            if (await _repository.FindByIdAsync(ticket.TicketId) != null)
-            {
-                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Add Attachment", $"Attachment added: {attachment.Name}");
+                await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Add Attachment", $"Attachment added: {attachment.Name}");
             }
         }
 

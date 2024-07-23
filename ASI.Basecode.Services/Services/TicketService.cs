@@ -30,7 +30,7 @@ namespace ASI.Basecode.Services.Services
         private readonly INotificationService _notificationService;
         private readonly ITeamRepository _teamRepository;
         private readonly IPerformanceReportRepository _performanceReportRepository;
-        private readonly IActivityLogRepository _activityLogRepository;
+        private readonly IActivityLogService _activityLogService;
         private readonly IUserRepository _userRepository;
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace ASI.Basecode.Services.Services
             IHttpContextAccessor httpContextAccessor,
             IPerformanceReportRepository performanceReportRepository,
             ITeamRepository teamRepository,
-            IActivityLogRepository activityLogRepository,
+            IActivityLogService activityLogService,
             IUserRepository userRepository)
         {
             _repository = repository;
@@ -58,7 +58,7 @@ namespace ASI.Basecode.Services.Services
             _notificationService = notificationService;
             _performanceReportRepository = performanceReportRepository;
             _teamRepository = teamRepository;
-            _activityLogRepository = activityLogRepository;
+            _activityLogService = activityLogService;
             _userRepository = userRepository;
         }
 
@@ -99,10 +99,10 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _repository.AddAsync(newTicket);
                 }
-                CreateNotification(newTicket, 1, null);
+                _notificationService.CreateNotification(newTicket, 1, null);
 
                 // Log the creation activity
-                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
+                await _activityLogService.LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
             }
         }
 
@@ -110,8 +110,7 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to update an existing ticket.
         /// </summary>
         /// <param name="model">The ticket</param>
-        /// <param name="updateType">The update type</param>
-        public async Task UpdateAsync(TicketViewModel model, int updateType)
+        public async Task UpdateAsync(TicketViewModel model)
         {
             var ticket = await _repository.FindByIdAsync(model.TicketId);
             if (await IsDuplicateTicketAsync(model, model.UserId) && ticket.Subject != model.Subject)
@@ -168,11 +167,11 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _repository.UpdateAsync(ticket);
                 }
-                CreateNotification(ticket, updateType, null, model.Agent?.UserId);
                 if (hasChanges || hasAttachmentChanges)
                 {
-                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
                         $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
+                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                 }
             }
             else
@@ -193,7 +192,7 @@ namespace ASI.Basecode.Services.Services
             {
                 await _repository.DeleteAsync(ticket);
 
-                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket deleted");
+                await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket deleted");
             }
             else throw new TicketException("Ticket does not exist.");
 
@@ -201,49 +200,6 @@ namespace ASI.Basecode.Services.Services
         #endregion Ticket CRUD Operations
 
         #region Utility Methods
-        /// <summary>
-        /// Helper method to create a notification.
-        /// </summary>
-        /// <param name="ticket"></param>
-        /// <param name="updateType"></param>
-        /// <param name="isReassigned"></param>
-        /// <param name="agentId"></param>
-        private void CreateNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null)
-        {
-            var userId = ticket.UserId;
-            var ticketId = ticket.TicketId;
-
-            var (title, type, message) = updateType switch
-            {
-                1 => ("New Ticket Created Successfully", "1", $"Ticket #{ticketId} Successfully Added"),
-                2 => ("Ticket Priority Updated", "2", $"Ticket #{ticketId} Priority has been updated."),
-                3 => ("Ticket Status Updated", "3", $"Ticket #{ticketId} Status has been updated."),
-                4 => ("Ticket Attachment Updated", "4", $"Ticket #{ticketId} Details have been updated."), // attachment to details, need to update db notif type
-                5 => (string.Empty, string.Empty, string.Empty), // ticket assignment
-                6 => (string.Empty, string.Empty, string.Empty), // ticket reassignment
-                7 => ("Ticket Description Updated", "7", $"Ticket #{ticketId} Description has been updated."), // DANGER: no entry in NotificationType
-                _ => (string.Empty, string.Empty, string.Empty)
-            };
-
-            if (!string.IsNullOrEmpty(title) && !string.IsNullOrEmpty(type))
-            {
-                if (agentId != null && (updateType == 3 || updateType == 4 || updateType == 5))
-                {
-                    _notificationService.AddNotification(ticketId, title, type, agentId, message);
-                }
-                _notificationService.AddNotification(ticketId, title, type, userId, message);
-            }
-            else if (isReassigned.HasValue)
-            {
-                string agentNotificationTitle = "Ticket Assigned";
-                string userNotificationTitle = isReassigned.Value ? "Ticket Reassigned to an Agent" : "Ticket Assigned to an Agent";
-                string notificationType = isReassigned.Value ? "6" : "5";
-
-                _notificationService.AddNotification(ticketId, agentNotificationTitle, "5", agentId, $"Ticket #{ticketId} has been assigned to you.");
-                _notificationService.AddNotification(ticketId, userNotificationTitle, notificationType, userId, $"Ticket #{ticketId} has been assigned to an agent.");
-            }
-        }
-
         /// <summary>
         /// Calls the repository to check if a ticket is a duplicate.
         /// </summary>
@@ -292,48 +248,5 @@ namespace ASI.Basecode.Services.Services
             }
         }
         #endregion Utility Methods
-
-        #region Activity Log Update
-        private async Task LogActivityAsync(Ticket ticket, string userId, string activityType, string details)
-        {
-            var activityLog = new ActivityLog
-            {
-                ActivityId = Guid.NewGuid().ToString(),
-                TicketId = ticket.TicketId,
-                UserId = userId,
-                ActivityType = activityType,
-                ActivityDate = DateTime.Now,
-                Details = details,
-            };
-
-            // Add the log entry to the ticket's activity logs
-            ticket.ActivityLogs.Add(activityLog);
-
-            await _activityLogRepository.AddActivityLogAsync(activityLog);
-        }
-
-        /// <summary>
-        /// Retrieves all activity logs associated with a specific ticket.
-        /// </summary>
-        /// <param name="ticketId">The identifier of the ticket</param>
-        /// <returns>A list of activity logs for the specified ticket</returns>
-        public async Task<IEnumerable<ActivityLog>> GetActivityLogsByTicketIdAsync(string ticketId)
-        {
-            if (string.IsNullOrEmpty(ticketId))
-            {
-                throw new ArgumentException("Ticket ID cannot be null or empty.", nameof(ticketId));
-            }
-
-            // Fetch the activity logs from the repository
-            var activityLogs = await _activityLogRepository.GetActivityLogsByTicketIdAsync(ticketId);
-
-            if (activityLogs == null)
-            {
-                throw new TicketException("No activity logs found for the specified ticket.");
-            }
-
-            return activityLogs;
-        }
-        #endregion
     }
 }

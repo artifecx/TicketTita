@@ -64,8 +64,10 @@ namespace ASI.Basecode.Services.Services
 
             if (statusChanged || priorityChanged)
             {
-                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, $"Ticket Update",
+                await _activityLogService.LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, $"Ticket Update",
                     $"{(statusChanged ? "Status" : "")}{(statusChanged && priorityChanged ? " & " : "")}{(priorityChanged ? "Priority" : "")} modified");
+                _notificationService.CreateNotification(existingTicket, statusChanged ? 3 : 2, null, existingTicket.TicketAssignment?.AgentId);
+                _notificationService.CreateNotification(existingTicket, priorityChanged && !statusChanged ? 2 : 3, null, existingTicket.TicketAssignment?.TeamId);
             }
         }
     }

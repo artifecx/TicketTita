@@ -43,6 +43,8 @@ namespace ASI.Basecode.WebApp
             this._services.AddScoped<IKnowledgeBaseService, KnowledgeBaseService>();
             this._services.AddScoped<INotificationService, NotificationService>();
             this._services.AddScoped<IUserPreferencesService, UserPreferencesService>();
+            this._services.AddScoped<IActivityLogService, ActivityLogService>();
+            this._services.AddScoped<IPerformanceReportService, PerformanceReportService>();
 
             // Repositories
             this._services.AddScoped<IAccountRepository, AccountRepository>();
