@@ -69,7 +69,8 @@ namespace ASI.Basecode.Services.Services
 
             if (statusChanged || priorityChanged)
             {
-                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, "Update Tracking", $"Ticket updated by {_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name).Value}");
+                await LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, $"Ticket Update",
+                    $"{(statusChanged ? "Status" : "")}{(statusChanged && priorityChanged ? " & " : "")}{(priorityChanged ? "Priority" : "")} modified");
             }
         }
     }
