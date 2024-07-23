@@ -669,3 +669,7 @@ a.text-gray {
         color: white;
         box-shadow: none;
     }
+
+/*select option:hover {
+    background-color: var(--primary-color) !important;
+}*/
