@@ -18,6 +18,11 @@
     string sortByAvgFeedbackRating = sortBy == "rating" ? "rating_desc" : "rating";
 }
 
+@section styles {
+    <link rel="stylesheet" href="~/css/team.css" />
+    <link rel="stylesheet" href="~/css/pagination.css" />
+}
+
 <div class="d-flex justify-content-between nav-header">
     <h1 class="display-6">Team Management</h1>
     <div class="d-flex justify-content-between">
@@ -129,9 +134,9 @@
                             <td>
                             </td>
                             <td>
-                                @Html.ActionLink("Details", "ViewTeam", new { id = item.TeamId }) |
-                                @Html.ActionLink("Edit", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }) |
-                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId', '@item.Name')">Delete</a>
+                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |
+                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId }, new { @class = "fas fa-info-circle action-icon" }) |
+                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId')" class="fas fa-trash-alt action-icon"></a>
                             </td>
                         </tr>
                     }

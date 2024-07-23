@@ -472,6 +472,55 @@ header {
         font-weight: bold;
     }
 
+.btn-white2 {
+    color: var(--primary-color);
+    background-color: white;
+    border-color: var(--primary-color);
+    width: 10%;
+    font-weight: bold;
+}
+
+    .btn-white2:hover {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white !important;
+        width: 10%;
+        font-weight: bold;
+    }
+
+    .btn-white2:active, .btn-white2:focus {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white !important;
+        box-shadow: none !important;
+        width: 10%;
+        font-weight: bold;
+    }
+
+.btn-blue {
+    color: white;
+    background-color: var(--primary-color);
+    width: 10%;
+    font-weight: bold;
+}
+
+    .btn-blue:hover {
+        background-color: white;
+        border-color: white;
+        color: var(--primary-color); 
+        width: 10%;
+        font-weight: bold;
+    }
+
+    .btn-blue:active, .btn-blue:focus {
+        background-color: white;
+        border-color: var(--primary-color);
+        color: var(--primary-color); 
+        box-shadow: none;
+        width: 10%;
+        font-weight: bold;
+    }
+
 .btn-radius {
     border-radius: 20px;
 }
@@ -599,3 +648,24 @@ a.text-gray {
     color: white;
     border: 0 !important;
 }
+
+.custom-close-button {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    border: none;
+    font-size: 30px;
+}
+
+    .custom-close-button:hover {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white;
+    }
+
+    .custom-close-button:active, .custom-close-button:focus {
+        background-color: var(--primary-color);
+        border-color: white;
+        color: white;
+        box-shadow: none;
+    }
