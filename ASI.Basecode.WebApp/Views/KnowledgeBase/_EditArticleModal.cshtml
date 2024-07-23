@@ -1,20 +1,17 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "_EditArticleModal";
 }
 
-<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createModalLabel">Create New Article</h5>
+                <h5 class="modal-title" id="editModalLabel">Edit Article</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form asp-action="PostCreate" id="CreateArticleForm" method="post">
+                <form asp-action="PostUpdate" id="EditArticleForm" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-group">
                         <label asp-for="CategoryId" class="control-label"></label>
@@ -45,32 +42,10 @@
                     </div>
                 </form>
             </div>
-          
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        function submitForm() {
-            $(document).ready(function () {
-                $('#CreateArticleForm').submit(function (e) {
-                    e.preventDefault();
-                    $.ajax({
-                        url: '@Url.Action("PostCreate")',
-                        type: 'POST',
-                        data: $(this).serialize(),
-                        success: function (result) {
-                            if (result.success) {
-                                location.reload();
-                            }
-                        },
-                    }
-                 });
-            });
-        }
-    </script>
+
 }
