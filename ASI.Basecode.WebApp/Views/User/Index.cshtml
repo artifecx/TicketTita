@@ -50,13 +50,13 @@
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@nameSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
                         Name
-                        <i class="fa-solid fa-chevron-down"></i>
+                        @(string.IsNullOrEmpty(sortOrder) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortOrder == "name_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@emailSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
                         Email
-                        <i class="fa-solid fa-chevron-down"></i>
+                        @(sortOrder == "Email" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortOrder == "email_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
@@ -75,7 +75,7 @@
                 <th>
                     <a asp-action="Index" asp-route-sortOrder="@updatedTimeSortParm" asp-route-currentFilter="@currentFilter" class="text-black">
                         Updated Time
-                        <i class="fa-solid fa-chevron-down"></i>
+                        @(sortOrder == "UpdatedBy" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortOrder == "updatedBy_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th></th>
@@ -121,9 +121,8 @@
                             }
                             @if (item.RoleId.Equals("Support Agent"))
                             {
-                                <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId" data-toggle="tooltip" title="View Performance">
-                                    <i class="fa fa-tachometer-alt"></i>
-                                </button>
+                                <text> | </text>
+                                <a href="javascript:void(0);" class="fas fa-tachometer-alt action-icon" data-toggle="modal" data-target="#performanceReportModal" data-userid="@item.UserId" data-toggle="tooltip" title="View Performance"></a>
                             }
                         </td>
                     </tr>
@@ -185,9 +184,6 @@
                 </h5>
                 <div class="modal-body mx-5">
                     <dl class="row">
-                        <dt class="col-sm-4">User ID</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model => item.UserId)</dd>
-
                         <dt class="col-sm-4">Email</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.Email)</dd>
 
@@ -229,7 +225,7 @@
                 </button>
             </div>
             <div class="modal-body pl-4 py-1">
-                <p>Are you sure you want to delete this user? All of their data will permanently removed. This action cannot be undone.</p>
+                <p>Are you sure you want to delete this user? This action cannot be undone.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
