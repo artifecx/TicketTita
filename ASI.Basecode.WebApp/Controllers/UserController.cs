@@ -121,12 +121,12 @@ using ASI.Basecode.Services.Interfaces;
 
             public IActionResult PerformanceReport(string userId)
             {
-                var performanceReport = _userService.GetPerformanceReport(userId);
-                if (performanceReport != null)
-                {
-                    return PartialView("_PerformanceReportModal", performanceReport);
-                }
-                return NotFound();
+                //var performanceReport = _userService.GetPerformanceReport(userId);
+                //if (performanceReport != null)
+                //{
+                //    return PartialView("_PerformanceReportModal", performanceReport);
+                //}
+                return NotFound(); // TODO: Performance report
             }
             #endregion
 
