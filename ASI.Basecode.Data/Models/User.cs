@@ -11,6 +11,7 @@ namespace ASI.Basecode.Data.Models
             Comments = new HashSet<Comment>();
             Feedbacks = new HashSet<Feedback>();
             KnowledgeBaseArticles = new HashSet<KnowledgeBaseArticle>();
+            PerformanceReports = new HashSet<PerformanceReport>();
             TicketAssignmentAgents = new HashSet<TicketAssignment>();
             TicketAssignmentAssignedBies = new HashSet<TicketAssignment>();
             Tickets = new HashSet<Ticket>();
@@ -35,6 +36,7 @@ namespace ASI.Basecode.Data.Models
         public virtual ICollection<Comment> Comments { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<KnowledgeBaseArticle> KnowledgeBaseArticles { get; set; }
+        public virtual ICollection<PerformanceReport> PerformanceReports { get; set; }
         public virtual ICollection<TicketAssignment> TicketAssignmentAgents { get; set; }
         public virtual ICollection<TicketAssignment> TicketAssignmentAssignedBies { get; set; }
         public virtual ICollection<Ticket> Tickets { get; set; }
