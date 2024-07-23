@@ -45,8 +45,6 @@ namespace ASI.Basecode.Services.Services
             string noTeam = "no_team";
             string noAgent = "no_agent";
             string activityLogDetail = "";
-            var agent = _userRepository.FindById(agentId)?.Name;
-            var team = _teamRepository.FindByIdAsync(teamId).Result?.Name;
 
             if (assignment == null)
             {
@@ -81,8 +79,6 @@ namespace ASI.Basecode.Services.Services
             {
                 var assignmentTeamId = assignment.TeamId;
                 var assignmentAgentId = assignment.AgentId;
-                var assignmentTeam = _teamRepository.FindByIdAsync(assignmentTeamId).Result?.Name;
-                var assignmentAgent = _userRepository.FindById(assignmentAgentId)?.Name;
                 if (teamId == assignmentTeamId && agentId == assignmentAgentId)
                 {
                     throw new TicketException("Cannot reassign to the same team and agent.", ticketId);
@@ -149,7 +145,8 @@ namespace ASI.Basecode.Services.Services
             }
             await CheckAndModifyStatusByAssignment(ticketId, status);
             var ticket = await _repository.FindByIdAsync(model.TicketId);
-            await LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
+            await _activityLogService.LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
+            _notificationService.CreateNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
             return status;
         }
 

@@ -36,7 +36,7 @@ namespace ASI.Basecode.Services.Services
                     _notificationService.AddNotification(
                         ticketId: ticket.TicketId,
                         description: "This ticket has been unresolved for over 30 minutes.",
-                        notificationTypeId: "7",
+                        notificationTypeId: "8",
                         UserId: ticket.Agent.UserId,
                         title: $"Reminder: Ticket #{ticket.TicketId} Unresolved"
                     );

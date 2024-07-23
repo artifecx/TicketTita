@@ -159,6 +159,8 @@ namespace ASI.Basecode.Data.Repositories
             return await this.GetDbSet<Ticket>()
                 .Include(t => t.TicketAssignment)
                 .Include(t => t.Feedback)
+                    .ThenInclude(f => f.User)
+                    .ThenInclude(f => f.PerformanceReport)
                 .Where(t => t.TicketAssignment != null && t.TicketAssignment.AgentId == agentId)
                 .ToListAsync();
         }

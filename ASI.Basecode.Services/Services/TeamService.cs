@@ -171,6 +171,7 @@ namespace ASI.Basecode.Services.Services
 
                 team.TeamMembers.Add(teamMember);
                 await _repository.AddTeamMemberAsync(teamMember);
+               _notificationService.AddNotification(null, $"You have been added to a team {team.Name}, with specialization {team.Specialization?.CategoryName}.", "9", agentId, "Added to Team");
             }
         }
 
@@ -201,6 +202,7 @@ namespace ASI.Basecode.Services.Services
                 agent.TeamMember = null;
                 team.TeamMembers.Remove(teamMember);
                 await _repository.RemoveTeamMemberAsync(teamMember);
+                _notificationService.AddNotification(null, $"You have been removed from team {team.Name}.", "9", agentId, "Removed from Team");
             }
         }
 

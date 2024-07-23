@@ -1,0 +1,59 @@
+﻿@model IEnumerable<ASI.Basecode.Services.ServiceModels.NotificationViewModel>
+
+<div id="notificationModal" class="modal fixed-right fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-aside" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notification</h5>
+            </div>
+            <div class="modal-body small">
+                <div class="d-flex justify-content-end mb-2">
+                    @* <form method="post" asp-action="MarkAllAsRead" class="ml-4">
+                    <button type="submit" class="btn btn-primary">Mark All as Read</button>
+                    </form>
+                    <form method="post" asp-action="MarkAllAsUnread" class="ml-4">
+                    <button type="submit" class="btn btn-warning">Mark All as Unread</button>
+                    </form> *@
+                </div>
+
+                <div class="list-group">
+                    @foreach (var item in Model)
+                    {
+                        <div @* class="@(item.IsRead ? "read-notification" : "")" *@>
+                            <div class="d-flex justify-content-between">
+                                <h6 class="font-weight-bold">@Html.DisplayFor(modelItem => item.Description)</h6>
+                                <small>@Html.DisplayFor(modelItem => item.NotificationDate)</small>
+                            </div>
+                            <p>@Html.DisplayFor(modelItem => item.Title)</p>
+                            <div class="d-flex justify-content-end align-items-center">
+                                @* <form method="post" asp-action="MarkAsUnread" class="d-inline">
+                            <input type="hidden" name="id" value="@item.NotificationId" />
+                            <button type="submit" class="btn btn-with-icon mx-2">
+                            <i class="fas fa-envelope-open"></i> Mark as Unread
+                            </button>
+                            </form>
+                            <span> | </span>
+                            <form method="post" asp-action="MarkAsRead" class="d-inline">
+                            <input type="hidden" name="id" value="@item.NotificationId" />
+                            <button type="submit" class="btn btn-with-icon mx-2">
+                            <i class="fas fa-envelope"></i> Mark as Read
+                            </button>
+                            </form>
+                            <span> | </span> *@
+                                @if(item.TicketId != null)
+                                { 
+                                    @Html.ActionLink("Details", "GetTicket", "Ticket", new { id = item.TicketId, notificationId = item.NotificationId }, new { @class = "action-icon d-inline mx-2", title = "Details" })
+                                    <span> | </span>
+                                }
+                                <a href="#" onclick="displayDeleteModal('@item.NotificationId')" class="d-inline mx-2 action-icon" title="Delete">
+                                    Delete
+                                </a>
+                            </div>
+                        </div>
+                        <hr />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
