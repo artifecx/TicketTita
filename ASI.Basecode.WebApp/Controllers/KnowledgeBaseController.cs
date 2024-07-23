@@ -135,6 +135,7 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             model.AuthorId = _session.GetString("UserId");
             _knowledgeBaseService.Add(model);
+            TempData["CreateMessage"] = "Article Added Succesfully";
             return RedirectToAction("Index");
         }
 
@@ -148,6 +149,7 @@ namespace ASI.Basecode.WebApp.Controllers
         public IActionResult PostUpdate(KnowledgeBaseViewModel model)
         {
             _knowledgeBaseService.Update(model);
+            TempData["UpdateMessage"] = "Article Updated Succesfully";
             return RedirectToAction("Index");
         }
 

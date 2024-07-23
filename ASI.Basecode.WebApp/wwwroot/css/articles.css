@@ -3,3 +3,10 @@ poppins-semi-bold {
     font-weight: 600;
     font-size: 24px;
 }
+
+#remainingTitleChars, #remainingContentChars, #editRemainingTitleChars, #editRemainingContentChars {
+    text-align: right;
+    display: block;
+    margin-top: .15rem;
+    color: #6c757d;
+}

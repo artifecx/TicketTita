@@ -3,6 +3,9 @@
 @{
     ViewData["Title"] = "_EditArticleModal";
 }
+@section styles {
+    <link rel="stylesheet" href="~/css/articles.css" />
+}
 
 <div class="modal-header">
     <h5 class="modal-title" id="editModalLabel">Edit Article</h5>
@@ -19,14 +22,15 @@
                 @foreach (var item in Model.ArticleCategories)
                 {
                     <option value="@item.CategoryId">@item.CategoryName</option>
-                }
+                } 
             </select>
             <span asp-validation-for="CategoryId" class="text-danger"></span>
         </div>
         <div class="form-group">
             <label asp-for="Title" class="control-label"></label>
-            <input asp-for="Title" class="form-control" />
+            <input asp-for="Title" id="editTitle" class="form-control" />
             <span asp-validation-for="Title" class="text-danger"></span>
+            <span id="editRemainingTitleChars" class="text-muted">100 characters remaining</span>
         </div>
         <div class="form-group">
             <label asp-for="Content" class="control-label"></label>
@@ -42,8 +46,5 @@
         </div>
     </form>
 </div>
-@section Scripts {
-    <script>
-        
-    </script>
-}
+
+<script src="~/js/knowledgebase.js"></script>
