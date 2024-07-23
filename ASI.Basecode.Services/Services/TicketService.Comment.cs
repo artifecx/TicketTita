@@ -31,7 +31,7 @@ namespace ASI.Basecode.Services.Services
             ticket.UpdatedDate = DateTime.Now;
 
             await _repository.AddCommentAsync(comment);
-            await LogActivityAsync(ticket, user.UserId, "New Comment", $"New comment by {user.Name}");
+            await LogActivityAsync(ticket, user.UserId, "New Comment", $"New comment \"{(comment.Content.Length > 15 ? comment.Content.Substring(0, 15) + "..." : comment.Content)}\"");
         }
 
         /// <summary>

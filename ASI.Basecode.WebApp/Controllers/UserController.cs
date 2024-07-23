@@ -39,7 +39,7 @@ using ASI.Basecode.Services.Interfaces;
             /// <returns></returns>
             public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
             {
-                var pageSize = UserPaginationPreference;
+                var pageSize = 5;
 
                 var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
                 var FilteredUsersCount = _userService.CountFilteredUsers(users);

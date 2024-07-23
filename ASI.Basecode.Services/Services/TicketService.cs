@@ -102,7 +102,7 @@ namespace ASI.Basecode.Services.Services
                 CreateNotification(newTicket, 1, null);
 
                 // Log the creation activity
-                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
+                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
             }
         }
 
@@ -171,7 +171,8 @@ namespace ASI.Basecode.Services.Services
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
                 if (hasChanges || hasAttachmentChanges)
                 {
-                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update", $"Ticket updated by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
+                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
+                        $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
                 }
             }
             else
@@ -192,7 +193,7 @@ namespace ASI.Basecode.Services.Services
             {
                 await _repository.DeleteAsync(ticket);
 
-                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket #{ticket.TicketId} deleted");
+                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket deleted");
             }
             else throw new TicketException("Ticket does not exist.");
 
