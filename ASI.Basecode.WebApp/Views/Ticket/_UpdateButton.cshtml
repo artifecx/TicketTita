@@ -5,35 +5,11 @@
     {
         if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
         {
-            if (!User.IsInRole("Admin") && (Model.TicketAssignment?.AgentId == null || Model.TicketAssignment?.AgentId == ViewBag.UserId))
+            <a href="#" title="Update Tracking" class="fas fa-sync action-icon mr-1" data-toggle="modal" data-target="#updateTrackingModal"></a>
+            <a href="#" title="Update Assignment" class="fas fa-user-edit action-icon mr-1" data-toggle="modal" data-target="#updateAssignmentModal"></a>
+            if (Model.TicketAssignment == null)
             {
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
-                    Update Status/Priority
-                </button>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
-                    Update Assignment
-                </button>
-                if (Model.TicketAssignment == null)
-                {
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
-                        Update Category
-                    </button>
-                }
-            }
-            else if (User.IsInRole("Admin"))
-            {
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
-                    Update Tracking
-                </button>
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateAssignmentModal">
-                    Update Assignment
-                </button>
-                if (Model.TicketAssignment == null)
-                {
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
-                        Update Category
-                    </button>
-                }
+                <a href="#" title="Update Category" class="fas fa-tags action-icon mr-1" data-toggle="modal" data-target="#updateCategoryModal"></a>
             }
         }
     }
@@ -41,31 +17,21 @@
     {
         if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
         {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateTrackingModal">
-                Update Tracking
-            </button>
-
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editTicketModal">
-                Update Ticket
-            </button>
+            <a href="#" title="Update Ticket Details" class="fas fa-edit action-icon mr-1" data-toggle="modal" data-target="#editTicketModal"></a>
+            <a href="#" title="Update Tracking" class="fas fa-sync action-icon mr-1" data-toggle="modal" data-target="#updateTrackingModal"></a>
             if (Model.TicketAssignment == null)
             {
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateCategoryModal">
-                    Update Category
-                </button>
+                <a href="#" title="Update Category" class="fas fa-tags action-icon mr-1" data-toggle="modal" data-target="#updateCategoryModal"></a>
             }
         }
-        if (Model.StatusType.StatusName == "Closed")
+        if (Model.StatusType.StatusName == "Resolved")
         {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reopenTicketModal">
-                Reopen Ticket
-            </button>
+            <a href="#" title="Reopen Ticket" type="button" class="fas fa-redo action-icon mr-1" data-toggle="modal" data-target="#reopenTicketModal"></a>
+            <a href="#" title="Close Ticket" type="button" class="fas fa-times action-icon mr-1" data-toggle="modal" data-target="#reopenTicketModal"></a>
         }
-        @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Resolved")
+        @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Closed")
         {
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#feedbackModal">
-                Provide Feedback
-            </button>
+            <a href="#" title="Provide Feedback" class="fa fa-commenting action-icon mr-1" data-toggle="modal" data-target="#feedbackModal"></a>
         }
     }
 </div>

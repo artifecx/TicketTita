@@ -1,12 +1,12 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.CommentViewModel
 @using Humanizer;
 
-<div class="comment" id="comment-@Model.CommentId">
-    <div class="comment-header">
+<div class="comment mb-3" id="comment-@Model.CommentId">
+    <div class="d-flex justify-content-between align-items-center">
         <div>
             <strong>@Model.User.Name</strong>
             <span class="text-muted" title="(@Model.PostedDate)"> &#8226; @Model.PostedDate.ToUniversalTime().Humanize()</span>
-            @if(Model.UpdatedDate != null)
+            @if (Model.UpdatedDate != null)
             {
                 <span class="text-muted font-italic small" title="(@Model.UpdatedDate)"> &#8226; Edited</span>
             }
@@ -14,40 +14,42 @@
         <div>
             @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
             {
-                <a href="#" class="edit-comment-link" data-id="@Model.CommentId">Edit</a>
-                <text> | </text>
+                <a href="#" title="Edit Comment" class="edit-comment-link me-2 fas fa-edit action-icon" data-id="@Model.CommentId"></a>
             }
-            <a href="#" class="reply-comment-link" data-id="@Model.CommentId">Reply</a>
+            <a href="#" title="Reply to Comment" class="reply-comment-link me-2 fa-solid fa-reply action-icon" data-id="@Model.CommentId"></a>
             @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
             {
-                <text> | </text>
-                <a href="#" class="delete-comment-link" data-id="@Model.CommentId">Delete</a>
+                <a href="#" title="Delete Comment" class="delete-comment-link me-2 fas fa-trash action-icon ml-1" data-id="@Model.CommentId"></a>
             }
         </div>
     </div>
 
-    <div class="comment-body">
+    <div class="mt-2">
         <p>@Model.Content</p>
     </div>
 
-    <div class="edit-comment-form" id="edit-comment-@Model.CommentId" style="display:none;">
-        <textarea class="form-control" placeholder="Edit comment...">@Model.Content</textarea>
-        <button class="btn btn-primary save-edit" data-id="@Model.CommentId">Save</button>
-        <button class="btn btn-secondary cancel-edit">Cancel</button>
+    <div class="edit-comment-form mt-2" id="edit-comment-@Model.CommentId" style="display:none;">
+        <textarea class="form-control mb-2" placeholder="Edit comment...">@Model.Content</textarea>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-secondary cancel-edit">Cancel</button>
+            <button class="btn btn-primary save-edit mx-2" data-id="@Model.CommentId">Save</button>
+        </div>
     </div>
 
-    <div class="reply-comment-form" id="reply-comment-@Model.CommentId" style="display:none;">
-        <textarea class="form-control" placeholder="Add reply..."></textarea>
-        <button class="btn btn-primary save-reply" data-id="@Model.CommentId">Reply</button>
-        <button class="btn btn-secondary cancel-reply">Cancel</button>
+    <div class="reply-comment-form mt-2" id="reply-comment-@Model.CommentId" style="display:none;">
+        <textarea class="form-control mb-2" placeholder="Add reply..."></textarea>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-secondary cancel-reply">Cancel</button>
+            <button class="btn btn-primary save-reply mx-2" data-id="@Model.CommentId">Reply</button>
+        </div>
     </div>
 
     @if (Model.Replies != null && Model.Replies.Any())
     {
-        <div class="replies">
+        <div class="replies mt-3 ms-4">
             @foreach (var reply in Model.Replies)
             {
-                <div class="reply">
+                <div class="reply mb-2 ms-4">
                     @await Html.PartialAsync("_Comment", reply)
                 </div>
             }
@@ -55,32 +57,14 @@
     }
 </div>
 
-
 <style>
     .comment {
         margin: 15px 0;
         max-width: 600px;
     }
 
-    .comment .comment-header {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .comment .comment-header-info {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .comment .comment-body {
-        margin-top: 10px;
-    }
-
     .replies .reply {
-        margin-left: 40px;
         border-left: 2px solid #ccc;
         padding-left: 10px;
-        max-width: 560px;
     }
 </style>

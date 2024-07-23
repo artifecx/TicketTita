@@ -10,10 +10,10 @@
             <span class="border mx-1 py-0.5 px-3 btn-radius @(GetCategoryCssClass(Model.CategoryType.CategoryName))">@Model.CategoryType.CategoryName</span>
         </div>
         <div>
-            @Html.ActionLink(" ", "GetTicket", new { id = Model.TicketId }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
+            @Html.ActionLink(" ", "GetTicket", new { id = Model.TicketId, sortBy = ViewBag.SortBy, search = ViewBag.Search, showOption = ViewBag.ShowOption, pageIndex = ViewBag.PageIndex, pageSize = ViewBag.PageSize, selectedFilters = string.Join(",", ViewBag.SelectedFilters ?? new List<string>()) }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
             @if (User.IsInRole("Employee"))
             {
-                @if (Model.StatusType.StatusName.Contains("Resolved"))
+                @if (Model.StatusType.StatusName.Contains("Closed"))
                 {
                     <text> | </text>
                     @if (Model.Feedback == null)

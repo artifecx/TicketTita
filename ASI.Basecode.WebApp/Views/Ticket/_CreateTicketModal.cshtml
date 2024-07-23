@@ -21,6 +21,7 @@
                         <label asp-for="Subject" class="control-label"></label>
                         <input asp-for="Subject" class="form-control" />
                         <span asp-validation-for="Subject" class="text-danger"></span>
+                        <span id="remainingSubjectChars" class="text-muted small">100 characters remaining</span>
                     </div>
 
                     <div class="row">
