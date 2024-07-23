@@ -102,7 +102,7 @@ namespace ASI.Basecode.Services.Services
                 CreateNotification(newTicket, 1, null);
 
                 // Log the creation activity
-                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
+                await LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
             }
         }
 
@@ -171,7 +171,8 @@ namespace ASI.Basecode.Services.Services
                 CreateNotification(ticket, updateType, null, model.Agent?.UserId);
                 if (hasChanges || hasAttachmentChanges)
                 {
-                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Update", $"Ticket updated by {_httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.Name)?.Value}");
+                    await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
+                        $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
                 }
             }
             else
@@ -192,7 +193,7 @@ namespace ASI.Basecode.Services.Services
             {
                 await _repository.DeleteAsync(ticket);
 
-                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket #{ticket.TicketId} deleted");
+                await LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket deleted");
             }
             else throw new TicketException("Ticket does not exist.");
 
@@ -291,32 +292,6 @@ namespace ASI.Basecode.Services.Services
             }
         }
         #endregion Utility Methods
-
-        #region Performance Report Methods
-        private async Task UpdateTeamPerformanceReportsAsync(Ticket existingTicket)
-        {
-            if (existingTicket.TicketAssignment != null)
-            {
-                var team = await _teamRepository.FindByIdAsync(existingTicket.TicketAssignment.TeamId);
-                if (team != null)
-                {
-                    foreach (var teamMember in team.TeamMembers)
-                    {
-                        var performanceReport = teamMember.Report;
-                        if (performanceReport != null)
-                        {
-                            performanceReport.ResolvedTickets++;
-                            var resolutionTime = (existingTicket.UpdatedDate.Value - existingTicket.CreatedDate).TotalMinutes;
-                            performanceReport.AverageResolutionTime = ((performanceReport.AverageResolutionTime * (performanceReport.ResolvedTickets - 1)) + resolutionTime) / performanceReport.ResolvedTickets;
-
-                            await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
-                        }
-                    }
-                }
-            }
-        }
-
-        #endregion
 
         #region Activity Log Update
         private async Task LogActivityAsync(Ticket ticket, string userId, string activityType, string details)
