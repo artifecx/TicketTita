@@ -28,7 +28,7 @@ namespace ASI.Basecode.Data.Repositories
             return JsonSerializer.Deserialize<Dictionary<string, string>>(preferences);
         }
 
-        public async Task UpdateUserPreferences(string userId, Dictionary<string, string> updatedPreferences)
+        public async Task UpdateUserPreferencesAsync(string userId, Dictionary<string, string> updatedPreferences)
         {
             var user = await this.GetDbSet<User>().FirstOrDefaultAsync(x => x.UserId == userId);
             if(user != null)
@@ -39,7 +39,7 @@ namespace ASI.Basecode.Data.Repositories
             }
         }
 
-        public async Task<KeyValuePair<string,string>> FindUserPreferenceByKey(string userId, string key)
+        public async Task<KeyValuePair<string,string>> FindUserPreferenceByKeyAsync(string userId, string key)
         {
             return GetUserPreferences(userId).FirstOrDefault(x => x.Key == key);
         }

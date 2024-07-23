@@ -124,7 +124,7 @@ namespace ASI.Basecode.WebApp.Mvc
         {
             get
             {
-                var paginationPreference = _userPreferences.GetUserPreferenceByKey(UserId, "pagination").Result;
+                var paginationPreference = _userPreferences.GetUserPreferenceByKeyAsync(UserId, "pagination").Result;
                 if (paginationPreference.Value == null) return Convert.ToInt32("10");
                 else return Convert.ToInt32(paginationPreference.Value);
             }
@@ -134,7 +134,7 @@ namespace ASI.Basecode.WebApp.Mvc
         {
             get
             {
-                var sortPreference = _userPreferences.GetUserPreferenceByKey(UserId, "defaultSortBy").Result;
+                var sortPreference = _userPreferences.GetUserPreferenceByKeyAsync(UserId, "defaultSortBy").Result;
                 if (sortPreference.Value == null) return null;
                 else return sortPreference.Value;
             }
@@ -144,7 +144,7 @@ namespace ASI.Basecode.WebApp.Mvc
         {
             get
             {
-                var viewPreference = _userPreferences.GetUserPreferenceByKey(UserId, "defaultShowOption").Result;
+                var viewPreference = _userPreferences.GetUserPreferenceByKeyAsync(UserId, "defaultShowOption").Result;
                 if (viewPreference.Value == null) return null;
                 else return viewPreference.Value;
             }
@@ -335,6 +335,12 @@ namespace ASI.Basecode.WebApp.Mvc
                 return new JsonResult(new { success = false, error = ex.Message });
             }
             catch (TicketException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message.ToString();
+                _logger.LogError(ex, $"Error in {actionName}");
+                return new JsonResult(new { success = false, error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
             {
                 TempData["ErrorMessage"] = ex.Message.ToString();
                 _logger.LogError(ex, $"Error in {actionName}");

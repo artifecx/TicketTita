@@ -8,38 +8,234 @@
     User Preferences
 </h1>
 
-@*<div class="container-fluid p-4">
-    <div class="card px-5 py-4 mb-4">
-        <div class="card-body">
-            @await Html.PartialAsync("_DisplayAllPreferences", Model)
-        </div>
-    </div
-</div>*@
-
 <div class="container-fluid p-4">
-    <div class="card px-5 py-4 mb-4">
-        <div class="card-body">
-            <form asp-action="UpdateUserPreferences" method="post">
-                <button type="submit" class="btn btn-primary float-right">Save Preferences</button>
-                <input type="hidden" asp-for="UserId" />
-                @*<h4 class="pt-3">Global Preferences</h4>
-                <div class="form-group">
-                    <label for="Preferences_pagination">Pagination Size</label>
-                    <select class="form-control w-25" id="Preferences_pagination" name="Preferences[pagination]">
-                        @for (int i = 5; i <= 50; i += 5)
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card px-5 py-4 mb-4">
+                <div class="card-body">
+                    <form id="preferences-form">
+                        <button type="button" id="save-preferences-btn" class="btn btn-primary float-right" style="display: none;">Save Preferences</button>
+                        <button type="button" id="cancel-preferences-btn" class="btn btn-secondary float-right mr-2" style="display: none;">Cancel</button>
+                        <input type="hidden" asp-for="UserId" />
+                        @if (!User.IsInRole("Admin"))
                         {
-                            <option value="@i" selected="@(i.ToString() == Model.Preferences.GetValueOrDefault("pagination", "10"))">@i</option>
+                            <h4 class="font-weight-bold">Notification Preferences</h4>
+                            @await Html.PartialAsync("_NotificationPreferences", Model)
+                            <hr />
                         }
-                    </select>
-                    <small class="form-text text-muted">Please select a pagination size between 5 and 50. Default is 10.</small>
-                </div
-                <hr />*@
-                <h4>Notification Preferences</h4>
-                @await Html.PartialAsync("_NotificationPreferences", Model)
-                <hr />
-                <h4>Default Ticket Preferences</h4>
-                @await Html.PartialAsync("_TicketPreferences", Model)
-            </form>
+                        <h4 class="font-weight-bold">Ticket View Preferences</h4>
+                        @await Html.PartialAsync("_TicketPreferences", Model)
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card px-5 py-4 mb-4">
+                <div class="card-body">
+                    <h4 class="font-weight-bold">Update Password</h4>
+                    <form id="password-form">
+                        <div class="form-group">
+                            <label for="oldPassword">Old Password</label>
+                            <input type="password" class="form-control" id="oldPassword" name="OldPassword" />
+                            <span id="old-password-validation-message" class="text-danger" style="display:none;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" class="form-control" id="newPassword" name="NewPassword" />
+                            <span id="new-password-validation-message" class="text-danger" style="display:none;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirmNewPassword" name="ConfirmNewPassword" />
+                            <span id="confirm-password-validation-message" class="text-danger" style="display:none;"></span>
+                        </div>
+                        <button type="button" id="save-password-btn" class="btn btn-primary float-right">Save</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
+
+@section Scripts {
+    <script src="~/js/toastrNotification.js"></script>
+    <script>
+        function formChanged() {
+            const form = document.getElementById('preferences-form');
+            const initialFormData = new FormData(form);
+            let initialValues = {};
+            initialFormData.forEach((value, key) => {
+                initialValues[key] = value;
+            });
+
+            return function () {
+                const currentFormData = new FormData(form);
+                for (let [key, value] of currentFormData.entries()) {
+                    if (initialValues[key] !== value) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+        }
+
+        const hasFormChanged = formChanged();
+
+        document.querySelectorAll('#preferences-form select').forEach(select => {
+            select.addEventListener('change', function () {
+                const saveButton = document.getElementById('save-preferences-btn');
+                const cancelButton = document.getElementById('cancel-preferences-btn');
+                if (hasFormChanged()) {
+                    saveButton.style.display = 'block';
+                    cancelButton.style.display = 'block';
+                } else {
+                    saveButton.style.display = 'none';
+                    cancelButton.style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('cancel-preferences-btn').addEventListener('click', function () {
+            const form = document.getElementById('preferences-form');
+            form.reset();
+
+            const initialFormData = new FormData(form);
+            let initialValues = {};
+            initialFormData.forEach((value, key) => {
+                initialValues[key] = value;
+            });
+
+            for (let [key, value] of Object.entries(initialValues)) {
+                const element = form.querySelector(`[name="${key}"]`);
+                if (element && element.tagName === 'SELECT') {
+                    element.value = value;
+                }
+            }
+
+            document.getElementById('save-preferences-btn').style.display = 'none';
+            document.getElementById('cancel-preferences-btn').style.display = 'none';
+            toastr.info("No changes were made");
+        });
+
+        document.getElementById('save-preferences-btn').addEventListener('click', function () {
+            const form = document.getElementById('preferences-form');
+            const formData = new FormData(form);
+
+            fetch('@Url.Action("UpdateUserPreferences")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        toastr.error('Failed to update preferences.');
+                    }
+                })
+                .catch(error => {
+                    toastr.error('An error occurred. Please try again.');
+                });
+        });
+
+        const passwordForm = document.getElementById('password-form');
+        const oldPasswordInput = passwordForm.querySelector('#oldPassword');
+        const newPasswordInput = passwordForm.querySelector('#newPassword');
+        const confirmNewPasswordInput = passwordForm.querySelector('#confirmNewPassword');
+        const oldPasswordValidation = document.getElementById('old-password-validation-message');
+        const newPasswordValidation = document.getElementById('new-password-validation-message');
+        const confirmPasswordValidation = document.getElementById('confirm-password-validation-message');
+
+        let oldPasswordTouched = false;
+        let newPasswordTouched = false;
+        let confirmPasswordTouched = false;
+
+        function validatePasswordInput(input) {
+            let isValid = true;
+            const oldPasswordValue = oldPasswordInput.value;
+            const newPasswordValue = newPasswordInput.value;
+            const confirmNewPasswordValue = confirmNewPasswordInput.value;
+
+            if (input === oldPasswordInput || oldPasswordTouched) {
+                oldPasswordValidation.style.display = oldPasswordValue ? 'none' : 'block';
+                oldPasswordValidation.textContent = 'Old password cannot be empty.';
+                if (!oldPasswordValue) isValid = false;
+            }
+
+            if ((input === newPasswordInput || newPasswordTouched) && oldPasswordTouched) {
+                newPasswordValidation.style.display = 'none';
+                if (!newPasswordValue) {
+                    newPasswordValidation.textContent = 'New password cannot be empty.';
+                    newPasswordValidation.style.display = 'block';
+                    isValid = false;
+                } else if (newPasswordValue.length < 5) {
+                    newPasswordValidation.textContent = 'New password must be at least 5 characters long.';
+                    newPasswordValidation.style.display = 'block';
+                    isValid = false;
+                } else if (newPasswordValue === oldPasswordValue) {
+                    newPasswordValidation.textContent = 'Cannot be the same as the old password.';
+                    newPasswordValidation.style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            if ((input === confirmNewPasswordInput || confirmPasswordTouched) && newPasswordTouched) {
+                confirmPasswordValidation.style.display = 'none';
+                if (newPasswordValue !== confirmNewPasswordValue) {
+                    confirmPasswordValidation.textContent = 'Does not match with new password.';
+                    confirmPasswordValidation.style.display = 'block';
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        oldPasswordInput.addEventListener('input', () => {
+            oldPasswordTouched = true;
+            validatePasswordInput(oldPasswordInput);
+        });
+        newPasswordInput.addEventListener('input', () => {
+            newPasswordTouched = true;
+            validatePasswordInput(newPasswordInput);
+        });
+        confirmNewPasswordInput.addEventListener('input', () => {
+            confirmPasswordTouched = true;
+            validatePasswordInput(confirmNewPasswordInput);
+        });
+
+        document.getElementById('save-password-btn').addEventListener('click', function () {
+            const isOldPasswordValid = validatePasswordInput(oldPasswordInput);
+            const isNewPasswordValid = validatePasswordInput(newPasswordInput);
+            const isConfirmPasswordValid = validatePasswordInput(confirmNewPasswordInput);
+
+            if (!isOldPasswordValid || !isNewPasswordValid || !isConfirmPasswordValid) {
+                return;
+            }
+
+            const formData = new FormData(passwordForm);
+
+            fetch('@Url.Action("UpdatePassword")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        toastr.error('Failed to update password.');
+                    }
+                })
+                .catch(error => {
+                    toastr.error('An error occurred. Please try again.');
+                });
+        });
+    </script>
+}

@@ -49,16 +49,43 @@ namespace ASI.Basecode.WebApp.Controllers
         [Route("")]
         public async Task<IActionResult> GetUserPreferences()
         {
-            var preferences = await _userPreferencesService.GetUserPreferences(UserId);
+            var preferences = await _userPreferencesService.GetUserPreferencesAsync(UserId);
             return View("ViewPreferences", preferences);
         }
 
         [HttpPost]
-        [Route("")]
+        [Route("UpdateUserPreferences")]
         public async Task<IActionResult> UpdateUserPreferences(UserPreferencesViewModel model)
         {
-            await _userPreferencesService.UpdateUserPreferences(model);
-            return RedirectToAction("GetUserPreferences");
+            return await HandleExceptionAsync(async () =>
+            {
+                if (model.UserId != null)
+                {
+                    await _userPreferencesService.UpdateUserPreferencesAsync(model);
+                    TempData["SuccessMessage"] = "Settings updated successfullyy!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while saving. Please try again.";
+                return Json(new { success = false });
+            }, "UpdateUserPreferences");
+        }
+
+        [HttpPost]
+        [Route("UpdatePassword")]
+        public async Task<IActionResult> UpdatePassword(UserPreferencesViewModel model)
+        {
+            return await HandleExceptionAsync(async () =>
+            {
+                if (!string.IsNullOrEmpty(model.newPassword) && !string.IsNullOrEmpty(model.oldPassword))
+                {
+                    model.UserId = UserId;
+                    _userPreferencesService.UpdateUserPassword(model);
+                    TempData["SuccessMessage"] = "Password updated successfully!";
+                    return Json(new { success = true });
+                }
+                TempData["ErrorMessage"] = "An error occurred while saving. Please try again.";
+                return Json(new { success = false });
+            }, "UpdatePassword");
         }
     }
 }
