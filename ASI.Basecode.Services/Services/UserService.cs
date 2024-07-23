@@ -61,6 +61,14 @@ namespace ASI.Basecode.Services.Services
 
             return data;
         }
+        /// <summary>
+        /// Filters the users.
+        /// </summary>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <param name="currentFilter">The current filter.</param>
+        /// <param name="searchString">The search string.</param>
+        /// <param name="roleFilter">The role filter.</param>
+        /// <returns></returns>
         public IEnumerable<UserViewModel> FilterUsers(string sortOrder, string currentFilter, string searchString, string roleFilter) {
 
             var users = RetrieveAll();
@@ -294,7 +302,11 @@ namespace ASI.Basecode.Services.Services
         {
             return _userRepository.GetRoles();
         }
-
+        /// <summary>
+        /// Calculates the average rating.
+        /// </summary>
+        /// <param name="tickets">The tickets.</param>
+        /// <returns></returns>
         private double CalculateAverageRating(List<Ticket> tickets)
         {
             if (tickets == null || tickets.Count == 0)
@@ -308,13 +320,25 @@ namespace ASI.Basecode.Services.Services
 
             return (double)totalRatings / tickets.Count;
         }
-
+        /// <summary>
+        /// Determines whether [is support agent] [the specified user identifier].
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   <c>true</c> if [is support agent] [the specified user identifier]; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsSupportAgent(string userId)
         {
             var user = _userRepository.RetrieveAll().FirstOrDefault(u => u.UserId == userId && u.RoleId == "Support Agent");
             return user != null;
         }
-
+        /// <summary>
+        /// Determines whether [is agent in team] [the specified user identifier].
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>
+        ///   <c>true</c> if [is agent in team] [the specified user identifier]; otherwise, <c>false</c>.
+        /// </returns>
         public bool IsAgentInTeam(string userId)
         {
             var teamMember = _teamRepository.FindTeamMemberByIdAsync(userId).Result;

@@ -182,7 +182,12 @@ namespace ASI.Basecode.Services.Services
             };
             _notificationRepository.Add(notification);
         }
-
+        /// <summary>
+        /// Wills the user be notified.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="notificationTypeId">The notification type identifier.</param>
+        /// <returns></returns>
         private bool WillUserBeNotified(string userId, string notificationTypeId)
         {
             bool sendNotification = true;
@@ -202,7 +207,12 @@ namespace ASI.Basecode.Services.Services
             };
             return sendNotification;
         }
-
+        /// <summary>
+        /// Gets the notification preference.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
         private string GetNotificationPreference(string userId, string key)
         {
             var preference = _userPreferencesService.GetUserPreferenceByKey(userId, key);
@@ -229,7 +239,11 @@ namespace ASI.Basecode.Services.Services
         {
             _notificationRepository.Delete(notificationId);
         }
-
+        /// <summary>
+        /// Gets the unread notification count.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public int GetUnreadNotificationCount(string userId)
         {
             return _notificationRepository.RetrieveAll().Count(n => n.UserId == userId && !n.IsRead);

@@ -43,7 +43,7 @@
     <div class="row mb-2 align-items-center">
         <div class="col text-left">
             @if (Model.HasPreviousPage)
-            {
+            { 
                 <a asp-action="Index"
                    asp-route-searchTerm="@ViewBag.SearchTerm"
                    asp-route-selectedCategories="@string.Join(",", (List<string>) ViewBag.SelectedCategories)"
