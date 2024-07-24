@@ -18,6 +18,26 @@
     string sortByAvgFeedbackRating = sortBy == "rating" ? "rating_desc" : "rating";
 }
 
+@functions {
+    string ConvertResolutionTime(double averageResolutionTime)
+    {
+        if (averageResolutionTime >= 1440)
+        {
+            double days = averageResolutionTime / 1440;
+            return $"{days:0.0} days";
+        }
+        else if (averageResolutionTime >= 60)
+        {
+            double hours = averageResolutionTime / 60;
+            return $"{hours:0.0} hours";
+        }
+        else
+        {
+            return $"{averageResolutionTime:0.0} minutes";
+        }
+    }
+}
+
 @section styles {
     <link rel="stylesheet" href="~/css/team.css" />
     <link rel="stylesheet" href="~/css/pagination.css" />
@@ -100,7 +120,7 @@
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByAvgCompletionTime" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
-                        Average Completion Time
+                        Average Resolution Time
                         @(sortBy == "completion" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "completion_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
@@ -143,8 +163,36 @@
                                 @(item.TicketAssignments?.Where(t => t.Ticket?.ResolvedDate != null).Count() ?? 0)
                             </td>
                             <td>
+                                @{
+                                    var totalResolutionTime = 0.0;
+                                    var validAgentsCount = 0;
+                                    foreach (var agent in item.TeamMembers)
+                                    {
+                                        if (agent.User.PerformanceReport.AverageResolutionTime > 0.0)
+                                        {
+                                            totalResolutionTime += agent.User.PerformanceReport.AverageResolutionTime;
+                                            validAgentsCount++;
+                                        }
+                                    }
+                                    var averageResolutionTime = validAgentsCount > 0 ? totalResolutionTime / validAgentsCount : 0.0;
+                                }
+                                @ConvertResolutionTime(averageResolutionTime)
                             </td>
                             <td>
+                                @{
+                                    var totalRating = 0.0;
+                                    var validTicketsCount = 0;
+                                    foreach (var ticket in item.TicketAssignments)
+                                    {
+                                        if (ticket.Ticket.Feedback.FeedbackRating > 0)
+                                        {
+                                            totalRating += ticket.Ticket.Feedback.FeedbackRating;
+                                            validTicketsCount++;
+                                        }
+                                    }
+                                    var averageFeedbackRating = validTicketsCount > 0 ? totalRating / validTicketsCount : 0.0;
+                                }
+                                @averageFeedbackRating.ToString("F1")
                             </td>
                             <td>
                                 @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |

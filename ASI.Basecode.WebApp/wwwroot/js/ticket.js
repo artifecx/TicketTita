@@ -154,11 +154,6 @@ function validateCategory(currentCategoryId) {
     }
 }
 
-$('#updateCategoryModal').on('hidden.bs.modal', function () {
-    if (cancelled === true)
-        toastr.info("No changes were made");
-});
-
 function saveCategory() {
     var ticketId = $('#ticketId').val();
 
@@ -204,11 +199,6 @@ function validateTracking() {
         saveTracking();
     }
 }
-
-$('#updateTrackingModal').on('hidden.bs.modal', function () {
-    if (cancelled === true)
-        toastr.info("No changes were made");
-});
 
 function reopenTicket() {
     statusId = 'S1';

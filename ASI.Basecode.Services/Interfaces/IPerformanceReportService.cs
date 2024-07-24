@@ -7,7 +7,6 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface IPerformanceReportService
     {
-        Task<PerformanceReport> ViewAgentPerformanceReportAsync(string agentId);
         Task<PerformanceReport> GenerateAgentPerformanceReportAsync(string agentId);
         Task<PerformanceReportViewModel> GetPerformanceReport(string userId);
     }

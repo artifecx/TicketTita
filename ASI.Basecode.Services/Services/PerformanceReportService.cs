@@ -13,7 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
-using static ASI.Basecode.Resources.Constants.Enums;
 using System.Collections.Generic;
 
 namespace ASI.Basecode.Services.Services
@@ -29,45 +28,40 @@ namespace ASI.Basecode.Services.Services
             _teamRepository = teamRepository;
         }
 
-        public async Task<PerformanceReport> ViewAgentPerformanceReportAsync(string agentId)
-        {
-            if (string.IsNullOrEmpty(agentId)) throw new TeamException("Agent does not exist.");
-
-            var report = await _performanceReportRepository.GetPerformanceReportByAgentIdAsync(agentId);
-            if(report == null)
-            {
-                var performanceReport = new PerformanceReport
-                {
-                    ReportId = Guid.NewGuid().ToString(),
-                    ResolvedTickets = 0,
-                    AverageResolutionTime = 0.0,
-                    AssignedDate = DateTime.UtcNow,
-                    UserId = agentId
-                };
-                await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
-            }
-            return report;
-        }
-
-
         public async Task<PerformanceReport> GenerateAgentPerformanceReportAsync(string agentId)
         {
             var agent = await _teamRepository.FindAgentByIdAsync(agentId);
             if (agent != null)
             {
                 var performanceReport = agent.PerformanceReport;
-                var resolvedTickets = await _teamRepository.GetResolvedTicketsAssignedToAgentAsync(agentId);
+                if (performanceReport == null)
+                {
+                    performanceReport = new PerformanceReport
+                    {
+                        ReportId = Guid.NewGuid().ToString(),
+                        ResolvedTickets = 0,
+                        AverageResolutionTime = 0.0,
+                        AssignedDate = DateTime.UtcNow,
+                        UserId = agentId
+                    };
+                    await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
+                }
 
-                performanceReport.ResolvedTickets = resolvedTickets.Count;
+                var completedTickets = await _teamRepository.GetTicketsWithFeedbacksAssignedToAgentAsync(agentId);
+
+                performanceReport.ResolvedTickets = completedTickets.Count;
                 var resolutionTime = new List<double>();
-                foreach(var ticket in resolvedTickets)
+                foreach(var ticket in completedTickets)
                 {
                     resolutionTime.Add((ticket.ResolvedDate.Value - ticket.CreatedDate).TotalMinutes);
                 }
+                if(!completedTickets.Any()) throw new InvalidOperationException("Unable to generate, agent has no completed tickets.");
+
                 performanceReport.AverageResolutionTime = resolutionTime.Average();
+                await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
                 return performanceReport;
             }
-            return await ViewAgentPerformanceReportAsync(agentId);
+            return null;
         }
 
         public async Task<PerformanceReportViewModel> GetPerformanceReport(string userId)
@@ -76,9 +70,10 @@ namespace ASI.Basecode.Services.Services
             if (user != null)
             {
                 var performanceReport = user.PerformanceReport;
-                var tickets = await _teamRepository.GetResolvedTicketsAssignedToAgentAsync(userId);
-                if (performanceReport != null)
+                var tickets = await _teamRepository.GetTicketsWithFeedbacksAssignedToAgentAsync(userId);
+                if(tickets.Any() && performanceReport != null)
                 {
+                    
                     return new PerformanceReportViewModel
                     {
                         ReportId = performanceReport.ReportId,

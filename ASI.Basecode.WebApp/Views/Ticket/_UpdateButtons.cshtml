@@ -32,7 +32,7 @@
             <a href="#" title="Reopen Ticket" type="button" class="fas fa-redo action-icon mr-1" data-toggle="modal" data-target="#reopenTicketModal"></a>
             <a href="#" title="Close Ticket" type="button" class="fas fa-times action-icon mr-1" data-toggle="modal" data-target="#closeTicketModal"></a>
         }
-        @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Closed" && Model.TicketAssignment != null)
+        @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Closed")
         {
             <a href="#" title="Provide Feedback" class="fa fa-commenting action-icon mr-1" data-toggle="modal" data-target="#feedbackModal"></a>
         }
