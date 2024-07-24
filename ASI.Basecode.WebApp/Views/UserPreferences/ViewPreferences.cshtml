@@ -178,6 +178,10 @@
                     newPasswordValidation.textContent = 'New password must be at least 5 characters long.';
                     newPasswordValidation.style.display = 'block';
                     isValid = false;
+                } else if (newPasswordValue.length > 20) {
+                    newPasswordValidation.textContent = 'New password cannot exceed 20 characters.';
+                    newPasswordValidation.style.display = 'block';
+                    isValid = false;
                 } else if (newPasswordValue === oldPasswordValue) {
                     newPasswordValidation.textContent = 'Cannot be the same as the old password.';
                     newPasswordValidation.style.display = 'block';
