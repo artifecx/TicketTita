@@ -55,7 +55,7 @@ namespace ASI.Basecode.Services.Services
             }
 
             existingTicket.UpdatedDate = DateTime.Now;
-            await UpdateTicketDate(existingTicket);
+            await UpdateTicketDate(existingTicket, ticket.StatusTypeId);
 
             await _repository.UpdateAsync(existingTicket);
 

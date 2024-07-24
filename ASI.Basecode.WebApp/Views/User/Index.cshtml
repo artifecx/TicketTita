@@ -385,8 +385,13 @@
                 url: '@Url.Action("GeneratePerformanceReport", "User")',
                 type: 'POST',
                 data: { userId: userId },
-                success: function (result) {
-                    location.reload();
+                success: function (response) {
+                    if(response.success){
+                        location.reload();
+                    }
+                    else{
+                        toastr.error(response.error);
+                    }
                 }
             });
         }
