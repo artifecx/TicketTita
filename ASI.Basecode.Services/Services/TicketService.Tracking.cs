@@ -41,8 +41,8 @@ namespace ASI.Basecode.Services.Services
                 if(currentStatus == "closed")
                     throw new TicketException($"Cannot change status of a {currentStatus} ticket.", ticket.TicketId);
 
-                existingTicket.StatusType = string.IsNullOrEmpty(ticket.StatusTypeId) ?
-                    existingTicket.StatusType : await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
+                existingTicket.StatusTypeId = string.IsNullOrEmpty(ticket.StatusTypeId) ?
+                    existingTicket.StatusTypeId : ticket.StatusTypeId;
             }
 
             if (priorityChanged)
@@ -50,12 +50,12 @@ namespace ASI.Basecode.Services.Services
                 if (closedStatusList.Contains(currentStatus))
                     throw new TicketException($"Cannot change priority of a {currentStatus} ticket.", ticket.TicketId);
 
-                existingTicket.PriorityType = string.IsNullOrEmpty(ticket.PriorityTypeId) ?
-                    existingTicket.PriorityType : await _repository.FindPriorityByIdAsync(ticket.PriorityTypeId);
+                existingTicket.PriorityTypeId = string.IsNullOrEmpty(ticket.PriorityTypeId) ?
+                    existingTicket.PriorityTypeId : ticket.PriorityTypeId;
             }
 
             existingTicket.UpdatedDate = DateTime.Now;
-            await UpdateTicketDate(existingTicket, ticket.StatusTypeId);
+            await UpdateTicketDate(existingTicket);
 
             await _repository.UpdateAsync(existingTicket);
 

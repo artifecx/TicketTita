@@ -156,7 +156,7 @@ namespace ASI.Basecode.Services.Services
                 if(model.File != null) ticket.Attachments.Add(model.Attachment);
 
                 ticket.UpdatedDate = DateTime.Now;
-                await UpdateTicketDate(ticket, ticket.StatusTypeId);
+                await UpdateTicketDate(ticket);
                 
                 if (model.File != null && model.Attachment.AttachmentId != null)
                 {
@@ -234,9 +234,9 @@ namespace ASI.Basecode.Services.Services
         /// Helper method to update the ticket resolved date based on status.
         /// </summary>
         /// <param name="ticket">The ticket</param>
-        private async Task UpdateTicketDate(Ticket ticket, string statusTypeId)
+        private async Task UpdateTicketDate(Ticket ticket)
         {
-            if (statusTypeId != null && (statusTypeId.Equals("S3") || statusTypeId.Equals("S4")))
+            if (ticket.StatusTypeId != null && (ticket.StatusTypeId.Equals("S3") || ticket.StatusTypeId.Equals("S4")))
             {
                 ticket.ResolvedDate = ticket.ResolvedDate ?? DateTime.Now;
             }
