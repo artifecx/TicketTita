@@ -1,6 +1,10 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.CommentViewModel
 @using Humanizer;
 
+@{
+    bool isClosed = ViewBag.IsClosed ?? false;
+}
+
 <div class="comment mb-3" id="comment-@Model.CommentId">
     <div class="d-flex justify-content-between align-items-center">
         <div>
@@ -12,12 +16,15 @@
             }
         </div>
         <div>
-            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed)
             {
                 <a href="#" title="Edit Comment" class="edit-comment-link me-2 fas fa-edit action-icon" data-id="@Model.CommentId"></a>
             }
-            <a href="#" title="Reply to Comment" class="reply-comment-link me-2 fa-solid fa-reply action-icon" data-id="@Model.CommentId"></a>
-            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+            @if (!isClosed)
+            {
+                <a href="#" title="Reply to Comment" class="reply-comment-link me-2 fa-solid fa-reply action-icon" data-id="@Model.CommentId"></a>
+            }
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed)
             {
                 <a href="#" title="Delete Comment" class="delete-comment-link me-2 fas fa-trash action-icon ml-1" data-id="@Model.CommentId"></a>
             }

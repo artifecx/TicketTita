@@ -54,17 +54,6 @@ namespace ASI.Basecode.Services.Services
 
             var ticket = await GetTicketByIdAsync(id);
             if (ticket == null) return null;
-            if (ticket.StatusTypeId == "S4" && ticket.UserId != currentUserId) return null;
-
-            //if (currentUserRole.Contains("Support Agent"))
-            //{
-            //    var agent = await _teamRepository.FindAgentByIdAsync(currentUserId);
-            //    if (ticket.CategoryType.CategoryName != "Others" &&
-            //        ticket.TicketAssignment?.TeamId != agent.TeamMember?.TeamId &&
-            //        ticket.TicketAssignment?.AgentId != agent.UserId &&
-            //        ticket.CategoryTypeId != agent.TeamMember?.Team.SpecializationId)
-            //        return null;
-            //}
 
             var agents = await _teamRepository.GetAgentsAsync();
             var teams = await _teamRepository.GetAllStrippedAsync();
@@ -72,8 +61,7 @@ namespace ASI.Basecode.Services.Services
             var categoryTypes = await GetCategoryTypesAsync();
             var priorityTypes = await GetPriorityTypesAsync();
 
-            ticket.StatusTypes = currentUserRole.Contains("Employee") ? statusTypes.Where(x => x.StatusName != "Resolved" && x.StatusName != "In Progress") :
-                    statusTypes.Where(x => x.StatusName != "Closed" && !(ticket.Agent == null && x.StatusName == "Resolved"));
+            ticket.StatusTypes = currentUserRole != "Employee" ? statusTypes.Where(x => x.StatusName != "Closed") : statusTypes.Where(x => x.StatusName != "Closed" && x.StatusName != "In Progress");
             ticket.PriorityTypes = priorityTypes;
             ticket.CategoryTypes = categoryTypes;
             ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
@@ -112,10 +100,6 @@ namespace ASI.Basecode.Services.Services
                     "assigned_none" => tickets.Where(t => t.TicketAssignment == null).ToList(),
                     _ => tickets
                 };
-            } 
-            else if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Admin"))
-            {
-                tickets = tickets.Where(x => x.StatusType.StatusName != "Closed").ToList();
             }
 
             if (!clearFilters)
@@ -130,15 +114,18 @@ namespace ASI.Basecode.Services.Services
                 showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
                 sortBy = string.IsNullOrEmpty(sortBy) ? defaultSortBy : sortBy;
 
-                if (defaultStatusFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("status:"))))
+                if (defaultStatusFilter != null && (selectedFilters.Count == 0 ||
+                    !selectedFilters.Exists(f => f != null && f.StartsWith("status:"))))
                 {
                     selectedFilters.Add("status:" + defaultStatusFilter);
                 }
-                if (defaultPriorityFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("priority:"))))
+                if (defaultPriorityFilter != null && (selectedFilters.Count == 0 ||
+                    !selectedFilters.Exists(f => f != null && f.StartsWith("priority:"))))
                 {
                     selectedFilters.Add("priority:" + defaultPriorityFilter);
                 }
-                if (defaultCategoryFilter != null && (selectedFilters.Count == 0 || !selectedFilters.Exists(f => f != null && f.StartsWith("category:"))))
+                if (defaultCategoryFilter != null && (selectedFilters.Count == 0 ||
+                    !selectedFilters.Exists(f => f != null && f.StartsWith("category:"))))
                 {
                     selectedFilters.Add("category:" + defaultCategoryFilter);
                 }

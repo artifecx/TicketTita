@@ -263,6 +263,9 @@
             <div class="modal-body" id="performanceReportContent">
                 <!-- Performance report content will be loaded here -->
             </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="generateReport()">Generate Report</button>
+            </div>
         </div>
     </div>
 </div>
@@ -285,15 +288,6 @@
                     sessionStorage.setItem("DeleteSuccess", "Deleted Successfully");
                     window.location.href = '@Url.Action("Index", "User")';
                 }
-            });
-        });
-
-        $('#performanceReportModal').on('show.bs.modal', function (e) {
-            var button = $(e.relatedTarget);
-            var userId = button.data('userid');
-            var url = '@Url.Action("PerformanceReport")?userId=' + userId;
-            $.get(url, function (data) {
-                $('#performanceReportContent').html(data);
             });
         });
 
@@ -323,6 +317,8 @@
         var errMessage = '@TempData["DuplicateErr"]';
         var NoChangesMessage = '@TempData["NoChangesMessage"]';
         var NullFieldsMessage = '@TempData["NullFieldsMessage"]';
+        var SuccessMessage = '@TempData["SuccessMessage"]';
+        var ErrorMessage = '@TempData["ErrorMessage"]';
       
         if (createMessage) {
             toastr.success(createMessage);
@@ -337,6 +333,10 @@
             toastr.error(NullFieldsMessage);
         } else if (UpdateMessage) {
             toastr.success(UpdateMessage);
+        } else if (SuccessMessage) {
+            toastr.success(SuccessMessage);
+        } else if (ErrorMessage) {
+            toastr.error(ErrorMessage);
         }
 
         $(document).ready(function () {
@@ -354,6 +354,55 @@
                     }
                 });
             });
+        });
+    </script>
+    <script>
+        var selectedUserId;
+
+        $('#performanceReportModal').on('show.bs.modal', function (e) {
+            if (!sessionStorage.getItem('reopened')){
+                var button = $(e.relatedTarget);
+                selectedUserId = button.data('userid');
+                sessionStorage.setItem('PerformanceReportModalOpen', 'true');
+                sessionStorage.setItem('PerformanceReportUserId', selectedUserId);
+
+                var url = '@Url.Action("PerformanceReport")?userId=' + selectedUserId;
+                $.get(url, function (data) {
+                    $('#performanceReportContent').html(data);
+                });
+            }
+        });
+
+        $('#performanceReportModal').on('hide.bs.modal', function (e) {
+            sessionStorage.removeItem('PerformanceReportModalOpen');
+            sessionStorage.removeItem('PerformanceReportUserId');
+            sessionStorage.removeItem('reopened');
+        });
+
+        function generateReport() {
+            var userId = sessionStorage.getItem('PerformanceReportUserId');
+            $.ajax({
+                url: '@Url.Action("GeneratePerformanceReport", "User")',
+                type: 'POST',
+                data: { userId: userId },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            var isModalOpen = sessionStorage.getItem('PerformanceReportModalOpen');
+            var userId = sessionStorage.getItem('PerformanceReportUserId');
+
+            if (isModalOpen === 'true' && userId) {
+                var url = '@Url.Action("PerformanceReport")?userId=' + userId;
+                $.get(url, function (data) {
+                    sessionStorage.setItem('reopened', 'true')
+                    $('#performanceReportContent').html(data);
+                    $('#performanceReportModal').modal('show');
+                });
+            }
         });
     </script>
 }

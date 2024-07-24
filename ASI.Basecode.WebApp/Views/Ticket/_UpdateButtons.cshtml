@@ -5,7 +5,10 @@
     {
         if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
         {
-            <a href="#" title="Update Tracking" class="fas fa-sync action-icon mr-1" data-toggle="modal" data-target="#updateTrackingModal"></a>
+            if(User.IsInRole("Admin") || Model.TicketAssignment?.Agent?.Name == User.Identity.Name)
+            {
+                <a href="#" title="Update Tracking" class="fas fa-sync action-icon mr-1" data-toggle="modal" data-target="#updateTrackingModal"></a>
+            }
             <a href="#" title="Update Assignment" class="fas fa-user-edit action-icon mr-1" data-toggle="modal" data-target="#updateAssignmentModal"></a>
             if (Model.TicketAssignment == null)
             {
@@ -27,7 +30,7 @@
         if (Model.StatusType.StatusName == "Resolved")
         {
             <a href="#" title="Reopen Ticket" type="button" class="fas fa-redo action-icon mr-1" data-toggle="modal" data-target="#reopenTicketModal"></a>
-            <a href="#" title="Close Ticket" type="button" class="fas fa-times action-icon mr-1" data-toggle="modal" data-target="#reopenTicketModal"></a>
+            <a href="#" title="Close Ticket" type="button" class="fas fa-times action-icon mr-1" data-toggle="modal" data-target="#closeTicketModal"></a>
         }
         @if (Model.Feedback == null && User.IsInRole("Employee") && Model.StatusType.StatusName == "Closed")
         {

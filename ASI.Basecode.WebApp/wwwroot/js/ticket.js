@@ -50,7 +50,7 @@ function validateCreateTicket() {
         formData = new FormData(form[0]);
         $('#createTicketModal').modal('hide');
         setTimeout(function () {
-            var message = 'Ensure all ticket details are correct before submitting';
+            var message = 'Creating new ticket';
             displayConfirmationModal(submitCreateTicket, message, 'createTicketModal');
         }, 250);
     }
@@ -58,7 +58,7 @@ function validateCreateTicket() {
 
 $('#createTicketModal').on('hidden.bs.modal', function () {
     if(cancelled === true)
-        toastr.info("Create cancelled, no changes were made");
+        toastr.info("No changes were made");
 });
 
 function submitCreateTicket() {
@@ -100,7 +100,7 @@ $('#editTicketModal').on('hidden.bs.modal', function () {
     document.getElementById('fileUpload').style.display = '@(Model.Attachment == null ? "block" : "none")';
 
     document.querySelector('#attachmentDetails input').value = '@Model.Attachment?.Name';
-    toastr.info("Edit cancelled, no changes were made");
+    toastr.info("No changes were made");
 });
 
 function submitEditTicket() {
@@ -148,7 +148,7 @@ function validateCategory(currentCategoryId) {
     } else {
         $('#updateCategoryModal').modal('hide');
         setTimeout(function () {
-            var message = 'You are about to change this ticket\'s category';
+            var message = 'Changing category';
             displayConfirmationModal(saveCategory, message, 'updateCategoryModal');
         }, 250);
     }
@@ -191,7 +191,7 @@ function validateTracking() {
     if (statusId === 'S3') {
         $('#updateTrackingModal').modal('hide');
         setTimeout(function () {
-            var message = 'Setting this ticket as resolved is final and cannot be undone';
+            var message = 'Marking as resolved';
             displayConfirmationModal(saveTracking, message, 'updateTrackingModal');
         }, 250);
     }
@@ -202,6 +202,11 @@ function validateTracking() {
 
 function reopenTicket() {
     statusId = 'S1';
+    saveTracking();
+}
+
+function closeTicket() {
+    statusId = 'S4';
     saveTracking();
 }
 

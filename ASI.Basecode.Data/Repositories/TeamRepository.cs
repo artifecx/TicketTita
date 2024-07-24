@@ -25,8 +25,13 @@ namespace ASI.Basecode.Data.Repositories
                         .Include(t => t.TeamMembers)
                             .ThenInclude(u => u.User)
                         .Include(t => t.TeamMembers)
+                            .ThenInclude(tm => tm.User)
+                            .ThenInclude(tm => tm.PerformanceReport)
                         .Include(t => t.TicketAssignments)
                             .ThenInclude(a => a.Agent)
+                        .Include(t => t.TicketAssignments)
+                            .ThenInclude(t => t.Ticket)
+                            .ThenInclude(t => t.Feedback)
                         .Include(t => t.Specialization);
         }
 
@@ -144,24 +149,15 @@ namespace ASI.Basecode.Data.Repositories
             await GetTeamsWithIncludes()
                 .AnyAsync(t => t.TeamMembers.Any(tm => tm.UserId == agentId && tm.TeamId == teamId));
 
-        public async Task<List<Ticket>> GetResolvedTicketsAssignedToTeamAsync(string teamId)
-        {
-            return await this.GetDbSet<Ticket>()
-                        .Where(t => t.TicketAssignment.TeamId == teamId && t.StatusTypeId == "S3")
-                        .Include(t => t.Feedback)
-                            .ThenInclude(f => f.User)
-                            .ThenInclude(u => u.PerformanceReport)
-                        .ToListAsync();
-        }
 
-        public async Task<List<Ticket>> GetResolvedTicketsAssignedToAgentAsync(string agentId)
+        public async Task<List<Ticket>> GetTicketsWithFeedbacksAssignedToAgentAsync(string agentId)
         {
             return await this.GetDbSet<Ticket>()
                 .Include(t => t.TicketAssignment)
                 .Include(t => t.Feedback)
                     .ThenInclude(f => f.User)
                     .ThenInclude(f => f.PerformanceReport)
-                .Where(t => t.TicketAssignment != null && t.TicketAssignment.AgentId == agentId)
+                .Where(t => t.StatusTypeId == "S4" && t.TicketAssignment != null && t.TicketAssignment.AgentId == agentId)
                 .ToListAsync();
         }
     }

@@ -14,7 +14,7 @@
             <div class="card px-5 py-4 mb-4">
                 <div class="card-body">
                     <form id="preferences-form">
-                        <button type="button" id="save-preferences-btn" class="btn btn-primary float-right" style="display: none;">Save Preferences</button>
+                        <button type="button" id="save-preferences-btn" class="btn btn-primary float-right" style="display: none;">Save</button>
                         <button type="button" id="cancel-preferences-btn" class="btn btn-secondary float-right mr-2" style="display: none;">Cancel</button>
                         <input type="hidden" asp-for="UserId" />
                         @if (!User.IsInRole("Admin"))
@@ -49,7 +49,8 @@
                             <input type="password" class="form-control" id="confirmNewPassword" name="ConfirmNewPassword" />
                             <span id="confirm-password-validation-message" class="text-danger" style="display:none;"></span>
                         </div>
-                        <button type="button" id="save-password-btn" class="btn btn-primary float-right">Save</button>
+                        <button type="button" id="save-password-btn" class="btn btn-primary float-right" style="display: none;">Save</button>
+                        <button type="button" id="cancel-password-btn" class="btn btn-secondary float-right mr-2" style="display: none;">Cancel</button>
                     </form>
                 </div>
             </div>
@@ -62,8 +63,8 @@
 @section Scripts {
     <script src="~/js/toastrNotification.js"></script>
     <script>
-        function formChanged() {
-            const form = document.getElementById('preferences-form');
+        function formChanged(formId) {
+            const form = document.getElementById(formId);
             const initialFormData = new FormData(form);
             let initialValues = {};
             initialFormData.forEach((value, key) => {
@@ -81,13 +82,14 @@
             };
         }
 
-        const hasFormChanged = formChanged();
+        const hasPreferencesFormChanged = formChanged('preferences-form');
+        const hasPasswordFormChanged = formChanged('password-form');
 
         document.querySelectorAll('#preferences-form select').forEach(select => {
             select.addEventListener('change', function () {
                 const saveButton = document.getElementById('save-preferences-btn');
                 const cancelButton = document.getElementById('cancel-preferences-btn');
-                if (hasFormChanged()) {
+                if (hasPreferencesFormChanged()) {
                     saveButton.style.display = 'block';
                     cancelButton.style.display = 'block';
                 } else {
@@ -176,6 +178,10 @@
                     newPasswordValidation.textContent = 'New password must be at least 5 characters long.';
                     newPasswordValidation.style.display = 'block';
                     isValid = false;
+                } else if (newPasswordValue.length > 20) {
+                    newPasswordValidation.textContent = 'New password cannot exceed 20 characters.';
+                    newPasswordValidation.style.display = 'block';
+                    isValid = false;
                 } else if (newPasswordValue === oldPasswordValue) {
                     newPasswordValidation.textContent = 'Cannot be the same as the old password.';
                     newPasswordValidation.style.display = 'block';
@@ -198,14 +204,44 @@
         oldPasswordInput.addEventListener('input', () => {
             oldPasswordTouched = true;
             validatePasswordInput(oldPasswordInput);
+            togglePasswordButtons();
         });
         newPasswordInput.addEventListener('input', () => {
             newPasswordTouched = true;
             validatePasswordInput(newPasswordInput);
+            togglePasswordButtons();
         });
         confirmNewPasswordInput.addEventListener('input', () => {
             confirmPasswordTouched = true;
             validatePasswordInput(confirmNewPasswordInput);
+            togglePasswordButtons();
+        });
+
+        function togglePasswordButtons() {
+            const saveButton = document.getElementById('save-password-btn');
+            const cancelButton = document.getElementById('cancel-password-btn');
+            if (hasPasswordFormChanged()) {
+                saveButton.style.display = 'block';
+                cancelButton.style.display = 'block';
+            } else {
+                saveButton.style.display = 'none';
+                cancelButton.style.display = 'none';
+            }
+        }
+
+        document.getElementById('cancel-password-btn').addEventListener('click', function () {
+            passwordForm.reset();
+            oldPasswordValidation.style.display = 'none';
+            newPasswordValidation.style.display = 'none';
+            confirmPasswordValidation.style.display = 'none';
+
+            oldPasswordTouched = false;
+            newPasswordTouched = false;
+            confirmPasswordTouched = false;
+
+            document.getElementById('save-password-btn').style.display = 'none';
+            document.getElementById('cancel-password-btn').style.display = 'none';
+            toastr.info("No changes were made");
         });
 
         document.getElementById('save-password-btn').addEventListener('click', function () {

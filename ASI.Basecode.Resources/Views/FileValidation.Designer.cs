@@ -61,7 +61,7 @@ namespace ASI.Basecode.Resources.Views {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to image/jpeg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document.
+        ///   Looks up a localized string similar to image/jpeg,image/png,application/pdf,image/gif,text/plain.
         /// </summary>
         public static string AllowedFileTypes {
             get {

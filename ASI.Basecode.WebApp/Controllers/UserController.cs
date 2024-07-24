@@ -13,124 +13,139 @@ using ASI.Basecode.Services.Interfaces;
     using System;
     using System.Globalization;
     using System.Linq;
+using System.Threading.Tasks;
 
-    namespace ASI.Basecode.WebApp.Controllers
+namespace ASI.Basecode.WebApp.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class UserController : ControllerBase<UserController>
     {
-        [Authorize(Roles = "Admin")]
-        public class UserController : ControllerBase<UserController>
+        private readonly IUserService _userService;
+        private readonly IPerformanceReportService _performanceReportService;
+        public UserController(IUserService userService,
+                IHttpContextAccessor httpContextAccessor,
+                                ILoggerFactory loggerFactory,
+                                IConfiguration configuration,
+                                IUserPreferencesService userPreferences,
+                                IPerformanceReportService performanceReportService,
+                                IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
-            private readonly IUserService _userService;
-            private readonly IPerformanceReportService _performanceReportService;
-            public UserController(IUserService userService,
-                 IHttpContextAccessor httpContextAccessor,
-                                   ILoggerFactory loggerFactory,
-                                   IConfiguration configuration,
-                                   IUserPreferencesService userPreferences,
-                                   IPerformanceReportService performanceReportService,
-                                   IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
-            {
-                _userService = userService;
-                _performanceReportService = performanceReportService;
-            }
+            _userService = userService;
+            _performanceReportService = performanceReportService;
+        }
 
-            /// <summary>
-            /// Views all users
-            /// </summary>
-            /// <param name="sortOrder"></param>
-            /// <param name="currentFilter"></param>
-            /// <param name="searchString"></param>
-            /// <returns></returns>
-            public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
-            {
-                var pageSize = 5;
+        /// <summary>
+        /// Views all users
+        /// </summary>
+        /// <param name="sortOrder"></param>
+        /// <param name="currentFilter"></param>
+        /// <param name="searchString"></param>
+        /// <returns></returns>
+        public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
+        {
+            var pageSize = 5;
 
-                var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
-                var FilteredUsersCount = _userService.CountFilteredUsers(users);
-                var usersPaginated = _userService.PaginateUsers(users, pageSize, pageNumber);
-                var user = new PaginatedList<UserViewModel>(usersPaginated, FilteredUsersCount, pageNumber, pageSize);
+            var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
+            var FilteredUsersCount = _userService.CountFilteredUsers(users);
+            var usersPaginated = _userService.PaginateUsers(users, pageSize, pageNumber);
+            var user = new PaginatedList<UserViewModel>(usersPaginated, FilteredUsersCount, pageNumber, pageSize);
 
             
-                ViewData["CurrentSort"] = sortOrder;
-                ViewData["CurrentFilter"] = searchString;
-                ViewData["RoleFilter"] = roleFilter;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["RoleFilter"] = roleFilter;
 
 
 
-                return View(user);
-            }
+            return View(user);
+        }
 
-            #region GET methods      
+        #region GET methods      
 
-            /// <summary>
-            /// Transfers the user to the Create Screen.
-            /// </summary>
-            /// <returns></returns>
-            [HttpGet]
-            [Authorize(Policy ="Admin")]
+        /// <summary>
+        /// Transfers the user to the Create Screen.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Policy ="Admin")]
 
-            public IActionResult Create()
+        public IActionResult Create()
+        {
+            var model = new UserViewModel
             {
-                var model = new UserViewModel
-                {
-                    Roles = _userService.GetRoles().ToList()
-                };
-                return PartialView("Create", model);
-            }
+                Roles = _userService.GetRoles().ToList()
+            };
+            return PartialView("Create", model);
+        }
 
-            /// <summary>
-            /// Updates the specified selected user identifier.
-            /// </summary>
-            /// <param name="SelectedUserId">The selected user identifier.</param>
-            /// <returns></returns>
-            [HttpGet]
-            [Authorize(Policy = "Admin")]
-            public IActionResult Update(string SelectedUserId)
+        /// <summary>
+        /// Updates the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Policy = "Admin")]
+        public IActionResult Update(string SelectedUserId)
+        {
+            var SelectedUser = _userService.RetrieveAll().FirstOrDefault(s => s.UserId == SelectedUserId);
+            if (SelectedUser == null)
             {
-                var SelectedUser = _userService.RetrieveAll().FirstOrDefault(s => s.UserId == SelectedUserId);
-                if (SelectedUser == null)
-                {
-                    return NotFound(); // Handle case where user is not found
-                }
-
-                SelectedUser.Roles = _userService.GetRoles().ToList();
-                return PartialView("Update", SelectedUser);
+                return NotFound(); // Handle case where user is not found
             }
 
-            /// <summary>
-            /// Detailses the specified selected user identifier.
-            /// </summary>
-            /// <param name="SelectedUserId">The selected user identifier.</param>
-            /// <returns></returns>
-            [HttpGet]
-            [Authorize]
-            public IActionResult Details(String SelectedUserId)
+            SelectedUser.Roles = _userService.GetRoles().ToList();
+            return PartialView("Update", SelectedUser);
+        }
+
+        /// <summary>
+        /// Detailses the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize]
+        public IActionResult Details(String SelectedUserId)
+        {
+            var SelectedUser = _userService.RetrieveUser(SelectedUserId);
+            return View(SelectedUser);
+        }
+
+        /// <summary>
+        /// Deletes the specified selected user identifier.
+        /// </summary>
+        /// <param name="SelectedUserId">The selected user identifier.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Policy = "Admin")]
+        public IActionResult Delete(String SelectedUserId)
+        {
+            var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
+            return View(SelectedUser);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> PerformanceReport(string userId)
+        {
+            var performanceReport = await _performanceReportService.GetPerformanceReport(userId);
+            if (performanceReport != null)
             {
-                var SelectedUser = _userService.RetrieveUser(SelectedUserId);
-                return View(SelectedUser);
+                return PartialView("_PerformanceReportModal", performanceReport);
             }
+            return PartialView("_PerformanceReportModal", performanceReport);
+        }
 
-            /// <summary>
-            /// Deletes the specified selected user identifier.
-            /// </summary>
-            /// <param name="SelectedUserId">The selected user identifier.</param>
-            /// <returns></returns>
-            [HttpGet]
-            [Authorize(Policy = "Admin")]
-            public IActionResult Delete(String SelectedUserId)
+        [HttpPost]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> GeneratePerformanceReport(string userId)
+        {
+            return await HandleExceptionAsync(async () =>
             {
-                var SelectedUser = _userService.RetrieveAll().Where(s => s.UserId == SelectedUserId).FirstOrDefault();
-                return View(SelectedUser);
-            }
-
-            public IActionResult PerformanceReport(string userId)
-            {
-                var performanceReport = _performanceReportService.GetPerformanceReport(userId).Result;
-                if (performanceReport != null)
-                {
-                    return PartialView("_PerformanceReportModal", performanceReport);
-                }
-                return NotFound();
-            }
+                await _performanceReportService.GenerateAgentPerformanceReportAsync(userId);
+                TempData["SuccessMessage"] = "Performance report generated successfully!";
+                return Json( new { success = true } );
+            }, "GeneratePerformanceReport");
+        }
         #endregion
 
         #region POST Methods        
@@ -141,93 +156,93 @@ using ASI.Basecode.Services.Interfaces;
         /// <param name="model">The model.</param>
         /// <returns></returns>
         [HttpPost]
-            [Authorize]
-            public IActionResult PostCreate(UserViewModel model)
+        [Authorize]
+        public IActionResult PostCreate(UserViewModel model)
+        {
+            bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name || s.Email == model.Email);
+            if (Exists)
             {
-                bool Exists = _userService.RetrieveAll().Any(s => s.Name == model.Name || s.Email == model.Email);
-                if (Exists)
-                {
-                    TempData["DuplicateErr"] = "A user with the same name or email already exists.";
-                    return RedirectToAction("Index");
-                }
-
-                _userService.Add(model);
-                TempData["CreateMessage"] = "User Added Succesfully";
+                TempData["DuplicateErr"] = "A user with the same name or email already exists.";
                 return RedirectToAction("Index");
             }
 
-        /// <summary>
-        /// Posts the update.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns></returns>
-        [HttpPost]
-        [Authorize]
-        public IActionResult PostUpdate(UserViewModel model)
+            _userService.Add(model);
+            TempData["CreateMessage"] = "User Added Succesfully";
+            return RedirectToAction("Index");
+        }
+
+    /// <summary>
+    /// Posts the update.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns></returns>
+    [HttpPost]
+    [Authorize]
+    public IActionResult PostUpdate(UserViewModel model)
+    {
+        bool HasNullValues = CheckNullValues(model);
+        bool exists = _userService.RetrieveAll().Any(s => (s.Name == model.Name || s.Email == model.Email) && s.UserId != model.UserId);
+        if (exists)
         {
-            bool HasNullValues = CheckNullValues(model);
-            bool exists = _userService.RetrieveAll().Any(s => (s.Name == model.Name || s.Email == model.Email) && s.UserId != model.UserId);
-            if (exists)
-            {
-                TempData["DuplicateErr"] = "A user with the same name or email already exists.";
-                return Json(new { success = false });
-            }
-            else if (HasNullValues) {
-                TempData["NullFieldsMessage"] = "Please input all user details";
-                return Json(new { success = false });
-            }
-            var userToUpdate = _userService.RetrieveUser(model.UserId);
-            if (userToUpdate != null)
-            {
+            TempData["DuplicateErr"] = "A user with the same name or email already exists.";
+            return Json(new { success = false });
+        }
+        else if (HasNullValues) {
+            TempData["NullFieldsMessage"] = "Please input all user details";
+            return Json(new { success = false });
+        }
+        var userToUpdate = _userService.RetrieveUser(model.UserId);
+        if (userToUpdate != null)
+        {
               
-                if (!string.IsNullOrEmpty(model.Password))
-                {
-                    model.Password = PasswordManager.EncryptPassword(model.Password);
-                }
-                else
-                {
-                    model.Password = userToUpdate.Password;
-                }
-                bool hasChanges = CheckForChanges(userToUpdate, model);
-
-                if (hasChanges)
-                {
-                    _userService.Update(model);
-                    TempData["UpdateMessage"] = "User Updated Successfully";
-                }
-                else
-                {
-                    TempData["NoChangesMessage"] = "No Changes were seen";
-                    return Json(new { success = true });
-                }
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                model.Password = PasswordManager.EncryptPassword(model.Password);
             }
+            else
+            {
+                model.Password = userToUpdate.Password;
+            }
+            bool hasChanges = CheckForChanges(userToUpdate, model);
 
+            if (hasChanges)
+            {
+                _userService.Update(model);
+                TempData["UpdateMessage"] = "User Updated Successfully";
+            }
+            else
+            {
+                TempData["NoChangesMessage"] = "No Changes were seen";
+                return Json(new { success = true });
+            }
+        }
+
+        return Json(new { success = true });
+    }
+
+    private bool CheckForChanges(UserViewModel user, UserViewModel model)
+    {
+        return user.Name != model.Name ||
+                user.Email != model.Email ||
+                user.Password != model.Password ||
+                user.RoleId != model.RoleId;
+    }
+    private bool CheckNullValues(UserViewModel model) {
+        return string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.RoleId);
+    }
+    /// <summary>
+    /// Posts the delete.
+    /// </summary>
+    /// <param name="UserId">The user identifier.</param>
+    /// <returns></returns>
+    [HttpPost]
+        [Authorize]  
+        public IActionResult PostDelete(string id)
+        {
+            _userService.Delete(id);
             return Json(new { success = true });
         }
 
-        private bool CheckForChanges(UserViewModel user, UserViewModel model)
-        {
-            return user.Name != model.Name ||
-                   user.Email != model.Email ||
-                   user.Password != model.Password ||
-                   user.RoleId != model.RoleId;
-        }
-        private bool CheckNullValues(UserViewModel model) {
-            return string.IsNullOrEmpty(model.Name) || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.RoleId);
-     }
-        /// <summary>
-        /// Posts the delete.
-        /// </summary>
-        /// <param name="UserId">The user identifier.</param>
-        /// <returns></returns>
-        [HttpPost]
-            [Authorize]  
-            public IActionResult PostDelete(string id)
-            {
-                _userService.Delete(id);
-                return Json(new { success = true });
-            }
-
-            #endregion
-        }
+        #endregion
     }
+}

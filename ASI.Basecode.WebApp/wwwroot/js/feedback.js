@@ -50,7 +50,7 @@ function validateFeedback() {
 
     $('#feedbackModal').modal('hide');
     setTimeout(function () {
-        var message = 'This feedback is final and cannot be edited or deleted';
+        var message = 'This feedback is final';
         displayConfirmationModal(submitFeedback, message, 'feedbackModal');
     }, 250);
 }
