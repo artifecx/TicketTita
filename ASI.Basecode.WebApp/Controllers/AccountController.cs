@@ -86,13 +86,6 @@ namespace ASI.Basecode.WebApp.Controllers
 
             User user = null;
 
-            /* Account user = new() { Id = 0, Email = "0", Name = "Name", Password = "Password" };
-
-             await this._signInManager.SignInAsync(user);
-             this._session.SetString("UserName", model.Email);
-
-             return RedirectToAction("Index", "Home");*/
-
             var loginResult = _userService.AuthenticateUser(model.Email, model.Password, ref user);
             if (loginResult == LoginResult.Success)
             {
@@ -110,38 +103,6 @@ namespace ASI.Basecode.WebApp.Controllers
             }
             return View();
         }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-      /*  [HttpPost]
-        [AllowAnonymous]
-        public IActionResult Register(AccountServiceModel model)
-        {
-            try
-            {
-                _userService.AddUser(model);
-                return RedirectToAction("Login", "Account");
-            }
-            catch(InvalidDataException ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-            }
-            catch(Exception ex)
-            {
-                TempData["ErrorMessage"] = Resources.Messages.Errors.ServerError;
-            }
-            return View();
-        }*/
-
-        /// <summary>
-        /// Sign Out current account and return login view.
-        /// </summary>
-        /// <returns>Created response view</returns>
         [AllowAnonymous]
         public async Task<IActionResult> SignOutUser()
         {
