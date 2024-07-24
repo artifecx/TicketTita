@@ -47,8 +47,13 @@ namespace ASI.Basecode.Services.Services
             _userRepository = userRepository;
             _mapper = mapper;
         }
-
-        public async Task<UserPreferencesViewModel> GetUserPreferencesAsync(string userId)
+        
+        /// <summary>
+        /// Gets the user preferences.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
+        public async Task<UserPreferencesViewModel> GetUserPreferences(string userId)
         {
             var preferences = _repository.GetUserPreferences(userId);
             var categoryTypes = await _ticketRepository.GetCategoryTypesAsync();
@@ -66,7 +71,11 @@ namespace ASI.Basecode.Services.Services
             return model;
         }
 
-        public async Task UpdateUserPreferencesAsync(UserPreferencesViewModel model)
+        /// <summary>
+        /// Updates the user preferences.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        public async Task UpdateUserPreferences(UserPreferencesViewModel model)
         {
             var existingPreferences = _repository.GetUserPreferences(model.UserId);
             if (existingPreferences != null && model.Preferences != null)

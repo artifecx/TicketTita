@@ -64,6 +64,11 @@ namespace ASI.Basecode.Services.Services
             return null;
         }
 
+        /// <summary>
+        /// Gets the performance report.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public async Task<PerformanceReportViewModel> GetPerformanceReport(string userId)
         {
             var user = await _teamRepository.FindAgentByIdAsync(userId);

@@ -54,29 +54,54 @@ namespace ASI.Basecode.Services.Services
         {
             _knowledgeBaseRepository.Delete(id);
         }
-
+        /// <summary>
+        /// Gets the article by identifier.
+        /// </summary>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
         public KnowledgeBaseViewModel GetArticleById(string id)
         {
             var article = _knowledgeBaseRepository.FindArticleById(id);
             return _mapper.Map<KnowledgeBaseViewModel>(article);
         }
-
+        /// <summary>
+        /// Retrieves all.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<KnowledgeBaseViewModel> RetrieveAll()
         {
             var articles = _knowledgeBaseRepository.RetrieveAll();
             return _mapper.Map<IEnumerable<KnowledgeBaseViewModel>>(articles);
         }
-
+        /// <summary>
+        /// Gets the article categories.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<ArticleCategory> GetArticleCategories()
         {
             return _knowledgeBaseRepository.GetArticleCategories();
         }
-
+        /// <summary>
+        /// Searches the articles.
+        /// </summary>
+        /// <param name="searchTerm">The search term.</param>
+        /// <param name="selectedCategories">The selected categories.</param>
+        /// <param name="sortBy">The sort by.</param>
+        /// <param name="sortOrder">The sort order.</param>
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">Size of the page.</param>
+        /// <returns></returns>
         public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
             var articles = _knowledgeBaseRepository.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder, pageNumber, pageSize);
             return _mapper.Map<IEnumerable<KnowledgeBaseViewModel>>(articles);
         }
+        /// <summary>
+        /// Counts the articles.
+        /// </summary>
+        /// <param name="searchTerm">The search term.</param>
+        /// <param name="selectedCategories">The selected categories.</param>
+        /// <returns></returns>
         public int CountArticles(string searchTerm, List<string> selectedCategories)
         {
             return _knowledgeBaseRepository.CountArticles(searchTerm, selectedCategories);
