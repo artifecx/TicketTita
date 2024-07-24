@@ -184,7 +184,7 @@
                                     var validTicketsCount = 0;
                                     foreach (var ticket in item.TicketAssignments)
                                     {
-                                        if (ticket.Ticket.Feedback.FeedbackRating > 0)
+                                        if (ticket.Ticket.Feedback?.FeedbackRating > 0)
                                         {
                                             totalRating += ticket.Ticket.Feedback.FeedbackRating;
                                             validTicketsCount++;
