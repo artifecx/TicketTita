@@ -1,6 +1,6 @@
 ﻿$(document).ready(function () {
-    $("#new-comment-link").click(function (e) {
-        e.preventDefault();
+    $("#new-comment-link").click(function (event) {
+        event.preventDefault();
         $("#new-comment-section").show();
         $("#new-comment-link").hide();
     });
@@ -10,8 +10,11 @@
         $("#new-comment-link").show();
     });
 
-    $(document).on("click", ".edit-comment-link", function () {
+
+    $(document).on("click", ".edit-comment-link", function (event) {
+        event.preventDefault();
         var id = $(this).data("id");
+        $("#reply-comment-" + id).hide();
         $("#edit-comment-" + id).show();
     });
 
@@ -19,8 +22,10 @@
         $(this).closest(".edit-comment-form").hide();
     });
 
-    $(document).on("click", ".reply-comment-link", function () {
+    $(document).on("click", ".reply-comment-link", function (event) {
+        event.preventDefault();
         var id = $(this).data("id");
+        $("#edit-comment-" + id).hide();
         $("#reply-comment-" + id).show();
     });
 

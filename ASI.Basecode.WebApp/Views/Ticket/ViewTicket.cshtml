@@ -17,17 +17,23 @@
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <a asp-action="GetAll" class="text-black m-2"><h2 class="font-weight-bold"><i class="fa-solid fa-arrow-left mx-2"></i></h2></a>
-    @await Html.PartialAsync("_UpdateButton", Model)
+    <a href="#" class="text-black m-2 back-button">
+        <h2 class="font-weight-bold">
+            <i class="fa-solid fa-arrow-left mx-2"></i>
+        </h2>
+    </a>
 </div>
 
 <div class="container-fluid p-4">
     <div class="card px-5 py-4 mb-4">
         <div class="card-body">
             <div class="card-title mb-2 d-flex justify-content-lg-between">
-                <h3 class="font-weight-bold">
-                    @Html.DisplayNameFor(model => model.TicketId): @Html.DisplayFor(model => model.TicketId)
-                </h3>
+                <div class="d-flex align-items-center">
+                    <h3 class="font-weight-bold mb-0 mr-4">
+                        @Html.DisplayNameFor(model => model.TicketId): @Html.DisplayFor(model => model.TicketId)
+                    </h3>
+                    @await Html.PartialAsync("_UpdateButton", Model)
+                </div>
                 <div>
                     <span class="border mx-1 py-1 px-3 btn-radius @GetStatusCssClass(Model.StatusType.StatusName)">
                         @Html.DisplayFor(model => model.StatusType.StatusName)
@@ -127,16 +133,25 @@
 
     <div class="card px-5 py-4 mb-4" id="comments-section">
         <div class="card-body">
-            <h3 class="card-title font-weight-bold mb-4">Comments</h3>
-            @if(Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
+            <h3 class="card-title font-weight-bold mb-4">
+                Comments
+                @if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
+                {
+                    <a href="#" id="new-comment-link" class="btn btn-primary btn-radius mx-2">
+                        <i class="fa fa-plus"></i>
+                    </a>
+                }
+            </h3>
+
+            @if (Model.StatusType.StatusName != "Resolved" && Model.StatusType.StatusName != "Closed")
             {
                 <div>
-                    <a href="#" id="new-comment-link">New Comment</a>
-                    <div id="new-comment-section" style="display:none;">
-                        @Html.AntiForgeryToken()
-                        <textarea id="new-comment-content" class="form-control" placeholder="Add a comment..."></textarea>
-                        <button id="post-comment-btn" class="btn btn-primary">Post Comment</button>
-                        <button id="cancel-comment-btn" class="btn btn-secondary">Cancel</button>
+                    <div id="new-comment-section" class="mt-3" style="display:none; max-width:600px">
+                        <textarea id="new-comment-content" class="form-control mb-2" placeholder="Add a comment..."></textarea>
+                        <div class="d-flex justify-content-end">
+                            <button id="cancel-comment-btn" class="btn btn-secondary me-2 mx-2">Cancel</button>
+                            <button id="post-comment-btn" class="btn btn-primary">Post</button>
+                        </div>
                     </div>
                 </div>
             }
@@ -149,10 +164,12 @@
             }
             else
             {
-                <p class="alert alert-warning text-center" role="alert">No comments.</p>
+                <p class="alert alert-warning text-center my-2" role="alert">No comments.</p>
             }
         </div>
     </div>
+
+
     <!-- Add Activity Logs Section -->
     <div class="card px-5 py-4 mb-4" id="activity-logs-section" style="width: 100%; float: right;">
         <div class="card-body">
@@ -235,6 +252,31 @@
         });
 
         $('#teamId').trigger('change');
+    </script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        sessionStorage.setItem('sortBy', urlParams.get('sortBy') || '');
+        sessionStorage.setItem('search', urlParams.get('search') || '');
+        sessionStorage.setItem('showOption', urlParams.get('showOption') || '');
+        sessionStorage.setItem('pageIndex', urlParams.get('pageIndex') || '1');
+        sessionStorage.setItem('pageSize', urlParams.get('pageSize') || '5');
+        sessionStorage.setItem('selectedFilters', urlParams.getAll('selectedFilters').join(',') || '');
+
+        document.querySelector('.back-button').addEventListener('click', function(event) {
+            event.preventDefault();
+            const baseUrl = '@Url.Action("GetAll", "Ticket")';
+            const params = new URLSearchParams();
+            params.set('sortBy', sessionStorage.getItem('sortBy') || '');
+            params.set('search', sessionStorage.getItem('search') || '');
+            params.set('showOption', sessionStorage.getItem('showOption') || '');
+            params.set('pageIndex', sessionStorage.getItem('pageIndex') || '1');
+            params.set('pageSize', sessionStorage.getItem('pageSize') || '5');
+            const selectedFilters = sessionStorage.getItem('selectedFilters') || '';
+            if (selectedFilters) {
+                selectedFilters.split(',').forEach(filter => params.append('selectedFilters', filter));
+            }
+            window.location.href = `${baseUrl}?${params.toString()}`;
+        });
     </script>
     <script src="~/js/comment.js"></script>
     <script src="~/js/feedback.js"></script>

@@ -9,8 +9,9 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface IUserPreferencesService
     {
-        Task<UserPreferencesViewModel> GetUserPreferences(string userId);
-        Task UpdateUserPreferences(UserPreferencesViewModel model);
-        Task<KeyValuePair<string, string>> GetUserPreferenceByKey(string userId, string key);
+        Task<UserPreferencesViewModel> GetUserPreferencesAsync(string userId);
+        Task UpdateUserPreferencesAsync(UserPreferencesViewModel model);
+        void UpdateUserPassword(UserPreferencesViewModel model);
+        Task<KeyValuePair<string, string>> GetUserPreferenceByKeyAsync(string userId, string key);
     }
 }

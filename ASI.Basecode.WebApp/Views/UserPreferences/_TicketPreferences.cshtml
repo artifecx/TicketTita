@@ -1,13 +1,13 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.UserPreferencesViewModel
 
 <div class="row">
-    <div class="col-md-3 form-group">
+    <div class="col-md-4 form-group">
         @if (User.IsInRole("Support Agent"))
         {
             <div class="form-group mt-2">
                 <label for="Preferences_defaultShowOption">Show Tickets</label>
                 <select class="form-control" id="Preferences_defaultShowOption" name="Preferences[defaultShowOption]">
-                    <option value="all" selected="@(Model.Preferences.GetValueOrDefault("defaultShowOption") == "all")">All</option>
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.Preferences.GetValueOrDefault("defaultShowOption")) || Model.Preferences.GetValueOrDefault("defaultShowOption") == "all")">All</option>
                     <option value="assigned_me" selected="@(Model.Preferences.GetValueOrDefault("defaultShowOption") == "assigned_me")">Assigned to me</option>
                     <option value="assigned_team" selected="@(Model.Preferences.GetValueOrDefault("defaultShowOption") == "assigned_team")">Assigned to my team</option>
                     <option value="assigned_none" selected="@(Model.Preferences.GetValueOrDefault("defaultShowOption") == "assigned_none")">No Assignment</option>
@@ -36,7 +36,7 @@
             </select>
         </div>
     </div>
-    <div class="col-md-3 form-group">
+    <div class="col-md-4 form-group">
         <div class="form-group mt-2">
             <label for="Preferences_defaultCategoryFilter">Category Filter</label>
             <select class="form-control" id="Preferences_defaultCategoryFilter" name="Preferences[defaultCategoryFilter]">
@@ -50,7 +50,7 @@
         <div class="form-group mt-2">
             <label for="Preferences_defaultSortBy">Sort By</label>
             <select class="form-control" id="Preferences_defaultSortBy" name="Preferences[defaultSortBy]">
-                <option value="updated_desc" selected="@(string.IsNullOrEmpty(Model.Preferences.GetValueOrDefault("defaultSortBy")) || Model.Preferences.GetValueOrDefault("defaultSortBy") == "updated_desc")">Recently Updated</option>
+                <option value="" selected="@(string.IsNullOrEmpty(Model.Preferences.GetValueOrDefault("defaultSortBy")) || Model.Preferences.GetValueOrDefault("defaultSortBy") == "updated_desc")">Recently Updated</option>
                 <option value="created_desc" selected="@(Model.Preferences.GetValueOrDefault("defaultSortBy") == "created_desc")">Newest</option>
                 <option value="created_asc" selected="@(Model.Preferences.GetValueOrDefault("defaultSortBy") == "created_asc")">Oldest</option>
                 <option value="ticket_asc" selected="@(Model.Preferences.GetValueOrDefault("defaultSortBy") == "ticket_asc")">Ticket ID (A-Z)</option>

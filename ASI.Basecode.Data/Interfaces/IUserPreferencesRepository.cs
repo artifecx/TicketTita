@@ -9,7 +9,7 @@ namespace ASI.Basecode.Data.Interfaces
     public interface IUserPreferencesRepository
     {
         Dictionary<string, string> GetUserPreferences(string userId);
-        Task UpdateUserPreferences(string userId, Dictionary<string, string> updatedPreferences);
-        Task<KeyValuePair<string, string>> FindUserPreferenceByKey(string userId, string key);
+        Task UpdateUserPreferencesAsync(string userId, Dictionary<string, string> updatedPreferences);
+        Task<KeyValuePair<string, string>> FindUserPreferenceByKeyAsync(string userId, string key);
     }   
 }

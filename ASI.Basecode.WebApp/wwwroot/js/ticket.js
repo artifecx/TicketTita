@@ -10,6 +10,20 @@
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('Subject');
+    var remainingCharsSpan = document.getElementById('remainingSubjectChars');
+
+    function updateRemainingChars() {
+        var remaining = 100 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
     var contentTextarea = document.getElementById('issueDescription');
     var remainingCharsSpan = document.getElementById('remainingDescriptionChars');
 

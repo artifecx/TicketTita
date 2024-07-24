@@ -32,7 +32,7 @@
                     <div class="mb-3">
                         <label for="showOption">Show Tickets: </label>
                         <select asp-for="@showOption" id="showOption" name="showOption" class="form-control">
-                            <option value="" selected="@(string.IsNullOrEmpty(showOption))">All</option>
+                            <option value="all" selected="@(string.IsNullOrEmpty(showOption))">All</option>
                             <option value="assigned_me" selected="@(showOption == "assigned_me")">Assigned to me</option>
                             <option value="assigned_team" selected="@(showOption == "assigned_team")">Assigned to my team</option>
                             <option value="assigned_none" selected="@(showOption == "assigned_none")">No Assignment</option>

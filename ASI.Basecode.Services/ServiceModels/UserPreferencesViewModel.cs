@@ -14,6 +14,9 @@ namespace ASI.Basecode.Services.ServiceModels
         public string UserId { get; set; }
         public Dictionary<string, string> Preferences { get; set; }
 
+        public string oldPassword { get; set; }
+        public string newPassword { get; set; }
+        
 
         #region Dropdown population
         public IEnumerable<CategoryType> CategoryTypes { get; set; }
