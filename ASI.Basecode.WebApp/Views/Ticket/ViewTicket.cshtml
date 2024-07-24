@@ -7,9 +7,11 @@
     await Html.RenderPartialAsync("_DeleteModal");
     await Html.RenderPartialAsync("_UpdateTrackingModal", Model);
     await Html.RenderPartialAsync("_ReopenTicketModal", Model);
+    await Html.RenderPartialAsync("_CloseTicketModal", Model);
     await Html.RenderPartialAsync("_UpdateAssignmentModal", Model);
     await Html.RenderPartialAsync("_UpdateCategoryModal", Model);
     await Html.RenderPartialAsync("_ConfirmationModal");
+    ViewBag.IsClosed = Model.StatusType.StatusName == "Closed";
 }
 
 @section styles {
@@ -32,7 +34,7 @@
                     <h3 class="font-weight-bold mb-0 mr-4">
                         @Html.DisplayNameFor(model => model.TicketId): @Html.DisplayFor(model => model.TicketId)
                     </h3>
-                    @await Html.PartialAsync("_UpdateButton", Model)
+                    @await Html.PartialAsync("_UpdateButtons", Model)
                 </div>
                 <div>
                     <span class="border mx-1 py-1 px-3 btn-radius @GetStatusCssClass(Model.StatusType.StatusName)">
@@ -170,7 +172,6 @@
     </div>
 
 
-    <!-- Add Activity Logs Section -->
     <div class="card px-5 py-4 mb-4" id="activity-logs-section" style="width: 100%; float: right;">
         <div class="card-body">
             <h3 class="card-title font-weight-bold mb-4">Activity Logs</h3>

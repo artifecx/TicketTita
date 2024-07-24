@@ -94,7 +94,7 @@
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
-                        Closed / Resolved Tickets
+                        Completed Tickets
                         @(sortBy == "inactive" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "inactive_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>

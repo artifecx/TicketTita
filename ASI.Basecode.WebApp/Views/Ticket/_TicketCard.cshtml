@@ -25,7 +25,7 @@
                         @Html.ActionLink(" ", "GetTicket", new { id = Model.TicketId }, new { @class = "fas fa-comment-dots action-icon", title = "View Feedback" })
                     }
                 }
-                else
+                else if(!Model.StatusType.StatusName.Contains("Resolved"))
                 {
                     <text> | </text>
                     @Html.ActionLink(" ", "GetTicket", new { id = Model.TicketId, showModal = "editTicket" }, new { @class = "fas fa-edit action-icon", title = "Edit" })
