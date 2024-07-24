@@ -14,6 +14,7 @@
         hasUnreadNotifications = NotificationService.HasUnreadNotifications(userId);
         notificationCount = NotificationService.GetUnreadNotificationCount(userId);
     }
+    bool isSuper = User.HasClaim("IsSuperAdmin", "true");
 }
 
 <div class="@((ViewBag.LoginView == true || ViewBag.create == true) ? "hide-navbar" : "sidebar") ">
@@ -24,7 +25,16 @@
     </div>
     <div class="sidebar-header mt-5 mb-2">Navigation</div>
     <ul class="list-unstyled flex-grow-1">
-        @if (isAdmin)
+        @if (isSuper)
+        {
+            <li class="py-2">
+                <a asp-action="Index" asp-controller="User" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "User" ? "active" : "")">
+                    <i class="fa fa-users px-1"></i>
+                    Users
+                </a>
+            </li>
+        }
+        @if (isAdmin && !isSuper)
         {
             <li class="py-2">
                 <a asp-action="Index" asp-controller="Home" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
@@ -45,38 +55,29 @@
                 </a>
             </li>
         }
-        <li class="py-2">
-            <a asp-action="GetAll" asp-controller="Ticket" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Ticket" ? "active" : "")">
-                <i class="fa fa-ticket px-1"></i>
-                Ticket Screen
-            </a>
-        </li>
-        <li class="py-2">
-            <a asp-controller="KnowledgeBase" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "KnowledgeBase" ? "active" : "")">
-                <i class="fa fa-book px-1"></i>
-                Articles
-            </a>
-        </li>
-        @*<li class="py-2">
-            <a asp-action="Index" asp-controller="Notification" class="@(hasUnreadNotifications ? "unread-notification" : "") @(ViewContext.RouteData.Values["Controller"].ToString() == "Notification" ? "active" : "")">
-                @if (hasUnreadNotifications)
-                {
-                    <i class="fa fa-bell px-1" style="color: #f2476a;"></i>
-                    <span class="bold-notifications">Notifications</span>
-                }
-                else
-                {
-                    <i class="fa fa-bell px-1"></i>
-                    <div class="d-inline-flex">Notifications</div>
-                }
-            </a>
-        </li>*@
-        <li class="py-2">
-            <a asp-controller="UserPreferences" asp-action="GetUserPreferences" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "UserPreferences" ? "active" : "")">
-                <i class="fa fa-cog px-1"></i>
-                Settings
-            </a>
-        </li>
+        @if (!isSuper)
+        {
+            <li class="py-2">
+                <a asp-action="GetAll" asp-controller="Ticket" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "Ticket" ? "active" : "")">
+                    <i class="fa fa-ticket px-1"></i>
+                    Ticket Screen
+                </a>
+            </li>
+            <li class="py-2">
+                <a asp-controller="KnowledgeBase" asp-action="Index" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "KnowledgeBase" ? "active" : "")">
+                    <i class="fa fa-book px-1"></i>
+                    Articles
+                </a>
+            </li>
+
+            <li class="py-2">
+                <a asp-controller="UserPreferences" asp-action="GetUserPreferences" class="@(ViewContext.RouteData.Values["Controller"].ToString() == "UserPreferences" ? "active" : "")">
+                    <i class="fa fa-cog px-1"></i>
+                    Settings
+                </a>
+            </li>
+        }
+        
         <li class="py-2">
             <a href="#" data-toggle="modal" data-target="#logoutModal">
                 <i class="fa fa-sign-out px-1"></i>
@@ -88,7 +89,20 @@
         <i class="fa fa-user-circle icon"></i>
         <div class="text">
             <span>@HttpContextAccessor.HttpContext.User.Identity.Name</span>
-            <small class="text-muted">(@role)</small>
+            @if (isSuper)
+            {
+                <small class="text-muted">
+                    (Super Admin)
+                </small>
+            }
+            else
+            {
+                <small class="text-muted">
+
+                    (@role)
+                </small>
+            }
+          
         </div>
     </div>
 </div>
@@ -132,9 +146,3 @@
         });
     });
 </script>
-
-<style>
-    .text-muted{
-    
-    }
-</style>
