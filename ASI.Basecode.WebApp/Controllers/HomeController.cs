@@ -18,7 +18,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="httpContextAccessor"></param>
+        /// <param name="httpContextAccessor"></param>  
         /// <param name="loggerFactory"></param>
         /// <param name="configuration"></param>
         /// <param name="localizer"></param>
