@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="~/css/user.css" />
 }
 
-<div class="d-flex justify-content-end mx-4 mt-3 mb-2">
-    <button type="button" class="btn-close custom-close-button" data-dismiss="modal" aria-label="Close">
+<div class="modal-header">
+    <h5 class="modal-title font-weight-bold" id="createUserModalLabel">Edit User</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
-<h5 class="modal-title font-weight-bold d-flex justify-content-center mb-3" id="editUserModalLabel">Edit User</h5>
 
-<div class="modal-body mx-5">
+<div class="modal-body">
     <form id="updateUserForm" method="post">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input asp-for="UserId" type="hidden" />
@@ -24,54 +24,37 @@
         <input asp-for="UpdatedBy" type="hidden" />
         <input asp-for="UpdatedTime" type="hidden" />
 
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <label asp-for="Name" class="control-label"></label>
-            </div>
-            <div class="form-group col-md-10">
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
+        <div class="form-group">
+            <label asp-for="Name" class="control-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <label asp-for="Email" class="control-label"></label>
-            </div>
-            <div class="form-group col-md-10">
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <label asp-for="Password" class="control-label"></label>
-        
-            </div>
-            <div class="form-group col-md-10">
-                <input asp-for="Password" class="form-control" value="" placeholder="Leave blank to keep current password" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+        <div class="form-group">
+            <label asp-for="Password" class="control-label"></label>
+            <input asp-for="Password" class="form-control" value="" placeholder="Leave blank to keep current password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-2">
-                <label asp-for="RoleId" class="control-label">Role</label>
-            </div>
-            <div class="form-group col-md-10">
-                <select asp-for="RoleId" class="form-control">
-                    <option value="">Select Role</option>
-                    @foreach (var role in Model.Roles)
+        <div class="form-group">
+            <label asp-for="RoleId" class="control-label">Role</label>
+            <select asp-for="RoleId" class="form-control">
+                <option value="">Select Role</option>
+                @foreach (var role in Model.Roles)
+                {
+                    @if (role.RoleId != "Admin" || isSuper)
                     {
-                        @if (role.RoleId != "Admin" || isSuper)
-                        {
-                            <option value="@role.RoleId">@role.RoleName</option>
-                        }
+                        <option value="@role.RoleId">@role.RoleName</option>
                     }
-                </select>
-                <span asp-validation-for="RoleId" class="text-danger"></span>
-            </div>
+                }
+            </select>
+            <span asp-validation-for="RoleId" class="text-danger"></span>
         </div>
 
         <div class="form-group d-flex justify-content-center my-3">
@@ -80,29 +63,27 @@
     </form>
 </div>
 
+<script>
 
+    $(document).ready(function () {
+        $('#updateUserForm').submit(function (e) {
+            e.preventDefault();
 
-    <script>
-
-        $(document).ready(function () {
-            $('#updateUserForm').submit(function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    url: '@Url.Action("PostUpdate")',
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function (result) {
-                        if (result.success) {
-                            location.reload();
-                        } else {
+            $.ajax({
+                url: '@Url.Action("PostUpdate")',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (result) {
+                    if (result.success) {
                         location.reload();
-                        }
-                    },
-                    error: function () {
-                        toastr.error('An error occurred while updating the user.');
+                    } else {
+                    location.reload();
                     }
-                });
+                },
+                error: function () {
+                    toastr.error('An error occurred while updating the user.');
+                }
             });
         });
-    </script>
+    });
+</script>
