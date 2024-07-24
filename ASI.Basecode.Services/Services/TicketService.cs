@@ -236,9 +236,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket</param>
         private async Task UpdateTicketDate(Ticket ticket)
         {
-            var status = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
-
-            if (status != null && (status.StatusName.Equals("Closed") || status.StatusName.Equals("Resolved")))
+            if (ticket.StatusTypeId != null && (ticket.StatusTypeId.Equals("S3") || ticket.StatusTypeId.Equals("S4")))
             {
                 ticket.ResolvedDate = ticket.ResolvedDate ?? DateTime.Now;
             }
