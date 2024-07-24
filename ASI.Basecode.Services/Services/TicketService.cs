@@ -125,6 +125,8 @@ namespace ASI.Basecode.Services.Services
 
                     ticket.CategoryTypeId = model.CategoryTypeId;
                     await _repository.UpdateAsync(ticket);
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", $"Category modified");
+                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                     return;
                 }
 
