@@ -28,7 +28,12 @@ namespace ASI.Basecode.Services.Services
             _performanceReportRepository = performanceReportRepository;
             _teamRepository = teamRepository;
         }
-
+        /// <summary>
+        /// Views the agent performance report asynchronous.
+        /// </summary>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="ASI.Basecode.Services.Exceptions.TeamExceptions.TeamException">Agent does not exist.</exception>
         public async Task<PerformanceReport> ViewAgentPerformanceReportAsync(string agentId)
         {
             if (string.IsNullOrEmpty(agentId)) throw new TeamException("Agent does not exist.");
@@ -49,7 +54,11 @@ namespace ASI.Basecode.Services.Services
             return report;
         }
 
-
+        /// <summary>
+        /// Generates the agent performance report asynchronous.
+        /// </summary>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns></returns>
         public async Task<PerformanceReport> GenerateAgentPerformanceReportAsync(string agentId)
         {
             var agent = await _teamRepository.FindAgentByIdAsync(agentId);
@@ -69,7 +78,11 @@ namespace ASI.Basecode.Services.Services
             }
             return await ViewAgentPerformanceReportAsync(agentId);
         }
-
+        /// <summary>
+        /// Gets the performance report.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public async Task<PerformanceReportViewModel> GetPerformanceReport(string userId)
         {
             var user = await _teamRepository.FindAgentByIdAsync(userId);

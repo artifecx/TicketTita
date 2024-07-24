@@ -43,7 +43,11 @@ namespace ASI.Basecode.Services.Services
             _ticketRepository = ticketRepository;
             _mapper = mapper;
         }
-
+        /// <summary>
+        /// Gets the user preferences.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns></returns>
         public async Task<UserPreferencesViewModel> GetUserPreferences(string userId)
         {
             var preferences = _repository.GetUserPreferences(userId);
@@ -61,7 +65,10 @@ namespace ASI.Basecode.Services.Services
             };
             return model;
         }
-
+        /// <summary>
+        /// Updates the user preferences.
+        /// </summary>
+        /// <param name="model">The model.</param>
         public async Task UpdateUserPreferences(UserPreferencesViewModel model)
         {
             var existingPreferences = _repository.GetUserPreferences(model.UserId);
@@ -74,7 +81,12 @@ namespace ASI.Basecode.Services.Services
                 await _repository.UpdateUserPreferences(model.UserId, existingPreferences);
             }
         }
-
+        /// <summary>
+        /// Gets the user preference by key.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="key">The key.</param>
+        /// <returns></returns>
         public async Task<KeyValuePair<string, string>> GetUserPreferenceByKey(string userId, string key)
         {
             return await _repository.FindUserPreferenceByKey(userId, key);
