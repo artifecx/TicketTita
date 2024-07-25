@@ -114,18 +114,18 @@ namespace ASI.Basecode.Data.Repositories
             return this.GetDbSet<User>().Where(x => x.UserId.Equals(id)).FirstOrDefault();
         }
 
-        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
+        public IQueryable<KnowledgeBaseArticle> SearchArticles(string searchTerm, string selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
             var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
+                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm) || x.Author.Name.Contains(searchTerm));
             }
 
-            if (selectedCategories != null && selectedCategories.Any())
+            if (!selectedCategories.Equals("All") && selectedCategories.Any())
             {
-                articles = articles.Where(x => selectedCategories.Contains(x.CategoryId));
+                articles = articles.Where(x => selectedCategories.Equals(x.CategoryId));
             }
 
             foreach (KnowledgeBaseArticle article in articles)
@@ -166,7 +166,7 @@ namespace ASI.Basecode.Data.Repositories
             return articles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         }
 
-        public int CountArticles(string searchTerm, List<string> selectedCategories)
+        public int CountArticles(string searchTerm, string selectedCategories)
         {
             var articles = this.GetDbSet<KnowledgeBaseArticle>().AsQueryable();
 
@@ -175,9 +175,9 @@ namespace ASI.Basecode.Data.Repositories
                 articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
             }
 
-            if (selectedCategories != null && selectedCategories.Any())
+            if (!selectedCategories.Equals("All") && selectedCategories.Any())
             {
-                articles = articles.Where(x => selectedCategories.Contains(x.CategoryId));
+                articles = articles.Where(x => selectedCategories.Equals(x.CategoryId));
             }
 
             return articles.Count();
