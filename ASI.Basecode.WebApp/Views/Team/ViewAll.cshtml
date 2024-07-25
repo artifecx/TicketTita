@@ -1,7 +1,7 @@
 ﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.TeamViewModel>
 
 @{
-    ViewData["Title"] = "GetAll";
+    ViewData["Title"] = "All Teams";
     await Html.RenderPartialAsync("_CreateTeamModal", new ASI.Basecode.Services.ServiceModels.TeamViewModel());
     await Html.RenderPartialAsync("_DeleteModal");
 
