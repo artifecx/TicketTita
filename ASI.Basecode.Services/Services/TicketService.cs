@@ -208,8 +208,9 @@ namespace ASI.Basecode.Services.Services
         private async Task<bool> IsDuplicateTicketAsync(TicketViewModel ticket, string userId)
         {
             var duplicateTickets = await _repository.FindByUserIdAsync(userId);
-            return duplicateTickets.Any(t => t.Subject.ToLower() == ticket.Subject.ToLower() &&
-                                             t.CategoryTypeId == ticket.CategoryTypeId);
+            return duplicateTickets
+                .Where(t => t.StatusTypeId != "S4")
+                .Any(t => t.Subject.ToLower() == ticket.Subject.ToLower() && t.CategoryTypeId == ticket.CategoryTypeId);
         }
 
         /// <summary>
