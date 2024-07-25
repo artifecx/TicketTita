@@ -44,7 +44,7 @@ namespace ASI.Basecode.Services.Services
             var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
             string noTeam = "no_team";
             string noAgent = "no_agent";
-            string activityLogDetail = string.Empty;
+            string activityLogDetail = "";
 
             if (assignment == null)
             {
