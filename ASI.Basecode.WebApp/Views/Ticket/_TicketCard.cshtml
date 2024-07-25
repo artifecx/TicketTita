@@ -4,10 +4,10 @@
 <div class="card mb-3 mx-auto border-0 shadow-sm card-hover" style="max-width: 1000px; border-radius: 15px;">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center" style="border-radius: 15px 15px 0 0;">
         <div>
-            <span class="ticket-id"><strong>TICKET ID# @Model.TicketId</strong></span>
-            <span class="border mx-1 py-0.5 px-3 btn-radius @(GetStatusCssClass(Model.StatusType.StatusName))">@Model.StatusType.StatusName</span>
-            <span class="border mx-1 py-0.5 px-3 btn-radius @(GetPriorityCssClass(Model.PriorityType.PriorityName))">@Model.PriorityType.PriorityName</span>
-            <span class="border mx-1 py-0.5 px-3 btn-radius @(GetCategoryCssClass(Model.CategoryType.CategoryName))">@Model.CategoryType.CategoryName</span>
+            <span class="ticket-id mr-3"><strong>TICKET ID# @Model.TicketId</strong></span>
+            <span class="small border mx-1 py-1 px-3 btn-radius @(GetStatusCssClass(Model.StatusType.StatusName))">@Model.StatusType.StatusName</span>
+            <span class="small border mx-1 py-1 px-3 btn-radius @(GetPriorityCssClass(Model.PriorityType.PriorityName))">@Model.PriorityType.PriorityName</span>
+            <span class="small border mx-1 py-1 px-3 btn-radius @(GetCategoryCssClass(Model.CategoryType.CategoryName))">@Model.CategoryType.CategoryName</span>
         </div>
         <div>
             @Html.ActionLink(" ", "GetTicket", new { id = Model.TicketId, sortBy = ViewBag.SortBy, search = ViewBag.Search, showOption = ViewBag.ShowOption, pageIndex = ViewBag.PageIndex, pageSize = ViewBag.PageSize, selectedFilters = string.Join(",", ViewBag.SelectedFilters ?? new List<string>()) }, new { @class = "fas fa-info-circle action-icon", title = "Details" })
