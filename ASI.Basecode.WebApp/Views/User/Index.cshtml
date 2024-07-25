@@ -151,7 +151,7 @@
             @if (Model.HasPreviousPage)
             {
                 <li class="page-item">
-                    <a class="page-link btn btn-primary" asp-action="Index"
+                    <a class="page-link" asp-action="Index"
                        asp-route-sortOrder="@sortOrder"
                        asp-route-currentFilter="@currentFilter"
                        asp-route-roleFilter="@roleFilter"
@@ -161,7 +161,7 @@
             @for (int i = 1; i <= Model.TotalPages; i++)
             {
                 <li class="page-item @(i == Model.PageIndex ? "active" : "")">
-                    <a class="page-link btn btn-primary" asp-action="Index"
+                    <a class="page-link" asp-action="Index"
                        asp-route-sortOrder="@sortOrder"
                        asp-route-currentFilter="@currentFilter"
                        asp-route-roleFilter="@roleFilter"
@@ -171,7 +171,7 @@
             @if (Model.HasNextPage)
             {
                 <li class="page-item">
-                    <a class="page-link btn btn-primary" asp-action="Index"
+                    <a class="page-link" asp-action="Index"
                        asp-route-sortOrder="@sortOrder"
                        asp-route-currentFilter="@currentFilter"
                        asp-route-roleFilter="@roleFilter"
