@@ -34,7 +34,7 @@
             <div class="mx-3">
                 <button type="button" class="btn btn-primary btn-radius px-3" data-toggle="modal" data-target="#createModal">
                     <i class="fa fa-plus"></i>
-                    Create New
+                    New Article
                 </button>
             </div>
         }
@@ -98,7 +98,7 @@
                 </div>
             }
 
-            <nav class="container ml-5">
+            <nav class="container">
                 <ul class="pagination">
                     @if (Model.HasPreviousPage)
                     {
@@ -233,4 +233,8 @@
             });
         });
     </script>
+}
+
+@section styles {
+    <link rel="stylesheet" href="~/css/pagination.css" />
 }

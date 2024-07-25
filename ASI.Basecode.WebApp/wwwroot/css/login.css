@@ -32,6 +32,11 @@ body {
     height: 50px
 }
 
+.request-btn {
+    width: 140px;
+    height: 50px
+}
+
 h2 {
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
@@ -60,4 +65,12 @@ b {
         border-top-right-radius: .3rem;
         border-bottom-right-radius: .3rem;
     }
+}
+
+.has-error input {
+    border-color: #dc3545; /* Bootstrap's danger color */
+}
+
+.text-danger {
+    color: #dc3545;
 }

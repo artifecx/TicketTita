@@ -185,7 +185,6 @@ namespace ASI.Basecode.WebApp.Controllers
               
             if (!string.IsNullOrEmpty(model.Password))
             {
-                model.Password = PasswordManager.EncryptPassword(model.Password);
             }
             else
             {

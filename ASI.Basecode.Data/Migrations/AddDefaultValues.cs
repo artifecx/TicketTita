@@ -41,9 +41,9 @@ namespace ASI.Basecode.Data.Migrations
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
                     { "71e6123f-641d-42fe-937f-07a5cd27977f", "Agent B", "agentb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Support Agent",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
-                    { "9d6b7566-8c39-4027-a1dd-e96411cdb907", "Employee A", "employeea@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
+                    { "9d6b7566-8c39-4027-a1dd-e96411cdb907", "John Doe", "employeea@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" },
-                    { "ddcd70c8-9939-4159-9f09-5377c6478167", "Employee B", "employeeb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
+                    { "ddcd70c8-9939-4159-9f09-5377c6478167", "James Gabriel", "employeeb@ticketita.com", "WDCHwzavyvUzFb/JBYNiCg==", "Employee",
                         "D56F556E-50A4-4240-A0FF-9A6898B3A03B", DateTime.Now, DateTime.Now, "D56F556E-50A4-4240-A0FF-9A6898B3A03B" }
                 }
             );
@@ -129,6 +129,7 @@ namespace ASI.Basecode.Data.Migrations
                     { "7", "Ticket New Feedback", "Notification when there is a new ticket feedback" },
                     { "8", "Ticket Reminder", "Notification to support agents to remind on unresolved tickets" },
                     { "9", "Team Assignment Update", "Notification to support agents when there are updates on their team assignment" },
+                    { "10", "Forgot Password", "Notification to admin upon user request of change password" },
                 }
             );
         }
