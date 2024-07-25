@@ -1,19 +1,67 @@
 ﻿document.addEventListener('DOMContentLoaded', function () {
+    const dashboardElement = document.getElementById('dashboard-data');
+    const dashboardData = {
+        openTickets: dashboardElement.dataset.openTickets,
+        inProgressTickets: dashboardElement.dataset.inProgressTickets,
+        unassignedTickets: dashboardElement.dataset.unassignedTickets,
+        newTickets: dashboardElement.dataset.newTickets,
+        completedTickets: dashboardElement.dataset.completedTickets,
+        averageResolutionTime: dashboardElement.dataset.averageResolutionTime,
+        averageFeedbackRating: dashboardElement.dataset.averageFeedbackRating,
+        feedbacksCount: dashboardElement.dataset.feedbacksCount,
+        totalTicketsSoftware: dashboardElement.dataset.totalTicketsSoftware,
+        totalTicketsHardware: dashboardElement.dataset.totalTicketsHardware,
+        totalTicketsNetwork: dashboardElement.dataset.totalTicketsNetwork,
+        totalTicketsAccount: dashboardElement.dataset.totalTicketsAccount,
+        totalTicketsOther: dashboardElement.dataset.totalTicketsOther,
+        feedbackRatings: JSON.parse(dashboardElement.dataset.feedbackRatings),
+        ticketDatesCreated: JSON.parse(dashboardElement.dataset.ticketDatesCreated || '[]'),
+        ticketDatesResolved: JSON.parse(dashboardElement.dataset.ticketDatesResolved || '[]')
+    };
+
+    const labels = [];
+    const createdData = new Array(7).fill(0);
+    const resolvedData = new Array(7).fill(0);
+    const currentDate = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const date = new Date(currentDate);
+        date.setDate(currentDate.getDate() - i);
+        const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+        labels.push(formattedDate);
+    }
+
+    dashboardData.ticketDatesCreated.forEach(dateString => {
+        const date = new Date(dateString);
+        const index = 6 - Math.floor((currentDate - date) / (1000 * 60 * 60 * 24));
+        if (index >= 0 && index < 7) {
+            createdData[index]++;
+        }
+    });
+
+    dashboardData.ticketDatesResolved.forEach(dateString => {
+        const date = new Date(dateString);
+        const index = 6 - Math.floor((currentDate - date) / (1000 * 60 * 60 * 24));
+        if (index >= 0 && index < 7) {
+            resolvedData[index]++;
+        }
+    });
+
     const ctxBarLine = document.getElementById('bar-chart').getContext('2d');
     const dataBarLine = {
-        labels: ['03 Mar', '04 Mar', '05 Mar', '06 Mar', '07 Mar', '08 Mar', '09 Mar'],
+        labels: labels,
         datasets: [
             {
                 type: 'bar',
-                label: 'Bar Dataset',
-                data: [50, 25, 125, 250, 200, 225, 100],
+                label: 'Tickets Created',
+                data: createdData,
                 backgroundColor: 'rgba(5, 37, 66, 1)',
                 order: 1
             },
             {
                 type: 'line',
-                label: 'Line Dataset',
-                data: [50, 25, 125, 250, 200, 225, 100],
+                label: 'Tickets Resolved',
+                data: resolvedData,
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 2,
@@ -30,12 +78,12 @@
         scales: {
             y: {
                 beginAtZero: true,
-                max: 300
+                max: Math.max(...createdData, ...resolvedData) + 10
             }
         },
         plugins: {
             legend: {
-                display: false,
+                display: true,
                 position: 'top',
             },
             tooltip: {
@@ -56,10 +104,16 @@
     });
 
     const ctxUserRating = document.getElementById('user-rating-chart').getContext('2d');
-    const rawData = [10000, 50, 2137, 210, 98];
-    const totalReviews = rawData.reduce((a, b) => a + b, 0);
+    const rawData = dashboardData.feedbackRatings;
+    const totalReviews = rawData.length;
 
-    const percentageData = rawData.map(count => (count / totalReviews) * 100);
+    const feedbackCounts = [0, 0, 0, 0, 0];
+    rawData.forEach(rating => {
+        if (rating >= 1 && rating <= 5) {
+            feedbackCounts[5 - rating] += 1;
+        }
+    });
+    const percentageData = feedbackCounts.map(count => (count / totalReviews) * 100);
 
     const dataUserRating = {
         labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
@@ -78,6 +132,7 @@
         scales: {
             x: {
                 beginAtZero: true,
+                max: 100,
                 ticks: {
                     callback: function (value) {
                         return value + '%';
@@ -90,7 +145,7 @@
                 callbacks: {
                     label: function (context) {
                         let label = context.label || '';
-                        let rawValue = rawData[context.dataIndex];
+                        let rawValue = feedbackCounts[context.dataIndex];
                         let percentageValue = context.raw.toFixed(2);
                         return `${label}: ${rawValue} reviews (${percentageValue}%)`;
                     }
@@ -105,9 +160,7 @@
         options: optionsUserRating
     });
 
-    const averageRating = rawData.reduce((sum, count, index) => {
-        return sum + count * (5 - index);
-    }, 0) / totalReviews;
+    const averageRating = (dashboardData.averageFeedbackRating) * 1.0;
 
     const ratingValue = Math.trunc(averageRating);
     const stars = document.querySelectorAll('.star-rating .star');
@@ -120,13 +173,23 @@
 
     document.getElementById('average-rating').innerText = averageRating.toFixed(1);
     document.getElementById('total-reviews').innerText = totalReviews;
-});
 
-document.addEventListener('DOMContentLoaded', (event) => {
     const data = {
-        labels: ['Software (99)', 'Hardware (8)', 'Network (509)', 'Account (406)', 'Other (16)'],
+        labels: [
+            `Software (${dashboardData.totalTicketsSoftware})`,
+            `Hardware (${dashboardData.totalTicketsHardware})`,
+            `Network (${dashboardData.totalTicketsNetwork})`,
+            `Account (${dashboardData.totalTicketsAccount})`,
+            `Other (${dashboardData.totalTicketsOther})`
+        ],
         datasets: [{
-            data: [99, 8, 509, 406, 16],
+            data: [
+                dashboardData.totalTicketsSoftware,
+                dashboardData.totalTicketsHardware,
+                dashboardData.totalTicketsNetwork,
+                dashboardData.totalTicketsAccount,
+                dashboardData.totalTicketsOther
+            ],
             backgroundColor: ['#1E88E5', '#8E24AA', '#3949AB', '#F4511E', '#6D4C41'],
             hoverBackgroundColor: ['#1E88E5', '#8E24AA', '#3949AB', '#F4511E', '#6D4C41']
         }]

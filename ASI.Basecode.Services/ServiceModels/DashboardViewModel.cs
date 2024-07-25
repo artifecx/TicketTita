@@ -14,14 +14,17 @@ namespace ASI.Basecode.Services.ServiceModels
         public int UnassignedTickets { get; set; }
         public int NewTickets { get; set; }
         public int CompletedTickets { get; set; }
-        public string AverageResolutionTime { get; set; }
-        public string AverageFeedbackRating { get; set; }
+        public double AverageResolutionTime { get; set; }
+        public double AverageFeedbackRating { get; set; }
         public int FeedbacksCount { get; set; }
-        public int TotalTickets { get; set; }
         public int TotalTicketsSoftware { get; set; }
         public int TotalTicketsHardware { get; set; }
         public int TotalTicketsNetwork { get; set; }
         public int TotalTicketsAccount { get; set; }
         public int TotalTicketsOther { get; set; }
+
+        public List<DateTime> TicketCreatedDates { get; set; }
+        public List<DateTime> TicketResolvedDates { get; set; }
+        public List<int> FeedbackRatings { get; set; }
     }
 }

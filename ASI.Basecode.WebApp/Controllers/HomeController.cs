@@ -16,6 +16,7 @@ namespace ASI.Basecode.WebApp.Controllers
     [Authorize(Policy = "AdminOrAgent")]
     public class HomeController : ControllerBase<HomeController>
     {
+        private readonly IHomeService _homeService;
         /// <summary>
         /// Constructor
         /// </summary>
@@ -24,13 +25,14 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="configuration"></param>
         /// <param name="localizer"></param>
         /// <param name="mapper"></param>
-        public HomeController(IHttpContextAccessor httpContextAccessor,
+        public HomeController(IHomeService homeService,
+                              IHttpContextAccessor httpContextAccessor,
                               ILoggerFactory loggerFactory,
                               IConfiguration configuration,
                               IUserPreferencesService userPreferences,
                               IMapper mapper = null) : base(httpContextAccessor, loggerFactory, configuration, mapper, userPreferences)
         {
-
+            _homeService = homeService;
         }
 
         /// <summary>
@@ -39,7 +41,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns> Home View </returns>
         public IActionResult Index()
         {
-            return View(new DashboardViewModel());
+            var model = _homeService.GetDashboardData();
+            return View(model);
         }
     }
 }
