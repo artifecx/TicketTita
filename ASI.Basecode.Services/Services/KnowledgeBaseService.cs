@@ -91,7 +91,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="pageNumber">The page number.</param>
         /// <param name="pageSize">Size of the page.</param>
         /// <returns></returns>
-        public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm, List<string> selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
+        public IEnumerable<KnowledgeBaseViewModel> SearchArticles(string searchTerm, string selectedCategories, string sortBy, string sortOrder, int pageNumber, int pageSize)
         {
             var articles = _knowledgeBaseRepository.SearchArticles(searchTerm, selectedCategories, sortBy, sortOrder, pageNumber, pageSize);
             return _mapper.Map<IEnumerable<KnowledgeBaseViewModel>>(articles);
@@ -102,7 +102,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="searchTerm">The search term.</param>
         /// <param name="selectedCategories">The selected categories.</param>
         /// <returns></returns>
-        public int CountArticles(string searchTerm, List<string> selectedCategories)
+        public int CountArticles(string searchTerm, string selectedCategories)
         {
             return _knowledgeBaseRepository.CountArticles(searchTerm, selectedCategories);
         }
