@@ -93,7 +93,7 @@
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByNoOfAgents" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        @Html.DisplayNameFor(model => model.First().TeamMembers)
+                        @Html.DisplayNameFor(model => model.First().NumberOfAgents)
                         @(sortBy == "agents" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "agents_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
@@ -105,7 +105,7 @@
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        @Html.DisplayNameFor(model => model.First().NumberOfAgents)
+                        @Html.DisplayNameFor(model => model.First().CompletedTicketsCount)
                         @(sortBy == "inactive" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "inactive_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
