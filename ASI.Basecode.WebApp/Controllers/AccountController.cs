@@ -71,6 +71,23 @@ namespace ASI.Basecode.WebApp.Controllers
             this._session.SetString("SessionId", System.Guid.NewGuid().ToString());
             return this.View();
         }
+        /// <summary>
+        /// Forgots the password.
+        /// </summary>
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult ForgotPassword() {
+
+            return View();
+
+        }
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult PostForgotPassword() {
+
+
+            return RedirectToAction("Login");
+        }
 
         /// <summary>
         /// Authenticate user and signs the user in when successful.

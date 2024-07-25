@@ -28,21 +28,24 @@ namespace ASI.Basecode.Services.Services
             var closedStatusList = new List<string> { "resolved", "closed" };
 
             bool statusChanged = existingTicket.StatusTypeId != ticket.StatusTypeId;
-            bool priorityChanged = existingTicket.PriorityTypeId != ticket.PriorityTypeId && ticket.PriorityTypeId != null;
+            bool priorityChanged = existingTicket.PriorityTypeId != ticket.PriorityTypeId;
 
             if (!statusChanged && !priorityChanged && ticketT == null)
                 throw new TicketException("No changes were made to the ticket.", ticket.TicketId);
 
-            if ((statusChanged && priorityChanged) && currentStatus == "closed" && ticketT == null)
+            if ((statusChanged && priorityChanged) && closedStatusList.Contains(currentStatus) && ticketT == null)
                 throw new TicketException($"Cannot update a {currentStatus} ticket.", ticket.TicketId);
 
             if (statusChanged)
             {
-                if(currentStatus == "closed")
+                if (existingTicket.TicketAssignment == null && existingTicket.StatusTypeId == "S3")
+                    throw new TicketException("Cannot resolve tickets with no assignee.", ticket.TicketId);
+
+                if(existingTicket.StatusTypeId == "S3")
                     throw new TicketException($"Cannot change status of a {currentStatus} ticket.", ticket.TicketId);
 
-                existingTicket.StatusTypeId = string.IsNullOrEmpty(ticket.StatusTypeId) ?
-                    existingTicket.StatusTypeId : ticket.StatusTypeId;
+                existingTicket.StatusType = string.IsNullOrEmpty(ticket.StatusTypeId) ?
+                    existingTicket.StatusType : await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
             }
 
             if (priorityChanged)
@@ -50,8 +53,8 @@ namespace ASI.Basecode.Services.Services
                 if (closedStatusList.Contains(currentStatus))
                     throw new TicketException($"Cannot change priority of a {currentStatus} ticket.", ticket.TicketId);
 
-                existingTicket.PriorityTypeId = string.IsNullOrEmpty(ticket.PriorityTypeId) ?
-                    existingTicket.PriorityTypeId : ticket.PriorityTypeId;
+                existingTicket.PriorityType = string.IsNullOrEmpty(ticket.PriorityTypeId) ?
+                    existingTicket.PriorityType : await _repository.FindPriorityByIdAsync(ticket.PriorityTypeId);
             }
 
             existingTicket.UpdatedDate = DateTime.Now;
@@ -63,8 +66,8 @@ namespace ASI.Basecode.Services.Services
             {
                 await _activityLogService.LogActivityAsync(existingTicket, _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier).Value, $"Ticket Update",
                     $"{(statusChanged ? "Status" : "")}{(statusChanged && priorityChanged ? " & " : "")}{(priorityChanged ? "Priority" : "")} modified");
-                _notificationService.CreateNotification(existingTicket, statusChanged ? 3 : 2, null, existingTicket.TicketAssignment?.AgentId);
-                _notificationService.CreateNotification(existingTicket, priorityChanged && !statusChanged ? 2 : 3, null, existingTicket.TicketAssignment?.TeamId);
+                _notificationService.CreateTicketNotification(existingTicket, statusChanged ? 3 : 2, null, existingTicket.TicketAssignment?.AgentId);
+                _notificationService.CreateTicketNotification(existingTicket, priorityChanged && !statusChanged ? 2 : 3, null, existingTicket.TicketAssignment?.TeamId);
             }
         }
     }

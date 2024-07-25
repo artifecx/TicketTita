@@ -36,7 +36,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="updateType"></param>
         /// <param name="isReassigned"></param>
         /// <param name="agentId"></param>
-        public void CreateNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null)
+        public void CreateTicketNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null)
         {
             var userId = ticket.UserId;
             var ticketId = ticket.TicketId;

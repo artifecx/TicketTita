@@ -44,7 +44,7 @@ namespace ASI.Basecode.Services.Services
             var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
             string noTeam = "no_team";
             string noAgent = "no_agent";
-            string activityLogDetail = string.Empty;
+            string activityLogDetail = "";
 
             if (assignment == null)
             {
@@ -146,7 +146,7 @@ namespace ASI.Basecode.Services.Services
             await CheckAndModifyStatusByAssignment(ticketId, status);
             var ticket = await _repository.FindByIdAsync(model.TicketId);
             await _activityLogService.LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
-            _notificationService.CreateNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
+            _notificationService.CreateTicketNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
             return status;
         }
 

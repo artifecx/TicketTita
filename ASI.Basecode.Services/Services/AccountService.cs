@@ -15,16 +15,20 @@ namespace ASI.Basecode.Services.Services
     {
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
+        private readonly IAdminRepository _adminRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountService"/> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
-        public AccountService(IUserRepository repository, IMapper mapper)
+        public AccountService(IUserRepository repository, IMapper mapper, INotificationService notificationService, IAdminRepository adminRepository)
         {
             _mapper = mapper;
             _repository = repository;
+            _notificationService = notificationService;
+            _adminRepository = adminRepository;
         }
         /// <summary>
         /// Authenticates the user.
@@ -41,6 +45,16 @@ namespace ASI.Basecode.Services.Services
                                                      x.Password == passwordKey).FirstOrDefault();
 
             return user != null ? LoginResult.Success : LoginResult.Failed;
+        }
+
+        public bool NotifyPasswordReset(string email) { 
+            
+            var Admins = _adminRepository.GetAll().ToList();
+
+            foreach (var admin in Admins)
+            {
+                
+            }
         }
     }
 }

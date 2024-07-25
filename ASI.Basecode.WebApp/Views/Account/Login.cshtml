@@ -37,7 +37,7 @@
                                 Sign in
                             </button>
                             <div>
-                                <a class="text-muted" href="#!">@ForgotPass</a>
+                                <a class="text-muted" asp-action="ForgotPassword">@ForgotPass</a>
                             </div>
                         </div>
                     </form>
@@ -49,7 +49,6 @@
 
 @section scripts {
     <script>
-        // Check for error message and display Toastr notification
         var errorMessage = '@TempData["ErrorMessage"]';
         if (errorMessage) {
             toastr.error(errorMessage);

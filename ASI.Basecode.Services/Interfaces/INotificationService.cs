@@ -7,7 +7,7 @@ namespace ASI.Basecode.Services.Interfaces
 {
     public interface INotificationService
     {
-        void CreateNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null);
+        void CreateTicketNotification(Ticket ticket, int? updateType, bool? isReassigned, string agentId = null);
         IEnumerable<NotificationViewModel> RetrieveAll(string userId);
         void MarkNotificationAsRead(string notificationId);
         void MarkAllNotificationsAsRead(string UserId);

@@ -99,7 +99,7 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _repository.AddAsync(newTicket);
                 }
-                _notificationService.CreateNotification(newTicket, 1, null);
+                _notificationService.CreateTicketNotification(newTicket, 1, null);
 
                 // Log the creation activity
                 await _activityLogService.LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
@@ -125,8 +125,6 @@ namespace ASI.Basecode.Services.Services
 
                     ticket.CategoryTypeId = model.CategoryTypeId;
                     await _repository.UpdateAsync(ticket);
-                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", $"Category modified");
-                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                     return;
                 }
 
@@ -173,7 +171,7 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
                         $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
-                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
+                    _notificationService.CreateTicketNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                 }
             }
             else
@@ -238,7 +236,9 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket</param>
         private async Task UpdateTicketDate(Ticket ticket)
         {
-            if (ticket.StatusTypeId != null && (ticket.StatusTypeId.Equals("S3") || ticket.StatusTypeId.Equals("S4")))
+            var status = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
+
+            if (status != null && (status.StatusName.Equals("Closed") || status.StatusName.Equals("Resolved")))
             {
                 ticket.ResolvedDate = ticket.ResolvedDate ?? DateTime.Now;
             }
