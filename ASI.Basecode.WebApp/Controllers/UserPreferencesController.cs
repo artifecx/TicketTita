@@ -62,7 +62,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (model.UserId != null)
                 {
                     await _userPreferencesService.UpdateUserPreferencesAsync(model);
-                    TempData["SuccessMessage"] = "Settings updated successfullyy!";
+                    TempData["SuccessMessage"] = "Settings updated successfully!";
                     return Json(new { success = true });
                 }
                 TempData["ErrorMessage"] = "An error occurred while saving. Please try again.";

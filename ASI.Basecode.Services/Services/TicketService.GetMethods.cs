@@ -85,6 +85,13 @@ namespace ASI.Basecode.Services.Services
             var userRole = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            var userPreferences = _userPreferencesRepository.GetUserPreferences(userId);
+            userPreferences.TryGetValue("defaultShowOption", out var defaultShowOption);
+            userPreferences.TryGetValue("defaultSortBy", out var defaultSortBy);
+            userPreferences.TryGetValue("defaultStatusFilter", out var defaultStatusFilter);
+            userPreferences.TryGetValue("defaultPriorityFilter", out var defaultPriorityFilter);
+            userPreferences.TryGetValue("defaultCategoryFilter", out var defaultCategoryFilter);
+
             if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Employee"))
             {
                 tickets = tickets.Where(x => x.UserId == userId).ToList();
@@ -92,6 +99,7 @@ namespace ASI.Basecode.Services.Services
             else if (!string.IsNullOrEmpty(userRole) && userRole.Contains("Support Agent"))
             {
                 var agent = await _teamRepository.FindAgentByIdAsync(userId);
+                showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
 
                 tickets = showOption?.ToLower() switch
                 {
@@ -102,16 +110,13 @@ namespace ASI.Basecode.Services.Services
                 };
             }
 
+            if (!string.IsNullOrEmpty(search))
+            {
+                tickets = tickets.Where(t => t.Subject.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
             if (!clearFilters)
             {
-                var userPreferences = _userPreferencesRepository.GetUserPreferences(userId);
-                userPreferences.TryGetValue("defaultShowOption", out var defaultShowOption);
-                userPreferences.TryGetValue("defaultSortBy", out var defaultSortBy);
-                userPreferences.TryGetValue("defaultStatusFilter", out var defaultStatusFilter);
-                userPreferences.TryGetValue("defaultPriorityFilter", out var defaultPriorityFilter);
-                userPreferences.TryGetValue("defaultCategoryFilter", out var defaultCategoryFilter);
-
-                showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
                 sortBy = string.IsNullOrEmpty(sortBy) ? defaultSortBy : sortBy;
 
                 if (defaultStatusFilter != null && (selectedFilters.Count == 0 ||
@@ -119,12 +124,12 @@ namespace ASI.Basecode.Services.Services
                 {
                     selectedFilters.Add("status:" + defaultStatusFilter);
                 }
-                if (defaultPriorityFilter != null && (selectedFilters.Count == 0 ||
+                if (defaultPriorityFilter != null && (selectedFilters.Count == 0 || 
                     !selectedFilters.Exists(f => f != null && f.StartsWith("priority:"))))
                 {
                     selectedFilters.Add("priority:" + defaultPriorityFilter);
                 }
-                if (defaultCategoryFilter != null && (selectedFilters.Count == 0 ||
+                if (defaultCategoryFilter != null && (selectedFilters.Count == 0 || 
                     !selectedFilters.Exists(f => f != null && f.StartsWith("category:"))))
                 {
                     selectedFilters.Add("category:" + defaultCategoryFilter);
@@ -154,11 +159,6 @@ namespace ASI.Basecode.Services.Services
                 }
             }
 
-            if (!string.IsNullOrEmpty(search))
-            {
-                tickets = tickets.Where(t => t.Subject.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
             tickets = sortBy?.ToLower() switch
             {
                 "ticket_desc" => tickets.OrderByDescending(t => t.TicketId).ToList(),
@@ -176,6 +176,7 @@ namespace ASI.Basecode.Services.Services
 
             return new PaginatedList<TicketViewModel>(items, count, pageIndex, pageSize);
         }
+
 
         /// <summary>
         /// Calls the repository to get an attachment by ticket identifier.
