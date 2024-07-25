@@ -50,15 +50,17 @@
                         <label asp-for="Description" class="control-label"></label>
                         <input value="@(string.IsNullOrEmpty(Model.Description) ? "No description." : Model.Description)" class="form-control" readonly />
                     </div>
-                    <hr />
-                    <div class="d-flex justify-content-lg-between">
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="d-flex justify-content-between">
                         <h4>Agents</h4>
                         <p>
                             @if (User.IsInRole("Admin"))
                             {
                                 <button class="btn btn-primary btn-radius" href="javascript:void(0);" onclick="displayAddModal('@Model.TeamId')">
                                     <i class="fa fa-plus"></i>
-                                    Add Agents
+                                    Add Agent
                                 </button>
                             }
                         </p>
