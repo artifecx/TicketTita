@@ -15,7 +15,7 @@ namespace ASI.Basecode.Services.ServiceModels
         [Display(Name = "Team ID")]
         public string TeamId { get; set; }
 
-        [Display(Name = "Team Name")]
+        [Display(Name = "Name")]
         [Required(ErrorMessage = "Team name is required.")]
         public string Name { get; set; }
 
@@ -24,6 +24,19 @@ namespace ASI.Basecode.Services.ServiceModels
 
         [Display(Name = "Specialization")]
         public string SpecializationId { get; set; }
+        #endregion
+
+        #region Team Analytics
+        [Display(Name = "Number of Agents")]
+        public string NumberOfAgents { get; set; }
+        [Display(Name = "Active Tickets")]
+        public string ActiveTicketsCount { get; set; }
+        [Display(Name = "Completed Tickets")]
+        public string CompletedTicketsCount { get; set; }
+        [Display(Name = "Average Resolution Time")]
+        public string AverageResolutionTime { get; set; }
+        [Display(Name = "Average Feedback Rating")]
+        public string AverageFeedbackRating { get; set; }
         #endregion
 
         #region Team Navigation Properties

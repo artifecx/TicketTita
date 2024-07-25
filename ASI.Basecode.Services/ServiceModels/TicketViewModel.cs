@@ -24,7 +24,7 @@ namespace ASI.Basecode.Services.ServiceModels
         public string Subject { get; set; }
 
         /// <summary>The ticket issue description.</summary>
-        [Display(Name = "Please describe your issue below")]
+        [Display(Name = "Description")]
         [StringLength(800)]
         [Required(ErrorMessage = "Description is required.")]
         public string IssueDescription { get; set; }

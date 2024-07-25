@@ -2,14 +2,18 @@
 @using ASI.Basecode.Services.ServiceModels;
 
 @{
-    ViewData["Title"] = "ViewTeam";
+    ViewData["Title"] = $"Team | {Model.Name}";
     await Html.RenderPartialAsync("_EditTeamModal");
     await Html.RenderPartialAsync("_AddAgentModal", Model);
     await Html.RenderPartialAsync("_ReassignAgentModal", Model);
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <a asp-action="GetAll" class="text-black m-2"><h2 class="font-weight-bold"><i class="fa-solid fa-arrow-left mx-2"></i></h2></a>
+    <a href="#" class="text-black m-2 back-button">
+        <h2 class="font-weight-bold">
+            <i class="fa-solid fa-arrow-left mx-2"></i>
+        </h2>
+    </a>
 </div>
 
 <div class="container-fluid p-4">
@@ -59,6 +63,9 @@
                             }
                         </p>
                     </div>
+                    <div class="form-group">
+                        <input type="text" id="agentSearch" class="form-control" placeholder="Search agents by name..." />
+                    </div>
                     <table class="table table-white">
                         <thead>
                             <tr>
@@ -67,7 +74,7 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="agentList">
                             @if (!Model.TeamMembers.Any())
                             {
                                 <tr>
@@ -80,17 +87,17 @@
                             {
                                 @foreach (var agent in Model.TeamMembers)
                                 {
-                                    <tr>
-                                        <td>
+                                    <tr class="agent-row">
+                                        <td class="agent-name">
                                             @Html.DisplayFor(modelItem => agent.User.Name)
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => agent.User.Email)
                                         </td>
                                         <td>
-                                            <a href="javascript:void(0);" onclick="displayPerformanceReport('@agent.UserId')">Performance Report</a>
+                                            <a title="Performance Report" href="javascript:void(0);" class="fas fa-tachometer-alt action-icon" onclick="displayPerformanceReport('@agent.UserId')"></a>
                                             <text> | </text>
-                                            <a href="javascript:void(0);" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')">Reassign</a>
+                                            <a title="Reassign" href="javascript:void(0);" class="fa-solid fa-share action-icon" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')"></a>
                                         </td>
                                     </tr>
                                 }
@@ -105,7 +112,6 @@
 
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 
-<!-- Performance Report Modal -->
 <div class="modal fade" id="performanceReportModal" tabindex="-1" role="dialog" aria-labelledby="performanceReportModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -116,12 +122,10 @@
                 </button>
             </div>
             <div class="modal-body" id="performanceReportContent">
-                <!-- Performance report content will be loaded here -->
             </div>
         </div>
     </div>
 </div>
-
 
 @section Scripts {
     <script src="~/js/team.js"></script>
@@ -134,5 +138,35 @@
                 $('#performanceReportModal').modal('show');
             });
         }
+
+        document.getElementById('agentSearch').addEventListener('input', function () {
+            var query = this.value.toLowerCase();
+            document.querySelectorAll('.agent-row').forEach(function (row) {
+                var name = row.querySelector('.agent-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        sessionStorage.setItem('sortBy', urlParams.get('sortBy') || '');
+        sessionStorage.setItem('filterBy', urlParams.get('filterBy') || '');
+        sessionStorage.setItem('specialization', urlParams.get('specialization') || '');
+        sessionStorage.setItem('pageIndex', urlParams.get('pageIndex') || '1');
+
+        document.querySelector('.back-button').addEventListener('click', function (event) {
+            event.preventDefault();
+            const baseUrl = '@Url.Action("GetAll", "Team")';
+            const params = new URLSearchParams();
+            params.set('sortBy', sessionStorage.getItem('sortBy') || '');
+            params.set('filterBy', sessionStorage.getItem('filterBy') || '');
+            params.set('specialization', sessionStorage.getItem('specialization') || '');
+            params.set('pageIndex', sessionStorage.getItem('pageIndex') || '1');
+            window.location.href = `${baseUrl}?${params.toString()}`;
+        });
     </script>
 }

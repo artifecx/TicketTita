@@ -9,6 +9,62 @@
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('createTeamName');
+    var remainingCharsSpan = document.getElementById('remainingNameChars');
+
+    function updateRemainingChars() {
+        var remaining = 100 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('createTeamDescription');
+    var remainingCharsSpan = document.getElementById('remainingDescriptionChars');
+
+    function updateRemainingChars() {
+        var remaining = 800 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('editTeamName');
+    var remainingCharsSpan = document.getElementById('remainingNameChars');
+
+    function updateRemainingChars() {
+        var remaining = 100 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    var contentTextarea = document.getElementById('editTeamDescription');
+    var remainingCharsSpan = document.getElementById('remainingDescriptionChars');
+
+    function updateRemainingChars() {
+        var remaining = 800 - contentTextarea.value.length;
+        remainingCharsSpan.textContent = remaining + ' characters remaining';
+    }
+
+    updateRemainingChars();
+
+    contentTextarea.addEventListener('keyup', updateRemainingChars);
+});
+
 function displayAddModal(teamId) {
     $('#TeamId').val(teamId);
     $('#addAgentModal').modal('show');

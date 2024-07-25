@@ -47,15 +47,15 @@ namespace ASI.Basecode.Services.Services
                     await _performanceReportRepository.AddPerformanceReportAsync(performanceReport);
                 }
 
-                var completedTickets = await _teamRepository.GetTicketsWithFeedbacksAssignedToAgentAsync(agentId);
+                var completedTickets = await _teamRepository.GetCompletedTicketsAssignedToAgentAsync(agentId);
+                if (!completedTickets.Any()) return performanceReport;
 
                 performanceReport.ResolvedTickets = completedTickets.Count;
                 var resolutionTime = new List<double>();
                 foreach(var ticket in completedTickets)
                 {
-                    resolutionTime.Add((ticket.ResolvedDate.Value - ticket.CreatedDate).TotalMinutes);
+                    resolutionTime.Add((ticket.ResolvedDate.Value - ticket.TicketAssignment.AssignedDate).TotalMinutes);
                 }
-                if(!completedTickets.Any()) throw new InvalidOperationException("Unable to generate, agent has no completed tickets.");
 
                 performanceReport.AverageResolutionTime = resolutionTime.Average();
                 await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
@@ -75,10 +75,9 @@ namespace ASI.Basecode.Services.Services
             if (user != null)
             {
                 var performanceReport = user.PerformanceReport;
-                var tickets = await _teamRepository.GetTicketsWithFeedbacksAssignedToAgentAsync(userId);
+                var tickets = await _teamRepository.GetCompletedTicketsAssignedToAgentAsync(userId);
                 if(tickets.Any() && performanceReport != null)
                 {
-                    
                     return new PerformanceReportViewModel
                     {
                         ReportId = performanceReport.ReportId,
@@ -86,8 +85,8 @@ namespace ASI.Basecode.Services.Services
                         AverageResolutionTime = performanceReport.AverageResolutionTime,
                         AssignedDate = performanceReport.AssignedDate,
                         Name = user.Name,
-                        AverageRating = tickets.Select(t => t.Feedback.FeedbackRating).Average(),
-                        Feedbacks = tickets.Select(t => t.Feedback).ToList()
+                        AverageRating = tickets.Where(t => t.Feedback != null).Select(t => t.Feedback.FeedbackRating).Average(),
+                        Feedbacks = tickets.Where(t => t.Feedback != null).Select(t => t.Feedback).ToList()
                     };
                 }
             }

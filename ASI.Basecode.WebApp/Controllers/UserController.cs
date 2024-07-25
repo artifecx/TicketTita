@@ -134,18 +134,6 @@ namespace ASI.Basecode.WebApp.Controllers
             }
             return PartialView("_PerformanceReportModal", performanceReport);
         }
-
-        [HttpPost]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> GeneratePerformanceReport(string userId)
-        {
-            return await HandleExceptionAsync(async () =>
-            {
-                await _performanceReportService.GenerateAgentPerformanceReportAsync(userId);
-                TempData["SuccessMessage"] = "Performance report generated successfully!";
-                return Json( new { success = true } );
-            }, "GeneratePerformanceReport");
-        }
         #endregion
 
         #region POST Methods        

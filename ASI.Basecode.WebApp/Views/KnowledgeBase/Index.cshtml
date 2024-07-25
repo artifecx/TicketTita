@@ -2,31 +2,33 @@
 @using ASI.Basecode.Data.Models
 
 @{
-    ViewData["Title"] = "Index";
-    await Html.RenderPartialAsync("_CreateArticleModal", new ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel()
-    {
+    ViewData["Title"] = "Articles";
+    await Html.RenderPartialAsync("_CreateArticleModal", new ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel
+            {
                 ArticleCategories = ViewBag.Categories
-    });
-}
-@section styles {
-    <link rel="stylesheet" href="~/css/articles.css" />
+            });
+
+    string selectedCategories = ViewData["SelectedCategories"] as string;
+    string sortBy = ViewData["SortBy"] as string;
+    string sortOrder = ViewData["SortOrder"] as string;
+    string searchTerm = ViewBag.SearchTerm as string;
+    int pageIndex = Model.PageIndex;
+    int pageSize = (ViewData["PageSize"] as int?) ?? 5;
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <h1 class=" display-6">Articles</h1>
+    <h1 class="display-6">Articles</h1>
     <div class="d-flex justify-content-between">
         <form method="get" asp-action="Index">
             <div class="form-group input-group">
-                <input type="text" name="searchTerm" class="form-control btn-radius px-3" placeholder="Search Articles..." value="@ViewBag.SearchTerm" />
+                <input type="text" name="searchTerm" class="form-control btn-radius px-3" placeholder="Search Articles..." value="@searchTerm" />
                 <span class="input-group-append">
                     <button type="submit" class="btn btn-primary btn-radius-r px-3">
                         <i class="fa fa-search"></i>
                     </button>
                 </span>
-                @* <a asp-action="Index" class="btn btn-secondary">Clear Filters</a> *@
             </div>
         </form>
-
         @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
         {
             <div class="mx-3">
@@ -51,93 +53,96 @@
     </div>
 </div>
 
+<div class="container-fluid px-4 py-3">
+    <div class="row">
+        <div class="col-9">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-warning text-center" role="alert">
+                    @(!selectedCategories.Any() ? Html.Raw("No articles found") : Html.Raw("No articles found matching the criteria"))
+                </div>
+            }
+            else
+            {
+                <div class="container py-3">
+                    @foreach (var item in Model)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div style="display: flex; align-items: center;">
+                                        <h5 class="card-title m-0 pr-2 poppins-semi-bold">@Html.DisplayFor(modelItem => item.Title)</h5>
+                                        <small class="text-muted pt-1">(@Html.DisplayFor(modelItem => item.Category.CategoryName))</small>
+                                    </div>
+                                    <small class="text-muted">@Html.DisplayFor(modelItem => item.CreatedDate)</small>
+                                </div>
+                                <p class="card-text mt-3">@Html.DisplayFor(modelItem => item.Content)</p>
+                                <div class="d-flex justify-content-between align-items-end mt-4">
+                                    <div>
+                                        <h6 class="card-subtitle text-muted">@Html.DisplayFor(modelItem => item.Author.Name)</h6>
+                                    </div>
+                                    <div>
+                                        @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
+                                        {
+                                            <a href="javascript:void(0);" class="fas fas fa-pencil action-icon" data-toggle="modal" data-target="#editArticleModal" data-articleid="@item.ArticleId" data-toggle="tooltip" title="Edit"></a>
+                                        }
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <a href="javascript:void(0);" onclick="displayDeleteModal('@item.ArticleId')" class="fas fa-trash action-icon ms-2"></a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
 
-<div class="container-sm m-3 mt-4 mb-4">
-    <div class="row mb-2 align-items-center">
-        <div class="col text-left">
-            @if (Model.HasPreviousPage)
-            { 
-                <a asp-action="Index"
-                   asp-route-searchTerm="@ViewBag.SearchTerm"
-                   asp-route-selectedCategories="@string.Join(",", (List<string>) ViewBag.SelectedCategories)"
-                   asp-route-sortBy="ViewBag.SortBy"
-                   asp-route-sortOrder="ViewBag.SortOrder"
-                   asp-route-pageNumber="@(Model.PageIndex - 1)" class="btn  btn-primary">Previous</a>
-            }
-            @if(Model.HasNextPage){
-            <a asp-action="Index"
-               asp-route-searchTerm="@ViewBag.SearchTerm"
-               asp-route-selectedCategories="@string.Join(",", (List<string>)ViewBag.SelectedCategories)"
-               asp-route-sortBy="@ViewBag.SortBy"
-               asp-route-sortOrder="@ViewBag.SortOrder"
-               asp-route-pageNumber="@(Model.PageIndex + 1)" class="btn  btn-primary">Next</a>
-            }
+            <nav class="container ml-5">
+                <ul class="pagination">
+                    @if (Model.HasPreviousPage)
+                    {
+                        <li class="page-item">
+                            <form method="get" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
+                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
+                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex - 1)" />
+                                <input type="hidden" name="pageSize" value="@pageSize" />
+                                <button type="submit" class="page-link">Previous</button>
+                            </form>
+                        </li>
+                    }
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.PageIndex + 1 ? "active" : "")">
+                            <form method="get" asp-action="Index" asp-route-pageIndex="@(i - 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
+                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
+                                <input type="hidden" name="pageIndex" value="@(i - 1)" />
+                                <input type="hidden" name="pageSize" value="@pageSize" />
+                                <button type="submit" class="page-link">@i</button>
+                            </form>
+                        </li>
+                    }
+                    @if (Model.HasNextPage)
+                    {
+                        <li class="page-item">
+                            <form method="get" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
+                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
+                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex + 1)" />
+                                <input type="hidden" name="pageSize" value="@pageSize" />
+                                <button type="submit" class="page-link">Next</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </nav>
         </div>
 
-        <div class="col-md-auto text-right">
-            <form asp-action="Index" method="get" class="form-inline d-inline-flex justify-content-end">
-                <div class="form-group mr-2">
-                    <select id="categories" name="selectedCategories" multiple="multiple" class="form-control">
-                        @foreach (var category in ViewBag.Categories as IEnumerable<ArticleCategory>)
-                        {
-                            <option value="@category.CategoryId" selected="@(ViewBag.SelectedCategories != null && ((List<string>)ViewBag.SelectedCategories).Contains(category.CategoryId) ? "selected" : null)">@category.CategoryName</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group mr-2">
-                    <label for="sortBy" class="mr-2">Sort By</label>
-                    <select name="sortBy" class="form-control">
-                        <option value="CreatedDate" selected="@(ViewBag.SortBy == "CreatedDate" ? "selected" : null)">Created Date</option>
-                        <option value="UpdatedDate" selected="@(ViewBag.SortBy == "UpdatedDate" ? "selected" : null)">Updated Date</option>
-                        <option value="Title" selected="@(ViewBag.SortBy == "Title" ? "selected" : null)">Title</option>
-                    </select>
-                </div>
-
-                <div class="form-group mr-2">
-                    <label for="sortOrder" class="mr-2">Sort Order</label>
-                    <select name="sortOrder" class="form-control">
-                        <option value="asc" selected="@(ViewBag.SortOrder == "asc" ? "selected" : null)">Ascending</option>
-                        <option value="desc" selected="@(ViewBag.SortOrder == "desc" ? "selected" : null)">Descending</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Search</button>
-            </form>
-        </div>
+        @* Filters and Sorting Card *@
+        @await Html.PartialAsync("_FiltersAndSortCardArticles")
     </div>
-
-    @foreach (var item in Model)
-    {
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div style="display: flex; align-items: center;">
-                        <h5 class="card-title m-0 pr-2 poppins-semi-bold">@Html.DisplayFor(modelItem => item.Title)</h5>
-                        <small class="text-muted pt-1">(@Html.DisplayFor(modelItem => item.Category.CategoryName))</small>
-                    </div>
-                    <small class="text-muted">@Html.DisplayFor(modelItem => item.CreatedDate)</small>
-                </div>
-                <p class="card-text mt-3">@Html.DisplayFor(modelItem => item.Content)</p>
-                <div class="d-flex justify-content-between align-items-end mt-4">
-                    <div>
-                        <h6 class="card-subtitle text-muted">@Html.DisplayFor(modelItem => item.Author.Name)</h6>
-                    </div>
-                    <div>
-                        @if (User.IsInRole("Admin") || User.IsInRole("Support Agent"))
-                        {
-                            <a href="javascript:void(0);" class="fas fas fa-pencil action-icon" data-toggle="modal" data-target="#editArticleModal" data-articleid="@item.ArticleId" data-toggle="tooltip" title="Edit"></a>
-                        }
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <a href="javascript:void(0);" onclick="displayDeleteModal('@item.ArticleId')" class="fas fa-trash action-icon ms-2"></a>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
 </div>
+
+@* Delete Article Modal *@
 <div class="modal fade" id="deleteModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -158,6 +163,7 @@
 
     </div>
 </div>
+
 @* Edit Article Modal *@
 <div class="modal fade" id="editArticleModal" tabindex="-1" role="dialog" aria-labelledby="editArticleModallLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
