@@ -53,14 +53,15 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize(Policy = "Admin")]
         [HttpGet]
         [Route("all")]
-        public async Task<IActionResult> GetAll(string sortBy, string filterBy, int pageIndex = 1)
+        public async Task<IActionResult> GetAll(string sortBy, string filterBy, string specialization, int pageIndex = 1)
         {
             return await HandleExceptionAsync(async () =>
             {
-                var teams = await _teamService.GetAllAsync(sortBy, filterBy, pageIndex, 5);
+                var teams = await _teamService.GetAllAsync(sortBy, filterBy, specialization, pageIndex, 5);
 
                 ViewData["FilterBy"] = filterBy;
                 ViewData["SortBy"] = sortBy;
+                ViewData["Specialization"] = specialization;
                 ViewBag.CTs = (await _ticketService.GetCategoryTypesAsync())
                                 .Where(ct => !ct.CategoryName.Contains("Other"))
                                 .OrderBy(ct => ct.CategoryName).ToList();

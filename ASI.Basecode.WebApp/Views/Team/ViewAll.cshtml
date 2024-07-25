@@ -8,6 +8,7 @@
 
     string filterBy = ViewData["FilterBy"] as string;
     string sortBy = ViewData["SortBy"] as string;
+    string specialization = ViewData["Specialization"] as string;
     int pageIndex = Model.PageIndex;
 
     string sortByName = string.IsNullOrEmpty(sortBy) ? "name_desc" : null;
@@ -70,43 +71,52 @@
         <thead>
             <tr>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByName" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByName" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         @Html.DisplayNameFor(model => model.First().Name)
                         @(string.IsNullOrEmpty(sortBy) ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "name_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortBySpecialization" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
-                        @Html.DisplayNameFor(model => model.First().Specialization)
-                        @(sortBy == "specialization" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "specialization_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
-                    </a>
+                    <div class="dropdown">
+                        <a class="text-black" href="#" id="roleDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @Html.DisplayNameFor(model => model.First().Specialization)
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="specializationDropdown">
+                            <a class="dropdown-item" asp-action="GetAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-specialization="">All</a>
+                            @foreach (var ct in ViewBag.CTs)
+                            {
+                                <a class="dropdown-item" asp-action="GetAll" asp-route-sortBy="@sortBy" asp-route-filterBy="@filterBy" asp-route-specialization="@ct.CategoryTypeId">@ct.CategoryName</a>
+                            }
+                        </div>
+                    </div>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByNoOfAgents" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByNoOfAgents" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         @Html.DisplayNameFor(model => model.First().TeamMembers)
                         @(sortBy == "agents" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "agents_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByActiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByActiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         Active Tickets
                         @(sortBy == "active" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "active_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         Completed Tickets
                         @(sortBy == "inactive" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "inactive_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByAvgCompletionTime" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByAvgCompletionTime" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         Average Resolution Time
                         @(sortBy == "completion" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "completion_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
-                    <a asp-action="GetAll" asp-route-sortBy="@sortByAvgFeedbackRating" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" class="text-black">
+                    <a asp-action="GetAll" asp-route-sortBy="@sortByAvgFeedbackRating" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
                         Average Feedback Rating
                         @(sortBy == "rating" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "rating_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
@@ -150,7 +160,17 @@
                                 @averageResolutionTime.Humanize(2, maxUnit: Humanizer.Localisation.TimeUnit.Day)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.AverageFeedbackRating)
+                                @{
+                                    double rating;
+                                    if (double.TryParse(item.AverageFeedbackRating, out rating))
+                                    {
+                                        @rating.ToString("F1")
+                                    }
+                                    else
+                                    {
+                                        @item.AverageFeedbackRating
+                                    }
+                                }
                             </td>
                             <td>
                                 @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |

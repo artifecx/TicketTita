@@ -211,7 +211,7 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all teams.
         /// </summary>
         /// <returns>IEnumerable TeamViewModel</returns>
-        public async Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, int pageIndex, int pageSize)
+        public async Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, string specialization, int pageIndex, int pageSize)
         {
             var teams = _mapper.Map<List<TeamViewModel>>(await _repository.GetAllAsync());
 
@@ -220,6 +220,11 @@ namespace ASI.Basecode.Services.Services
                 teams = teams.Where(team => team.Name.Contains(filterBy, StringComparison.OrdinalIgnoreCase) ||
                                    (team.Specialization.CategoryName.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
                              .ToList();
+            }
+
+            if (!string.IsNullOrEmpty(specialization))
+            {
+                teams = teams.Where(team => team.SpecializationId.Contains(specialization, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             foreach (var team in teams)
@@ -234,8 +239,6 @@ namespace ASI.Basecode.Services.Services
             teams = sortBy switch
             {
                 "name_desc" => teams.OrderByDescending(t => t.Name).ToList(),
-                "specialization_desc" => teams.OrderByDescending(t => t.Specialization.CategoryName).ToList(),
-                "specialization" => teams.OrderBy(t => t.Specialization.CategoryName).ToList(),
                 "agents_desc" => teams.OrderByDescending(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "agents" => teams.OrderBy(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "active_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
