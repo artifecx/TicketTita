@@ -9,7 +9,11 @@
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <a asp-action="GetAll" class="text-black m-2"><h2 class="font-weight-bold"><i class="fa-solid fa-arrow-left mx-2"></i></h2></a>
+    <a href="#" class="text-black m-2 back-button">
+        <h2 class="font-weight-bold">
+            <i class="fa-solid fa-arrow-left mx-2"></i>
+        </h2>
+    </a>
 </div>
 
 <div class="container-fluid p-4">
@@ -108,7 +112,6 @@
 
 <div id="tempDataContainer" data-success="@TempData["SuccessMessage"]" data-error="@TempData["ErrorMessage"]"></div>
 
-<!-- Performance Report Modal -->
 <div class="modal fade" id="performanceReportModal" tabindex="-1" role="dialog" aria-labelledby="performanceReportModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -119,7 +122,6 @@
                 </button>
             </div>
             <div class="modal-body" id="performanceReportContent">
-                <!-- Performance report content will be loaded here -->
             </div>
         </div>
     </div>
@@ -147,6 +149,24 @@
                     row.style.display = 'none';
                 }
             });
+        });
+    </script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        sessionStorage.setItem('sortBy', urlParams.get('sortBy') || '');
+        sessionStorage.setItem('filterBy', urlParams.get('filterBy') || '');
+        sessionStorage.setItem('specialization', urlParams.get('specialization') || '');
+        sessionStorage.setItem('pageIndex', urlParams.get('pageIndex') || '1');
+
+        document.querySelector('.back-button').addEventListener('click', function (event) {
+            event.preventDefault();
+            const baseUrl = '@Url.Action("GetAll", "Team")';
+            const params = new URLSearchParams();
+            params.set('sortBy', sessionStorage.getItem('sortBy') || '');
+            params.set('filterBy', sessionStorage.getItem('filterBy') || '');
+            params.set('specialization', sessionStorage.getItem('specialization') || '');
+            params.set('pageIndex', sessionStorage.getItem('pageIndex') || '1');
+            window.location.href = `${baseUrl}?${params.toString()}`;
         });
     </script>
 }

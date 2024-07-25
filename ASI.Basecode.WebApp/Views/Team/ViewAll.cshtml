@@ -174,7 +174,7 @@
                             </td>
                             <td>
                                 @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |
-                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId }, new { @class = "fas fa-info-circle action-icon" }) |
+                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, sortBy = sortBy, filterBy = filterBy, specialization = specialization, pageIndex = Model.PageIndex }, new { @class = "fas fa-info-circle action-icon" }) |
                                 <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId')" class="fas fa-trash-alt action-icon"></a>
                             </td>
                         </tr>
