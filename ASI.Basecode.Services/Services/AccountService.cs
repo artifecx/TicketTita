@@ -47,14 +47,19 @@ namespace ASI.Basecode.Services.Services
             return user != null ? LoginResult.Success : LoginResult.Failed;
         }
 
-        public bool NotifyPasswordReset(string email) { 
+        public void NotifyPasswordReset(string Email) { 
             
             var Admins = _adminRepository.GetAll().ToList();
 
             foreach (var admin in Admins)
             {
-                
+                _notificationService.AddNotification(null, "User " + Email + " Requests Change password", "10", admin.AdminId, "User Change Password");
             }
         }
+
+        public bool UserExists(string Email) { 
+            return _repository.RetrieveAll().Any(x => x.Email == Email);
+        }
+
     }
 }

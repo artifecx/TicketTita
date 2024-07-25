@@ -83,9 +83,14 @@ namespace ASI.Basecode.WebApp.Controllers
         }
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult PostForgotPassword() {
+        public IActionResult PostForgotPassword(string email) {
 
+            bool Exists = _userService.UserExists(email);
 
+            if (Exists) {
+                _userService.NotifyPasswordReset(email);
+            }
+           
             return RedirectToAction("Login");
         }
 
