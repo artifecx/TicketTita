@@ -99,25 +99,25 @@
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByActiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        Active Tickets
+                        @Html.DisplayNameFor(model => model.First().ActiveTicketsCount)
                         @(sortBy == "active" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "active_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByInactiveTickets" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        Completed Tickets
+                        @Html.DisplayNameFor(model => model.First().NumberOfAgents)
                         @(sortBy == "inactive" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "inactive_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByAvgCompletionTime" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        Average Resolution Time
+                        @Html.DisplayNameFor(model => model.First().AverageResolutionTime)
                         @(sortBy == "completion" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "completion_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
                 <th>
                     <a asp-action="GetAll" asp-route-sortBy="@sortByAvgFeedbackRating" asp-route-filterBy="@filterBy" asp-route-pageIndex="@pageIndex" asp-route-specialization="@specialization" class="text-black">
-                        Average Feedback Rating
+                        @Html.DisplayNameFor(model => model.First().AverageFeedbackRating)
                         @(sortBy == "rating" ? Html.Raw("<i class='fa-solid fa-sort-up'></i>") : (sortBy == "rating_desc" ? Html.Raw("<i class='fa-solid fa-sort-down'></i>") : Html.Raw("<i class='fa-solid fa-sort'></i>")))
                     </a>
                 </th>
@@ -126,60 +126,60 @@
         </thead>
         <tbody>
             @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="13" class="alert alert-warning text-center" role="alert">
+                        @(string.IsNullOrEmpty(filterBy) ? Html.Raw("No teams found") : Html.Raw("No teams found matching the criteria"))
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model)
                 {
                     <tr>
-                        <td colspan="13" class="alert alert-warning text-center" role="alert">
-                            @(string.IsNullOrEmpty(filterBy) ? Html.Raw("No teams found") : Html.Raw("No teams found matching the criteria"))
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Specialization.CategoryName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.NumberOfAgents)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ActiveTicketsCount)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CompletedTicketsCount)
+                        </td>
+                        <td>
+                            @{
+                                var averageResolutionTime = TimeSpan.FromMinutes(Convert.ToDouble(item.AverageResolutionTime));
+                            }
+                            @averageResolutionTime.Humanize(2, maxUnit: Humanizer.Localisation.TimeUnit.Day)
+                        </td>
+                        <td>
+                            @{
+                                double rating;
+                                if (double.TryParse(item.AverageFeedbackRating, out rating))
+                                {
+                                    @rating.ToString("F1")
+                                }
+                                else
+                                {
+                                    @item.AverageFeedbackRating
+                                }
+                            }
+                        </td>
+                        <td>
+                            @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |
+                            @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, sortBy = sortBy, filterBy = filterBy, specialization = specialization, pageIndex = Model.PageIndex }, new { @class = "fas fa-info-circle action-icon" }) |
+                            <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId')" class="fas fa-trash-alt action-icon"></a>
                         </td>
                     </tr>
                 }
-                else
-                {
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Specialization.CategoryName)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.NumberOfAgents)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.ActiveTicketsCount)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CompletedTicketsCount)
-                            </td>
-                            <td>
-                                @{
-                                    var averageResolutionTime = TimeSpan.FromMinutes(Convert.ToDouble(item.AverageResolutionTime));
-                                }
-                                @averageResolutionTime.Humanize(2, maxUnit: Humanizer.Localisation.TimeUnit.Day)
-                            </td>
-                            <td>
-                                @{
-                                    double rating;
-                                    if (double.TryParse(item.AverageFeedbackRating, out rating))
-                                    {
-                                        @rating.ToString("F1")
-                                    }
-                                    else
-                                    {
-                                        @item.AverageFeedbackRating
-                                    }
-                                }
-                            </td>
-                            <td>
-                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, showModal = "editTeam" }, new { @class = "fas fa-edit action-icon" }) |
-                                @Html.ActionLink("", "ViewTeam", new { id = item.TeamId, sortBy = sortBy, filterBy = filterBy, specialization = specialization, pageIndex = Model.PageIndex }, new { @class = "fas fa-info-circle action-icon" }) |
-                                <a href="javascript:void(0);" onclick="displayDeleteModal('@item.TeamId')" class="fas fa-trash-alt action-icon"></a>
-                            </td>
-                        </tr>
-                    }
-                }
+            }
         </tbody>
     </table>
 

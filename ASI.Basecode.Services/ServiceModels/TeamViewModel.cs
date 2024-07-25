@@ -27,10 +27,15 @@ namespace ASI.Basecode.Services.ServiceModels
         #endregion
 
         #region Team Analytics
+        [Display(Name = "Number of Agents")]
         public string NumberOfAgents { get; set; }
+        [Display(Name = "Active Tickets")]
         public string ActiveTicketsCount { get; set; }
+        [Display(Name = "Completed Tickets")]
         public string CompletedTicketsCount { get; set; }
+        [Display(Name = "Average Resolution Time")]
         public string AverageResolutionTime { get; set; }
+        [Display(Name = "Average Feedback Rating")]
         public string AverageFeedbackRating { get; set; }
         #endregion
 

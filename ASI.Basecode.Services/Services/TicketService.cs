@@ -29,9 +29,8 @@ namespace ASI.Basecode.Services.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INotificationService _notificationService;
         private readonly ITeamRepository _teamRepository;
-        private readonly IPerformanceReportRepository _performanceReportRepository;
+        private readonly IPerformanceReportService _performanceReportService;
         private readonly IActivityLogService _activityLogService;
-        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
@@ -46,20 +45,18 @@ namespace ASI.Basecode.Services.Services
             IMapper mapper,
             INotificationService notificationService,
             IHttpContextAccessor httpContextAccessor,
-            IPerformanceReportRepository performanceReportRepository,
+            IPerformanceReportService performanceReportService,
             ITeamRepository teamRepository,
-            IActivityLogService activityLogService,
-            IUserRepository userRepository)
+            IActivityLogService activityLogService)
         {
             _repository = repository;
             _userPreferencesRepository = userPreferencesRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
-            _performanceReportRepository = performanceReportRepository;
+            _performanceReportService = performanceReportService;
             _teamRepository = teamRepository;
             _activityLogService = activityLogService;
-            _userRepository = userRepository;
         }
 
         #region Ticket CRUD Operations

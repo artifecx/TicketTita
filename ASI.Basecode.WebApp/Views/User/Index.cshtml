@@ -14,17 +14,15 @@
     string roleSortParm = sortOrder == "Role" ? "role_desc" : "Role";
     string updatedTimeSortParm = sortOrder == "UpdatedTime" ? "updatedTime_desc" : "UpdatedTime";
     bool isSuper = User.HasClaim("IsSuperAdmin", "true");
-
-
 }
 
-@section styles { 
+@section styles {
     <link rel="stylesheet" href="~/css/user.css" />
     <link rel="stylesheet" href="~/css/notification.css" />
 }
 
 <div class="d-flex justify-content-between nav-header">
-    <h1 class=" display-6">Registered Users</h1>
+    <h1 class="display-6">Registered Users</h1>
     <div class="d-flex justify-content-between">
         <form method="get" asp-action="Index">
             <div class="form-group input-group">
@@ -206,7 +204,7 @@
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.Email)</dd>
 
                         <dt class="col-sm-4">Password</dt>
-                        <dd class="col-sm-8">@Html.DisplayFor(model=>item.Password)</dd>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => item.Password)</dd>
 
                         <dt class="col-sm-4">Role</dt>
                         <dd class="col-sm-8">@Html.DisplayFor(model => item.RoleId)</dd>
@@ -266,9 +264,6 @@
             <div class="modal-body" id="performanceReportContent">
                 <!-- Performance report content will be loaded here -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="generateReport()">Generate Report</button>
-            </div>
         </div>
     </div>
 </div>
@@ -322,7 +317,7 @@
         var NullFieldsMessage = '@TempData["NullFieldsMessage"]';
         var SuccessMessage = '@TempData["SuccessMessage"]';
         var ErrorMessage = '@TempData["ErrorMessage"]';
-      
+
         if (createMessage) {
             toastr.success(createMessage);
         } else if (errMessage) {
@@ -360,57 +355,13 @@
         });
     </script>
     <script>
-        var selectedUserId;
-
         $('#performanceReportModal').on('show.bs.modal', function (e) {
-            if (!sessionStorage.getItem('reopened')){
-                var button = $(e.relatedTarget);
-                selectedUserId = button.data('userid');
-                sessionStorage.setItem('PerformanceReportModalOpen', 'true');
-                sessionStorage.setItem('PerformanceReportUserId', selectedUserId);
-
-                var url = '@Url.Action("PerformanceReport")?userId=' + selectedUserId;
-                $.get(url, function (data) {
-                    $('#performanceReportContent').html(data);
-                });
-            }
-        });
-
-        $('#performanceReportModal').on('hide.bs.modal', function (e) {
-            sessionStorage.removeItem('PerformanceReportModalOpen');
-            sessionStorage.removeItem('PerformanceReportUserId');
-            sessionStorage.removeItem('reopened');
-        });
-
-        function generateReport() {
-            var userId = sessionStorage.getItem('PerformanceReportUserId');
-            $.ajax({
-                url: '@Url.Action("GeneratePerformanceReport", "User")',
-                type: 'POST',
-                data: { userId: userId },
-                success: function (response) {
-                    if(response.success){
-                        location.reload();
-                    }
-                    else{
-                        toastr.error(response.error);
-                    }
-                }
+            var button = $(e.relatedTarget);
+            var selectedUserId = button.data('userid');
+            var url = '@Url.Action("PerformanceReport")?userId=' + selectedUserId;
+            $.get(url, function (data) {
+                $('#performanceReportContent').html(data);
             });
-        }
-
-        $(document).ready(function () {
-            var isModalOpen = sessionStorage.getItem('PerformanceReportModalOpen');
-            var userId = sessionStorage.getItem('PerformanceReportUserId');
-
-            if (isModalOpen === 'true' && userId) {
-                var url = '@Url.Action("PerformanceReport")?userId=' + userId;
-                $.get(url, function (data) {
-                    sessionStorage.setItem('reopened', 'true')
-                    $('#performanceReportContent').html(data);
-                    $('#performanceReportModal').modal('show');
-                });
-            }
         });
     </script>
 }
