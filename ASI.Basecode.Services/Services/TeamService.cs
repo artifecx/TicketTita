@@ -154,7 +154,7 @@ namespace ASI.Basecode.Services.Services
                 var model = new TicketViewModel();
                 foreach (var ticketAssignment in agent.TicketAssignmentAgents)
                 {
-                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
                     model.AgentId = agentId;
                     model.TicketId = ticketAssignment.TicketId;
                     model.TeamId = teamId;
@@ -192,7 +192,7 @@ namespace ASI.Basecode.Services.Services
                 var model = new TicketViewModel();
                 foreach(var ticketAssignment in agent.TicketAssignmentAgents)
                 {
-                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
                     model.AgentId = "no_agent";
                     model.TicketId = ticketAssignment.TicketId;
                     model.TeamId = ticketAssignment.TeamId;
@@ -221,7 +221,16 @@ namespace ASI.Basecode.Services.Services
                                    (team.Specialization.CategoryName.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
                              .ToList();
             }
-            
+
+            foreach (var team in teams)
+            {
+                var averageResolutionTime = CalculateAverageAsync(team.TeamMembers, a => a.User?.PerformanceReport?.AverageResolutionTime);
+                var averageFeedbackRating = CalculateAverageAsync(team.TeamMembers.SelectMany(t => t.User?.TicketAssignmentAgents), t => t.Ticket?.Feedback?.FeedbackRating);
+                await Task.WhenAll(averageFeedbackRating, averageResolutionTime);
+                team.AverageResolutionTime = (await averageResolutionTime).ToString();
+                team.AverageFeedbackRating = (await averageFeedbackRating).ToString();
+            }
+
             teams = sortBy switch
             {
                 "name_desc" => teams.OrderByDescending(t => t.Name).ToList(),
@@ -233,10 +242,10 @@ namespace ASI.Basecode.Services.Services
                 "active" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
                 "inactive_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
                 "inactive" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
-                //"completion_desc" => teams.OrderByDescending().ToList(), // TODO: completion time
-                //"completion" => teams.OrderBy().ToList(), // TODO: completion time
-                //"rating_desc" => teams.OrderByDescending().ToList(), // TODO: rating
-                //"rating" => teams.OrderBy().ToList(), // TODO: rating
+                "completion_desc" => teams.OrderByDescending(t => t.AverageResolutionTime).ToList(),
+                "completion" => teams.OrderBy(t => t.AverageResolutionTime).ToList(),
+                "rating_desc" => teams.OrderByDescending(t => t.AverageFeedbackRating).ToList(),
+                "rating" => teams.OrderBy(t => t.AverageFeedbackRating).ToList(),
                 _ => teams.OrderBy(t => t.Name).ToList(),
             };
 
@@ -244,6 +253,27 @@ namespace ASI.Basecode.Services.Services
             var items = teams.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
             return new PaginatedList<TeamViewModel>(items, count, pageIndex, pageSize);
+        }
+
+        private static Task<double> CalculateAverageAsync<T>(IEnumerable<T> collection, Func<T, double?> valueSelector)
+        {
+            return Task.Run(() =>
+            {
+                double total = 0.0;
+                int validCount = 0;
+
+                foreach (var item in collection)
+                {
+                    double? value = valueSelector(item);
+                    if (value > 0.0)
+                    {
+                        total += value.Value;
+                        validCount++;
+                    }
+                }
+
+                return validCount > 0 ? total / validCount : 0.0;
+            });
         }
 
         /// <summary>

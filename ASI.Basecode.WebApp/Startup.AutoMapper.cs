@@ -41,7 +41,11 @@ namespace ASI.Basecode.WebApp
                         .ForMember(dest => dest.Replies, opt => opt.MapFrom(src => src.InverseParent))
                         .ReverseMap()
                         .ForMember(dest => dest.InverseParent, opt => opt.MapFrom(src => src.Replies));
-                CreateMap<Team, TeamViewModel>().ReverseMap();
+                CreateMap<Team, TeamViewModel>()
+                        .ForMember(dest => dest.NumberOfAgents, opt => opt.MapFrom(src => src.TeamMembers != null ? src.TeamMembers.Count : 0))
+                        .ForMember(dest => dest.ActiveTicketsCount, opt => opt.MapFrom(src => src.TicketAssignments.Count(t => t.Ticket.ResolvedDate == null)))
+                        .ForMember(dest => dest.CompletedTicketsCount, opt => opt.MapFrom(src => src.TicketAssignments.Count(t => t.Ticket.ResolvedDate != null)))
+                        .ReverseMap();
                 CreateMap<KnowledgeBaseViewModel, KnowledgeBaseArticle>().ReverseMap();
                 CreateMap<IEnumerable<KnowledgeBaseViewModel>, IEnumerable<KnowledgeBaseArticle>>();
             }
