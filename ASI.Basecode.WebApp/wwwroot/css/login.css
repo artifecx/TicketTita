@@ -61,3 +61,11 @@ b {
         border-bottom-right-radius: .3rem;
     }
 }
+
+.has-error input {
+    border-color: #dc3545; /* Bootstrap's danger color */
+}
+
+.text-danger {
+    color: #dc3545;
+}
