@@ -15,16 +15,20 @@ namespace ASI.Basecode.Services.Services
     {
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
+        private readonly IAdminRepository _adminRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountService"/> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
         /// <param name="mapper">The mapper.</param>
-        public AccountService(IUserRepository repository, IMapper mapper)
+        public AccountService(IUserRepository repository, IMapper mapper, INotificationService notificationService, IAdminRepository adminRepository)
         {
             _mapper = mapper;
             _repository = repository;
+            _notificationService = notificationService;
+            _adminRepository = adminRepository;
         }
         /// <summary>
         /// Authenticates the user.
@@ -42,5 +46,28 @@ namespace ASI.Basecode.Services.Services
 
             return user != null ? LoginResult.Success : LoginResult.Failed;
         }
+        /// <summary>
+        /// Notifies the password reset.
+        /// </summary>
+        /// <param name="Email">The email.</param>
+        public void NotifyPasswordReset(string Email)
+        {
+            var Admins = _adminRepository.GetAll().ToList();
+
+            foreach (var admin in Admins)
+            {
+                string message = $"User {Email} Requests Change password";
+                _notificationService.AddNotification(null, message, "10", admin.AdminId, "User Change Password");
+            }
+        }
+        /// <summary>
+        /// Users the exists.
+        /// </summary>
+        /// <param name="Email">The email.</param>
+        /// <returns></returns>
+        public bool UserExists(string Email) { 
+            return _repository.RetrieveAll().Any(x => x.Email == Email);
+        }
+
     }
 }

@@ -45,6 +45,7 @@ namespace ASI.Basecode.WebApp
             this._services.AddScoped<IUserPreferencesService, UserPreferencesService>();
             this._services.AddScoped<IActivityLogService, ActivityLogService>();
             this._services.AddScoped<IPerformanceReportService, PerformanceReportService>();
+            this._services.AddScoped<IHomeService, HomeService>();
 
             // Repositories
             this._services.AddScoped<IAccountRepository, AccountRepository>();

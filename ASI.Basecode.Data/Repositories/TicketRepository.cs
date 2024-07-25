@@ -72,6 +72,22 @@ namespace ASI.Basecode.Data.Repositories
             await GetTicketsWithLimitedIncludes().AsNoTracking().ToListAsync();
 
         /// <summary>
+        /// Get all tickets including deleted
+        /// </summary>
+        /// <returns>List Ticket</returns>
+        public async Task<List<Ticket>> GetAllAndDeletedTicketsAsync()
+        {
+            return await this.GetDbSet<Ticket>()
+                    .AsNoTracking()
+                    .Include(t => t.Feedback)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Agent)
+                    .Include(t => t.TicketAssignment)
+                        .ThenInclude(ta => ta.Team)
+                        .ToListAsync();
+        }
+
+        /// <summary>
         /// Gets all tickets including the deleted.
         /// </summary>
         /// <returns>List Ticket</returns>

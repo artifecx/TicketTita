@@ -8,5 +8,7 @@ namespace ASI.Basecode.Services.Interfaces
     {
         LoginResult AuthenticateUser(string email, string password, ref User user);
         /*void AddUser(AccountServiceModel model);*/
+        void NotifyPasswordReset(string Email);
+        bool UserExists(string Email);
     }
 }

@@ -8,6 +8,7 @@ namespace ASI.Basecode.Data.Interfaces
     public interface ITicketRepository
     {
         Task<List<Ticket>> GetAllAsync();
+        Task<List<Ticket>> GetAllAndDeletedTicketsAsync();
         Task<int> CountAllAndDeletedTicketsAsync();
         Task AddAsync(Ticket ticket);
         Task UpdateAsync(Ticket ticket);
