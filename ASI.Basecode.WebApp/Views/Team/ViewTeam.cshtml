@@ -2,7 +2,7 @@
 @using ASI.Basecode.Services.ServiceModels;
 
 @{
-    ViewData["Title"] = $"Team | {Model.Name}";
+    ViewData["Title"] = $"Team {Model.Name}";
     await Html.RenderPartialAsync("_EditTeamModal");
     await Html.RenderPartialAsync("_AddAgentModal", Model);
     await Html.RenderPartialAsync("_ReassignAgentModal", Model);
