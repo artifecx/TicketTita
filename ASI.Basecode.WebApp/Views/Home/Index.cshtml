@@ -1,116 +1,123 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ASI.Basecode.Services.ServiceModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
+
 @section styles {
     <link rel="stylesheet" href="~/css/dashboard.css" />
 }
 
-<h1 class="nav-header display-6">Dashboard</h1>
-<div class="row p-4 bg-gray">
-    <div class="col-9">
-        <div class="row pb-4">
-            <div class="col">
-                <div class="row pb-4">
-                    <!-- Card for Total Tickets -->
-                    <div class="col">
-                        <div class="card card-color">
-                            <div class="card-body card-body-custom">
-                                <h5 class="card-title">Total Tickets</h5>
-                                <p class="card-text mt-auto-end">786</p>
+<div class="d-flex justify-content-between nav-header">
+    <h1 class="display-6">Dashboard</h1>
+</div>
+<div class="container-fluid p-4">
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="row">
+                <div class="col">
+                    <div class="card mb-4">
+                        <div class="card-body m-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="d-flex align-items-center">
+                                    <h5 class="card-title mb-0 font-weight-bold">Current Tickets Stats</h5>
+                                    <div class="vertical-line mx-5"></div>
+                                    <div>
+                                        <span class="open-tickets">609 Open</span>
+                                        <span class="overdue-tickets mx-5">571 In Progress</span>
+                                        <span class="unassigned-tickets">5 Unassigned</span>
+                                    </div>
+                                </div>
+                                <span class="dropdown">Last 7 days</span>
                             </div>
+                            <canvas id="bar-chart" height="152"></canvas>
                         </div>
-                    </div>
-                    <!-- Card for Customers -->
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body card-body-custom">
-                                <h5 class="card-title">Customers</h5>
-                                <p class="card-text mt-auto-end">986</p>
+                        <div class="row mx-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="card-number">1274</p>
+                                            <h5 class="card-title">New Tickets (total)</h5>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <svg height="20" width="40">
+                                                <polyline points="0,10 10,0 20,10 30,0 40,10" style="fill:none;stroke:rgba(75, 192, 192, 1);stroke-width:2" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <!-- Card for Agents -->
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body card-body-custom">
-                                <h5 class="card-title">Agents</h5>
-                                <p class="card-text mt-auto-end">786</p>
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="card-number">1274</p>
+                                            <h5 class="card-title">Completed Tickets (total)</h5>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <svg height="20" width="40">
+                                                <rect x="2" y="8" width="4" height="12" class="text-color-primary" />
+                                                <rect x="10" y="5" width="4" height="15" class="text-color-primary" />
+                                                <rect x="18" y="2" width="4" height="18" class="text-color-primary" />
+                                                <rect x="26" y="4" width="4" height="16" class="text-color-primary" />
+                                                <rect x="34" y="6" width="4" height="14" class="text-color-primary" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <!-- Card for Total Customers -->
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-body card-body-custom">
-                                <h5 class="card-title">Total Customers</h5>
-                                <p class="card-text mt-auto-end">556</p>
+                            <div class="col-md-4">
+                                <div class="card mb-4">
+                                    <div class="card-body d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <p class="card-number">12.2 hrs</p>
+                                            <h5 class="card-title">Average Ticket Resolution Time</h5>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Tickets Statisfaction Ratings -->
-            <div class="col-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Tickets Statisfaction Ratings</h5>
-                        <p class="m-0">
-                            <span id="average-rating" class="font-weight-bolder display-4"></span>
-                        </p>
-                        <div class="star-rating m-0" aria-label="Star rating">
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                        </div>
-                        <p class="small">
-                            (<span id="total-reviews"></span> Reviews)
-                        </p>
-                        
-                        <canvas id="user-rating-chart" height="250"></canvas>
-                    </div>
-                </div>
-            </div>
+        </div>
 
-        </div>
-        <!-- Monthly Average Resolution Time bar graph -->
-        <div class="row">
-            <div class="col">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Monthly Average Resolution Time</h5>
-                        <canvas id="bar-chart"></canvas>
+        <div class="col-lg-3">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-body m-4">
+                            <h5 class="card-title font-weight-bold">Tickets Feedback Ratings (total)</h5>
+                            <div class="d-flex align-items-center">
+                                <p class="display-4 font-weight-bolder mb-0" id="average-rating">4.6</p>
+                                <div class="star-rating ml-3" aria-label="Star rating">
+                                    <span class="star">&#9733;</span>
+                                    <span class="star">&#9733;</span>
+                                    <span class="star">&#9733;</span>
+                                    <span class="star">&#9733;</span>
+                                    <span class="star">&#9733;</span>
+                                </div>
+                            </div>
+                            <p class="small">(<span id="total-reviews"></span> Feedbacks)</p>
+                            <canvas id="user-rating-chart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card-body m-4">
+                            <h5 class="card-title font-weight-bold mb-3">Tickets per Category (total)</h5>
+                            <div style="max-height: 300px;">
+                                <canvas id="pie-chart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- Notification Section -->
-    <div class="col-3 notification-container">
-        <h5 class="card-title mb-3">Notification</h5>
-        <div class="notification px-2 py-3 small">
-            <div class="d-flex justify-content-between">
-                <p><i class="fa fa-user-circle pr-2"></i>David Czar</p>
-                <p class="text-color-gray">6/24/24</p>
-            </div>
-            <p>Has commented on your feedback chatgpt something chatgpt basta.</p>
-            <a href="#" class="d-flex justify-content-end text-color-gray">View</a>
-        </div>
-        <div class="notification px-2 py-3 small">
-            <div class="d-flex justify-content-between">
-                <p><i class="fa fa-ticket pr-2"></i>Reminder</p>
-                <p class="text-color-gray">6/24/24</p>
-            </div>
-            <p>The ticket has been closed.</p>
-            <a href="#" class="d-flex justify-content-end text-color-gray">View</a>
         </div>
     </div>
 </div>
 
-<!-- Include Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script src="~/js/dashboard.js"></script>
