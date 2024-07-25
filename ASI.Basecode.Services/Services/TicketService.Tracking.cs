@@ -56,7 +56,6 @@ namespace ASI.Basecode.Services.Services
 
             existingTicket.UpdatedDate = DateTime.Now;
             await UpdateTicketDate(existingTicket);
-
             await _repository.UpdateAsync(existingTicket);
 
             if (statusChanged || priorityChanged)
@@ -65,6 +64,9 @@ namespace ASI.Basecode.Services.Services
                     $"{(statusChanged ? "Status" : "")}{(statusChanged && priorityChanged ? " & " : "")}{(priorityChanged ? "Priority" : "")} modified");
                 _notificationService.CreateNotification(existingTicket, statusChanged ? 3 : 2, null, existingTicket.TicketAssignment?.AgentId);
                 _notificationService.CreateNotification(existingTicket, priorityChanged && !statusChanged ? 2 : 3, null, existingTicket.TicketAssignment?.TeamId);
+
+                if (existingTicket.StatusTypeId == "S3" && existingTicket.TicketAssignment?.AgentId != null)
+                    await _performanceReportService.GenerateAgentPerformanceReportAsync(existingTicket.TicketAssignment.AgentId);
             }
         }
     }

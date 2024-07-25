@@ -20,6 +20,6 @@ namespace ASI.Basecode.Data.Interfaces
         Task<User> FindAgentByIdAsync(string id);
         Task<TeamMember> FindTeamMemberByIdAsync(string id);
         Task<bool> IsExistingTeamMember(string teamId, string agentId);
-        Task<List<Ticket>> GetTicketsWithFeedbacksAssignedToAgentAsync(string agentId);
+        Task<List<Ticket>> GetCompletedTicketsAssignedToAgentAsync(string agentId);
     }
 }

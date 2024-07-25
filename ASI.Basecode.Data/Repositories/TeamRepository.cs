@@ -27,6 +27,11 @@ namespace ASI.Basecode.Data.Repositories
                         .Include(t => t.TeamMembers)
                             .ThenInclude(tm => tm.User)
                             .ThenInclude(tm => tm.PerformanceReport)
+                        .Include(t => t.TeamMembers)
+                            .ThenInclude(tm => tm.User)
+                            .ThenInclude(tm => tm.TicketAssignmentAgents)
+                            .ThenInclude(ta => ta.Ticket)
+                            .ThenInclude(ta => ta.Feedback)
                         .Include(t => t.TicketAssignments)
                             .ThenInclude(a => a.Agent)
                         .Include(t => t.TicketAssignments)
@@ -150,14 +155,14 @@ namespace ASI.Basecode.Data.Repositories
                 .AnyAsync(t => t.TeamMembers.Any(tm => tm.UserId == agentId && tm.TeamId == teamId));
 
 
-        public async Task<List<Ticket>> GetTicketsWithFeedbacksAssignedToAgentAsync(string agentId)
+        public async Task<List<Ticket>> GetCompletedTicketsAssignedToAgentAsync(string agentId)
         {
             return await this.GetDbSet<Ticket>()
                 .Include(t => t.TicketAssignment)
                 .Include(t => t.Feedback)
                     .ThenInclude(f => f.User)
                     .ThenInclude(f => f.PerformanceReport)
-                .Where(t => t.StatusTypeId == "S4" && t.TicketAssignment != null && t.TicketAssignment.AgentId == agentId)
+                .Where(t => (t.StatusTypeId == "S3" || t.StatusTypeId == "S4") && (t.TicketAssignment != null && t.TicketAssignment.AgentId == agentId))
                 .ToListAsync();
         }
     }

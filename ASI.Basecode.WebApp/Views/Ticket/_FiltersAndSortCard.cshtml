@@ -72,19 +72,6 @@
                     </select>
                 </div>
                 <hr />
-                @if (!User.IsInRole("Employee"))
-                {
-                    <div class="mb-3">
-                        <label for="selectedFilters">User: </label>
-                        <select id="selectedFilters" name="selectedFilters" class="form-control">
-                            <option value="">All</option>
-                            @foreach (var item in users)
-                            {
-                                <option value="employee:@item.UserId" selected="@(selectedFilters != null && selectedFilters.Contains("employee:" + item.UserId))">@item.Name</option>
-                            }
-                        </select>
-                    </div>
-                }
                 @if (User.IsInRole("Admin"))
                 {
                     <div class="mb-3">
@@ -107,6 +94,19 @@
                             }
                         </select>
                     </div>
+                }
+                @if (!User.IsInRole("Employee"))
+                {
+                    <div class="mb-3">
+                        <label for="selectedFilters">Requester: </label>
+                        <select id="selectedFilters" name="selectedFilters" class="form-control">
+                            <option value="">All</option>
+                            @foreach (var item in users)
+                            {
+                                <option value="employee:@item.UserId" selected="@(selectedFilters != null && selectedFilters.Contains("employee:" + item.UserId))">@item.Name</option>
+                            }
+                        </select>
+                    </div>
                     <hr />
                 }
                 <div class="mb-3">
@@ -122,17 +122,17 @@
                     </select>
                 </div>
                 <hr />
-                <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
                 <input type="hidden" name="sortBy" value="@sortBy" />
                 <input type="hidden" name="search" value="@search" />
                 <input type="hidden" name="sortBy" value="@showOption" />
                 <input type="hidden" name="clearFilters" id="clearFilters" value="false" />
             </form>
-                @if (selectedFilters.Any() || !string.IsNullOrEmpty(sortBy) || !string.IsNullOrEmpty(search) || !string.IsNullOrEmpty(showOption))
+                @if (selectedFilters.Any() || !string.IsNullOrEmpty(sortBy) || !string.IsNullOrEmpty(showOption))
                 {
                     <hr />
                     <form>
-                        <a href="@Url.Action("GetAll", "Ticket", new { clearFilters = true })" class="btn btn-secondary w-100 text-black">Clear Filters</a>
+                        <a href="@Url.Action("GetAll", "Ticket", new { clearFilters = true, search = @search })" class="btn btn-secondary w-100 text-black">Clear</a>
                     </form>
                     <hr />
                 }

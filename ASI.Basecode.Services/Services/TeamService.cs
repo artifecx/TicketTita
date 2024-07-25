@@ -151,13 +151,16 @@ namespace ASI.Basecode.Services.Services
                 var team = await _repository.FindByIdAsync(teamId);
                 var agent = await _repository.FindAgentByIdAsync(agentId);
 
-                var model = new TicketViewModel();
+                
                 foreach (var ticketAssignment in agent.TicketAssignmentAgents)
                 {
-                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
-                    model.AgentId = agentId;
-                    model.TicketId = ticketAssignment.TicketId;
-                    model.TeamId = teamId;
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
+                    var model = new TicketViewModel
+                    {
+                        AgentId = agentId,
+                        TicketId = ticketAssignment.TicketId,
+                        TeamId = teamId
+                    };
                     await _ticketService.UpdateAssignmentAsync(model);
                 }
 
@@ -189,17 +192,18 @@ namespace ASI.Basecode.Services.Services
                 var agent = await _repository.FindAgentByIdAsync(agentId);
                 var teamMember = await _repository.FindTeamMemberByIdAsync(agentId);
 
-                var model = new TicketViewModel();
                 foreach(var ticketAssignment in agent.TicketAssignmentAgents)
                 {
-                    if (ticketAssignment.Ticket.StatusTypeId == "S3") continue;
-                    model.AgentId = "no_agent";
-                    model.TicketId = ticketAssignment.TicketId;
-                    model.TeamId = ticketAssignment.TeamId;
+                    if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
+                    var model = new TicketViewModel
+                    {
+                        AgentId = "no_agent",
+                        TicketId = ticketAssignment.TicketId,
+                        TeamId = ticketAssignment.TeamId
+                    };
                     await _ticketService.UpdateAssignmentAsync(model);
                 }
 
-                agent.TeamMember = null;
                 team.TeamMembers.Remove(teamMember);
                 await _repository.RemoveTeamMemberAsync(teamMember);
                 _notificationService.AddNotification(null, $"You have been removed from team {team.Name}.", "9", agentId, "Removed from Team");
@@ -211,7 +215,7 @@ namespace ASI.Basecode.Services.Services
         /// Calls the repository to get all teams.
         /// </summary>
         /// <returns>IEnumerable TeamViewModel</returns>
-        public async Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, int pageIndex, int pageSize)
+        public async Task<PaginatedList<TeamViewModel>> GetAllAsync(string sortBy, string filterBy, string specialization, int pageIndex, int pageSize)
         {
             var teams = _mapper.Map<List<TeamViewModel>>(await _repository.GetAllAsync());
 
@@ -221,22 +225,34 @@ namespace ASI.Basecode.Services.Services
                                    (team.Specialization.CategoryName.Contains(filterBy, StringComparison.OrdinalIgnoreCase)))
                              .ToList();
             }
-            
+
+            if (!string.IsNullOrEmpty(specialization))
+            {
+                teams = teams.Where(team => team.SpecializationId.Contains(specialization, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            foreach (var team in teams)
+            {
+                var averageResolutionTime = CalculateAverageAsync(team.TeamMembers, a => a.User?.PerformanceReport?.AverageResolutionTime);
+                var averageFeedbackRating = CalculateAverageAsync(team.TeamMembers.SelectMany(t => t.User?.TicketAssignmentAgents), t => t.Ticket?.Feedback?.FeedbackRating);
+                await Task.WhenAll(averageFeedbackRating, averageResolutionTime);
+                team.AverageResolutionTime = (await averageResolutionTime).ToString();
+                team.AverageFeedbackRating = (await averageFeedbackRating).ToString();
+            }
+
             teams = sortBy switch
             {
                 "name_desc" => teams.OrderByDescending(t => t.Name).ToList(),
-                "specialization_desc" => teams.OrderByDescending(t => t.Specialization.CategoryName).ToList(),
-                "specialization" => teams.OrderBy(t => t.Specialization.CategoryName).ToList(),
                 "agents_desc" => teams.OrderByDescending(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "agents" => teams.OrderBy(t => t.TeamMembers?.Count() ?? 0).ToList(),
                 "active_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
                 "active" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate == null) ?? 0).ToList(),
                 "inactive_desc" => teams.OrderByDescending(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
                 "inactive" => teams.OrderBy(t => t.TicketAssignments?.Count(ta => ta.Ticket?.ResolvedDate != null) ?? 0).ToList(),
-                //"completion_desc" => teams.OrderByDescending().ToList(), // TODO: completion time
-                //"completion" => teams.OrderBy().ToList(), // TODO: completion time
-                //"rating_desc" => teams.OrderByDescending().ToList(), // TODO: rating
-                //"rating" => teams.OrderBy().ToList(), // TODO: rating
+                "completion_desc" => teams.OrderByDescending(t => t.AverageResolutionTime).ToList(),
+                "completion" => teams.OrderBy(t => t.AverageResolutionTime).ToList(),
+                "rating_desc" => teams.OrderByDescending(t => t.AverageFeedbackRating).ToList(),
+                "rating" => teams.OrderBy(t => t.AverageFeedbackRating).ToList(),
                 _ => teams.OrderBy(t => t.Name).ToList(),
             };
 
@@ -244,6 +260,27 @@ namespace ASI.Basecode.Services.Services
             var items = teams.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
             return new PaginatedList<TeamViewModel>(items, count, pageIndex, pageSize);
+        }
+
+        private static Task<double> CalculateAverageAsync<T>(IEnumerable<T> collection, Func<T, double?> valueSelector)
+        {
+            return Task.Run(() =>
+            {
+                double total = 0.0;
+                int validCount = 0;
+
+                foreach (var item in collection)
+                {
+                    double? value = valueSelector(item);
+                    if (value > 0.0)
+                    {
+                        total += value.Value;
+                        validCount++;
+                    }
+                }
+
+                return validCount > 0 ? total / validCount : 0.0;
+            });
         }
 
         /// <summary>
