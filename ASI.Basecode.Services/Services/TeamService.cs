@@ -151,13 +151,16 @@ namespace ASI.Basecode.Services.Services
                 var team = await _repository.FindByIdAsync(teamId);
                 var agent = await _repository.FindAgentByIdAsync(agentId);
 
-                var model = new TicketViewModel();
+                
                 foreach (var ticketAssignment in agent.TicketAssignmentAgents)
                 {
                     if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
-                    model.AgentId = agentId;
-                    model.TicketId = ticketAssignment.TicketId;
-                    model.TeamId = teamId;
+                    var model = new TicketViewModel
+                    {
+                        AgentId = agentId,
+                        TicketId = ticketAssignment.TicketId,
+                        TeamId = teamId
+                    };
                     await _ticketService.UpdateAssignmentAsync(model);
                 }
 
@@ -189,17 +192,18 @@ namespace ASI.Basecode.Services.Services
                 var agent = await _repository.FindAgentByIdAsync(agentId);
                 var teamMember = await _repository.FindTeamMemberByIdAsync(agentId);
 
-                var model = new TicketViewModel();
                 foreach(var ticketAssignment in agent.TicketAssignmentAgents)
                 {
                     if (ticketAssignment.Ticket.StatusTypeId == "S3" || ticketAssignment.Ticket.StatusTypeId == "S4") continue;
-                    model.AgentId = "no_agent";
-                    model.TicketId = ticketAssignment.TicketId;
-                    model.TeamId = ticketAssignment.TeamId;
+                    var model = new TicketViewModel
+                    {
+                        AgentId = "no_agent",
+                        TicketId = ticketAssignment.TicketId,
+                        TeamId = ticketAssignment.TeamId
+                    };
                     await _ticketService.UpdateAssignmentAsync(model);
                 }
 
-                agent.TeamMember = null;
                 team.TeamMembers.Remove(teamMember);
                 await _repository.RemoveTeamMemberAsync(teamMember);
                 _notificationService.AddNotification(null, $"You have been removed from team {team.Name}.", "9", agentId, "Removed from Team");

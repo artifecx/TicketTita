@@ -61,13 +61,13 @@ namespace ASI.Basecode.Services.Services
             var categoryTypes = await GetCategoryTypesAsync();
             var priorityTypes = await GetPriorityTypesAsync();
 
-            ticket.StatusTypes = currentUserRole != "Employee" ? statusTypes.Where(x => x.StatusName != "Closed") : statusTypes.Where(x => x.StatusName != "Closed" && x.StatusName != "In Progress");
+            ticket.StatusTypes = !currentUserRole.Contains("Employee") ? statusTypes.Where(x => x.StatusName != "Closed") : statusTypes.Where(x => x.StatusName != "Closed" && x.StatusName != "In Progress");
             ticket.PriorityTypes = priorityTypes;
             ticket.CategoryTypes = categoryTypes;
             ticket.Comments = ticket.Comments?.OrderByDescending(c => c.PostedDate);
             ticket.Teams = currentUserRole.Contains("Admin") ? teams : teams.Where(x => x.TeamMembers != null && x.TeamMembers.Any(x => x.UserId == currentUserId));
             ticket.Agents = agents;
-            ticket.AgentsWithNoTeam = currentUserRole.Contains("Admin") ? agents.Where(x => x.TeamMember == null) : null;
+            ticket.AgentsWithNoTeam = !currentUserRole.Contains("Employee") ? agents.Where(x => x.TeamMember == null) : null;
 
             return ticket;
         }
@@ -101,13 +101,16 @@ namespace ASI.Basecode.Services.Services
                 var agent = await _teamRepository.FindAgentByIdAsync(userId);
                 showOption = string.IsNullOrEmpty(showOption) ? defaultShowOption : showOption;
 
-                tickets = showOption?.ToLower() switch
+                if (!clearFilters)
                 {
-                    "assigned_me" => tickets.Where(t => t.TicketAssignment?.AgentId == userId).ToList(),
-                    "assigned_team" => tickets.Where(t => t.TicketAssignment?.TeamId == agent.TeamMember?.TeamId).ToList(),
-                    "assigned_none" => tickets.Where(t => t.TicketAssignment == null).ToList(),
-                    _ => tickets
-                };
+                    tickets = showOption?.ToLower() switch
+                    {
+                        "assigned_me" => tickets.Where(t => t.TicketAssignment?.AgentId == userId).ToList(),
+                        "assigned_team" => tickets.Where(t => agent.TeamMember != null && t.TicketAssignment?.TeamId == agent.TeamMember?.TeamId).ToList(),
+                        "assigned_none" => tickets.Where(t => t.TicketAssignment == null).ToList(),
+                        _ => tickets
+                    };
+                }
             }
 
             if (!string.IsNullOrEmpty(search))
