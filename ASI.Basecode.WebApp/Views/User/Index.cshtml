@@ -19,6 +19,7 @@
 @section styles {
     <link rel="stylesheet" href="~/css/user.css" />
     <link rel="stylesheet" href="~/css/notification.css" />
+    <link rel="stylesheet" href="~/css/pagination.css" />
 }
 
 <div class="d-flex justify-content-between nav-header">
@@ -143,26 +144,42 @@
             </tbody>
         }
     </table>
-</div>
 
-@* Please change width of button *@
-<div class="d-flex justify-content-end px-4 py-3">
-    @if (Model.HasPreviousPage)
-    {
-        <a class="btn btn-primary mx-2" asp-action="Index"
-           asp-route-sortOrder="@sortOrder"
-           asp-route-currentFilter="@currentFilter"
-           asp-route-roleFilter="@ViewData["RoleFilter"]"
-           asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
-    }
-    @if (Model.HasNextPage)
-    {
-        <a class="btn btn-primary mx-2" asp-action="Index"
-           asp-route-sortOrder="@sortOrder"
-           asp-route-currentFilter="@currentFilter"
-           asp-route-roleFilter="@ViewData["RoleFilter"]"
-           asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
-    }
+
+    <nav>
+        <ul class="pagination">
+            @if (Model.HasPreviousPage)
+            {
+                <li class="page-item">
+                    <a class="page-link btn btn-primary" asp-action="Index"
+                       asp-route-sortOrder="@sortOrder"
+                       asp-route-currentFilter="@currentFilter"
+                       asp-route-roleFilter="@roleFilter"
+                       asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+                </li>
+            }
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link btn btn-primary" asp-action="Index"
+                       asp-route-sortOrder="@sortOrder"
+                       asp-route-currentFilter="@currentFilter"
+                       asp-route-roleFilter="@roleFilter"
+                       asp-route-pageNumber="@i">@i</a>
+                </li>
+            }
+            @if (Model.HasNextPage)
+            {
+                <li class="page-item">
+                    <a class="page-link btn btn-primary" asp-action="Index"
+                       asp-route-sortOrder="@sortOrder"
+                       asp-route-currentFilter="@currentFilter"
+                       asp-route-roleFilter="@roleFilter"
+                       asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
 </div>
 
 <!-- Add User Modal -->
