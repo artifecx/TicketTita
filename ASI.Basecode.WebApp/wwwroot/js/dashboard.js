@@ -83,7 +83,7 @@
         },
         plugins: {
             legend: {
-                display: true,
+                display: false,
                 position: 'top',
             },
             tooltip: {
@@ -141,6 +141,9 @@
             }
         },
         plugins: {
+            legend: {
+                display: false
+            },
             tooltip: {
                 callbacks: {
                     label: function (context) {
