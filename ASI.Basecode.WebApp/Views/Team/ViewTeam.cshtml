@@ -59,6 +59,9 @@
                             }
                         </p>
                     </div>
+                    <div class="form-group">
+                        <input type="text" id="agentSearch" class="form-control" placeholder="Search agents by name..." />
+                    </div>
                     <table class="table table-white">
                         <thead>
                             <tr>
@@ -67,7 +70,7 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="agentList">
                             @if (!Model.TeamMembers.Any())
                             {
                                 <tr>
@@ -80,8 +83,8 @@
                             {
                                 @foreach (var agent in Model.TeamMembers)
                                 {
-                                    <tr>
-                                        <td>
+                                    <tr class="agent-row">
+                                        <td class="agent-name">
                                             @Html.DisplayFor(modelItem => agent.User.Name)
                                         </td>
                                         <td>
@@ -122,7 +125,6 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script src="~/js/team.js"></script>
     <script src="~/js/toastrNotification.js"></script>
@@ -134,5 +136,17 @@
                 $('#performanceReportModal').modal('show');
             });
         }
+
+        document.getElementById('agentSearch').addEventListener('input', function () {
+            var query = this.value.toLowerCase();
+            document.querySelectorAll('.agent-row').forEach(function (row) {
+                var name = row.querySelector('.agent-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
     </script>
 }
