@@ -72,7 +72,7 @@ namespace ASI.Basecode.Services.Services
 
             if (model != null)
             {
-                if(model.Subject.Length > 100)
+                if (model.Subject.Length > 100)
                     throw new TicketException("Subject has exceeded maximum allowed characters of 100.");
                 if (model.IssueDescription.Length > 800)
                     throw new TicketException("Description has exceeded maximum allowed characters of 800.");
@@ -117,11 +117,13 @@ namespace ASI.Basecode.Services.Services
             {
                 if (!string.IsNullOrEmpty(model.CategoryTypeId))
                 {
-                    if(!string.IsNullOrEmpty(model.CategoryTypeId) && ticket.CategoryTypeId == model.CategoryTypeId)
+                    if (!string.IsNullOrEmpty(model.CategoryTypeId) && ticket.CategoryTypeId == model.CategoryTypeId)
                         throw new TicketException("Ticket is already in the selected category.");
 
                     ticket.CategoryTypeId = model.CategoryTypeId;
                     await _repository.UpdateAsync(ticket);
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", $"Category modified");
+                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                     return;
                 }
 
@@ -133,7 +135,7 @@ namespace ASI.Basecode.Services.Services
                 bool hasChanges = ticket.IssueDescription != model.IssueDescription ||
                                 ticket.Subject != model.Subject ||
                                 (!ticket.Attachments.Any() && model.File != null);
-                bool hasAttachmentChanges = ticket.Attachments.Any() && (model.File != null || 
+                bool hasAttachmentChanges = ticket.Attachments.Any() && (model.File != null ||
                                 (model.File == null && model.Attachment == null));
 
                 if ((hasChanges || hasAttachmentChanges) && ticket.ResolvedDate != null)
@@ -150,11 +152,11 @@ namespace ASI.Basecode.Services.Services
 
                 ticket.Subject = model.Subject != null ? model.Subject : ticket.Subject;
                 ticket.IssueDescription = model.IssueDescription != null ? model.IssueDescription : ticket.IssueDescription;
-                if(model.File != null) ticket.Attachments.Add(model.Attachment);
+                if (model.File != null) ticket.Attachments.Add(model.Attachment);
 
                 ticket.UpdatedDate = DateTime.Now;
                 await UpdateTicketDate(ticket);
-                
+
                 if (model.File != null && model.Attachment.AttachmentId != null)
                 {
                     model.Attachment.TicketId = ticket.TicketId;
@@ -166,7 +168,7 @@ namespace ASI.Basecode.Services.Services
                 }
                 if (hasChanges || hasAttachmentChanges)
                 {
-                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update",
                         $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
                     _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                 }
@@ -233,9 +235,7 @@ namespace ASI.Basecode.Services.Services
         /// <param name="ticket">The ticket</param>
         private async Task UpdateTicketDate(Ticket ticket)
         {
-            var status = await _repository.FindStatusByIdAsync(ticket.StatusTypeId);
-
-            if (status != null && (status.StatusName.Equals("Closed") || status.StatusName.Equals("Resolved")))
+            if (ticket.StatusTypeId != null && (ticket.StatusTypeId.Equals("S3") || ticket.StatusTypeId.Equals("S4")))
             {
                 ticket.ResolvedDate = ticket.ResolvedDate ?? DateTime.Now;
             }
