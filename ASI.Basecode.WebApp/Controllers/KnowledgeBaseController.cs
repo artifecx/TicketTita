@@ -45,8 +45,16 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns> Sample Crud View </returns>
         [HttpGet]
         [Authorize]
-        public IActionResult Index(string searchTerm, List<string> selectedCategories, string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1)
+        public IActionResult Index(string searchTerm, string selectedCategories = "All", string sortBy = "CreatedDate", string sortOrder = "asc", int pageNumber = 1, bool clearFilters = false)
         {
+            if (clearFilters)
+            {
+                selectedCategories = "All";
+                sortBy = "CreatedDate";
+                sortOrder = "asc";
+                searchTerm = string.Empty;
+            }
+
             var pageSize = 5;
 
             var totalArticlesCount = _knowledgeBaseService.CountArticles(searchTerm, selectedCategories);

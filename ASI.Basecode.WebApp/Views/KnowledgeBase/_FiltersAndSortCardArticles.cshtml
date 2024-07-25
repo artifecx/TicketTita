@@ -1,0 +1,60 @@
+﻿@model ASI.Basecode.Services.ServiceModels.PaginatedList<ASI.Basecode.Services.ServiceModels.KnowledgeBaseViewModel>
+@using ASI.Basecode.Data.Models
+
+@{
+    string selectedCategories = ViewData["SelectedCategories"] as string;
+    string sortBy = ViewData["SortBy"] as string;
+    string sortOrder = ViewData["SortOrder"] as string;
+    string searchTerm = ViewData["SearchTerm"] as string;
+    var categories = ViewBag.Categories as IEnumerable<ArticleCategory>;
+}
+
+<div class="col-3">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Article Filters & Sort</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <div class="mb-3">
+                    <label for="selectedCategories">Categories: </label>
+                    <select id="selectedCategories" name="selectedCategories" class="form-control">
+                        <option value="All">All</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.CategoryId" selected="@(selectedCategories == category.CategoryId ? "selected" : null)">@category.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                <hr />
+                <div class="mb-3">
+                    <label for="sortBy">Sort By:</label>
+                    <select asp-for="@sortBy" id="sortBy" name="sortBy" class="form-control">
+                        <option value="CreatedDate" selected="@(sortBy == "CreatedDate")">Created Date</option>
+                        <option value="UpdatedDate" selected="@(sortBy == "UpdatedDate")">Updated Date</option>
+                        <option value="Title" selected="@(sortBy == "Title")">Title</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="sortOrder">Sort Order:</label>
+                    <select asp-for="@sortOrder" id="sortOrder" name="sortOrder" class="form-control">
+                        <option value="asc" selected="@(sortOrder == "asc")">Ascending</option>
+                        <option value="desc" selected="@(sortOrder == "desc")">Descending</option>
+                    </select>
+                </div>
+                <hr />
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
+                <input type="hidden" name="searchTerm" value="@searchTerm" />
+                <input type="hidden" name="clearFilters" id="clearFilters" value="false" />
+            </form>
+            @if (!selectedCategories.Equals("All") || !sortBy.Equals("CreatedDate") || !sortOrder.Equals("asc"))
+            {
+                <hr />
+                <form>
+                    <a href="@Url.Action("Index", "KnowledgeBase", new { clearFilters = true, searchTerm = @searchTerm })" class="btn btn-secondary w-100 text-black">Clear</a>
+                </form>
+                <hr />
+            }
+        </div>
+    </div>
+</div>
