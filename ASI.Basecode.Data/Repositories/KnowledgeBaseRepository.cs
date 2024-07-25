@@ -120,7 +120,7 @@ namespace ASI.Basecode.Data.Repositories
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm));
+                articles = articles.Where(x => x.Title.Contains(searchTerm) || x.Content.Contains(searchTerm) || x.Author.Name.Contains(searchTerm));
             }
 
             if (!selectedCategories.Equals("All") && selectedCategories.Any())
