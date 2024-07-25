@@ -91,9 +91,9 @@
                                             @Html.DisplayFor(modelItem => agent.User.Email)
                                         </td>
                                         <td>
-                                            <a href="javascript:void(0);" onclick="displayPerformanceReport('@agent.UserId')">Performance Report</a>
+                                            <a title="Performance Report" href="javascript:void(0);" class="fas fa-tachometer-alt action-icon" onclick="displayPerformanceReport('@agent.UserId')"></a>
                                             <text> | </text>
-                                            <a href="javascript:void(0);" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')">Reassign</a>
+                                            <a title="Reassign" href="javascript:void(0);" class="fa-solid fa-share action-icon" onclick="displayReassignAgentModal('@Model.TeamId', '@agent.UserId')"></a>
                                         </td>
                                     </tr>
                                 }
