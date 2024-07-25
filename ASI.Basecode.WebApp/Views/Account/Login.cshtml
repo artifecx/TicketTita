@@ -50,8 +50,11 @@
 @section scripts {
     <script>
         var errorMessage = '@TempData["ErrorMessage"]';
+        var ForgotPasswordMessage = '@TempData["ForgotPasswordMessage"]';
         if (errorMessage) {
             toastr.error(errorMessage);
-        }
+        } else if (ForgotPasswordMessage) {
+            toastr.success(ForgotPasswordMessage);
+        } 
     </script>
 }

@@ -81,17 +81,28 @@ namespace ASI.Basecode.WebApp.Controllers
             return View();
 
         }
+        /// <summary>
+        /// Posts the forgot password.
+        /// </summary>
+        /// <param name="email">The email.</param>
+        /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult PostForgotPassword(string email) {
+        public IActionResult PostForgotPassword(string email)
+        {
+            bool exists = _userService.UserExists(email);
 
-            bool Exists = _userService.UserExists(email);
-
-            if (Exists) {
+            if (exists)
+            {
+                TempData["ForgotPasswordMessage"] = "Your password reset request has been sent. Our Administrators will be in contact with you";
                 _userService.NotifyPasswordReset(email);
+                return RedirectToAction("Login");
             }
-           
-            return RedirectToAction("Login");
+            else
+            {
+                TempData["ErrorMessage"] = "The email address provided does not exist in our records. Please try again.";
+                return RedirectToAction("ForgotPassword");
+            }
         }
 
         /// <summary>
@@ -123,8 +134,11 @@ namespace ASI.Basecode.WebApp.Controllers
                 TempData["ErrorMessage"] = "Incorrect Email or Password";
                 return View();
             }
-            return View();
         }
+        /// <summary>
+        /// Signs the out user.
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         public async Task<IActionResult> SignOutUser()
         {

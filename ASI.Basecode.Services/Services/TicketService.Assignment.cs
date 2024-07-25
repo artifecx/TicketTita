@@ -146,7 +146,7 @@ namespace ASI.Basecode.Services.Services
             await CheckAndModifyStatusByAssignment(ticketId, status);
             var ticket = await _repository.FindByIdAsync(model.TicketId);
             await _activityLogService.LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
-            _notificationService.CreateTicketNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
+            _notificationService.CreateNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
             return status;
         }
 

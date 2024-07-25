@@ -64,7 +64,7 @@ namespace ASI.Basecode.Services.Services
 
                     await _repository.AddAsync(newFeedback);
                     await _activityLogService.LogActivityAsync(ticket, user.UserId, "Add Feedback", $"Feedback created. Rating: {newFeedback.FeedbackRating}/5");
-                    _notificationService.CreateTicketNotification(ticket, 7, null, ticket.TicketAssignment.AgentId);
+                    _notificationService.CreateNotification(ticket, 7, null, ticket.TicketAssignment.AgentId);
                 }
             }
         }

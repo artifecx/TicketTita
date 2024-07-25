@@ -96,7 +96,7 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _repository.AddAsync(newTicket);
                 }
-                _notificationService.CreateTicketNotification(newTicket, 1, null);
+                _notificationService.CreateNotification(newTicket, 1, null);
 
                 // Log the creation activity
                 await _activityLogService.LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
@@ -168,7 +168,7 @@ namespace ASI.Basecode.Services.Services
                 {
                     await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", 
                         $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
-                    _notificationService.CreateTicketNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
+                    _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                 }
             }
             else
