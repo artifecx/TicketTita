@@ -77,7 +77,7 @@ namespace ASI.Basecode.Services.Services
             {
                 var performanceReport = user.PerformanceReport;
                 var tickets = await _teamRepository.GetCompletedTicketsAssignedToAgentAsync(userId);
-                if (tickets.Any() && performanceReport != null)
+                if (tickets.Any() && performanceReport != null && tickets.Exists(t => t.Feedback != null))
                 {
                     return new PerformanceReportViewModel
                     {
