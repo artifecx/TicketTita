@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
+    /// <summary>
+    /// Repository class for handling operations related to the Team entity.
+    /// </summary>
     public class TeamRepository : BaseRepository, ITeamRepository
     {
         /// <summary>
@@ -18,6 +21,17 @@ namespace ASI.Basecode.Data.Repositories
         /// <param name="unitOfWork">The unit of work.</param>
         public TeamRepository(IUnitOfWork unitOfWork) : base(unitOfWork) { }
 
+        /// <summary>
+        /// Retrieves teams with necessary related data.
+        /// Includes: 
+        /// TeamMembers->User, 
+        /// TeamMembers->User->PerformanceReport, 
+        /// TeamMembers->User->TicketAssignmentAgents->Ticket->Feedback, 
+        /// TicketAssignments->Agent, 
+        /// TicketAssignments->Ticket->Feedback, 
+        /// Specialization
+        /// </summary>
+        /// <returns>An <see cref="IQueryable{T}"/> of <see cref="Team"/> including the specified related data.</returns>
         private IQueryable<Team> GetTeamsWithIncludes()
         {
             return this.GetDbSet<Team>()
@@ -40,21 +54,47 @@ namespace ASI.Basecode.Data.Repositories
                         .Include(t => t.Specialization);
         }
 
+        /// <summary>
+        /// Retrieves all teams asynchronously with necessary related data.
+        /// Includes: 
+        /// TeamMembers->User, 
+        /// TeamMembers->User->PerformanceReport, 
+        /// TeamMembers->User->TicketAssignmentAgents->Ticket->Feedback, 
+        /// TicketAssignments->Agent, 
+        /// TicketAssignments->Ticket->Feedback, 
+        /// Specialization
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of teams.</returns>
         public async Task<List<Team>> GetAllAsync() =>
             await GetTeamsWithIncludes().AsNoTracking().ToListAsync();
 
+        /// <summary>
+        /// Adds a new team asynchronously.
+        /// </summary>
+        /// <param name="team">The team to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddAsync(Team team)
         {
             await this.GetDbSet<Team>().AddAsync(team);
             await UnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Updates the team asynchronously.
+        /// </summary>
+        /// <param name="team">The team to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateAsync(Team team)
         {
             this.GetDbSet<Team>().Update(team);
             await UnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Soft deletes the team asynchronously.
+        /// </summary>
+        /// <param name="team">The team to delete.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteAsync(Team team)
         {
             team.IsDeleted = true;
@@ -62,18 +102,38 @@ namespace ASI.Basecode.Data.Repositories
             await UnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Adds a team member asynchronously.
+        /// </summary>
+        /// <param name="teamMember">The team member to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddTeamMemberAsync(TeamMember teamMember)
         {
             await this.GetDbSet<TeamMember>().AddAsync(teamMember);
             await UnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Removes a team member asynchronously.
+        /// </summary>
+        /// <param name="teamMember">The team member to remove.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RemoveTeamMemberAsync(TeamMember teamMember)
         {
             this.GetDbSet<TeamMember>().Remove(teamMember);
             await UnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Retrieves all teams with lightweight includes asynchronously.
+        /// Includes: 
+        /// TeamId, Name, 
+        /// TeamMembers->UserId, 
+        /// TeamMembers->User->Name, 
+        /// Specialization->CategoryTypeId, 
+        /// Specialization->CategoryName
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of lightweight teams.</returns>
         public async Task<IEnumerable<Team>> GetAllStrippedAsync()
         {
             return this.GetDbSet<Team>()
@@ -112,6 +172,10 @@ namespace ASI.Basecode.Data.Repositories
                         });
         }
 
+        /// <summary>
+        /// Retrieves the lightweight version of users with the role of Support Agent asynchronously.
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of users with the role of Support Agent.</returns>
         public async Task<IEnumerable<User>> GetAgentsAsync()
         {
             return await this.GetDbSet<User>()
@@ -126,10 +190,35 @@ namespace ASI.Basecode.Data.Repositories
                         }).ToListAsync();
         }
 
-
+        /// <summary>
+        /// Finds a team by identifier asynchronously.
+        /// Includes: 
+        /// TeamMembers->User, 
+        /// TeamMembers->User->PerformanceReport, 
+        /// TeamMembers->User->TicketAssignmentAgents->Ticket->Feedback, 
+        /// TicketAssignments->Agent, 
+        /// TicketAssignments->Ticket->Feedback, 
+        /// Specialization
+        /// </summary>
+        /// <param name="id">The team identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the team with the specified identifier, including related data.</returns>
         public async Task<Team> FindByIdAsync(string id) =>
             await GetTeamsWithIncludes().FirstOrDefaultAsync(t => t.TeamId == id);
 
+        /// <summary>
+        /// Finds a support agent by identifier asynchronously.
+        /// Includes: 
+        /// CreatedByNavigation, 
+        /// Role, 
+        /// UpdatedByNavigation, 
+        /// TeamMember, 
+        /// PerformanceReport, 
+        /// ActivityLogs, 
+        /// KnowledgeBaseArticles, 
+        /// TicketAssignmentAgents->Ticket
+        /// </summary>
+        /// <param name="id">The user identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the user with the specified identifier, including related data.</returns>
         public async Task<User> FindAgentByIdAsync(string id)
         {
             return await this.GetDbSet<User>()
@@ -147,14 +236,29 @@ namespace ASI.Basecode.Data.Repositories
                         .FirstOrDefaultAsync(u => u.UserId == id);
         }
 
-        public async Task<TeamMember> FindTeamMemberByIdAsync(string id) => 
+        /// <summary>
+        /// Finds a team member by identifier asynchronously.
+        /// </summary>
+        /// <param name="id">The team member identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the team member with the specified identifier, including related data.</returns>
+        public async Task<TeamMember> FindTeamMemberByIdAsync(string id) =>
             await this.GetDbSet<TeamMember>().Include(u => u.Team).FirstOrDefaultAsync(tm => tm.UserId == id);
 
+        /// <summary>
+        /// Determines whether the specified user is an existing team member in the specified team.
+        /// </summary>
+        /// <param name="teamId">The team identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a boolean value indicating whether the user is an existing team member in the team.</returns>
         public async Task<bool> IsExistingTeamMember(string teamId, string agentId) =>
             await GetTeamsWithIncludes()
                 .AnyAsync(t => t.TeamMembers.Any(tm => tm.UserId == agentId && tm.TeamId == teamId));
 
-
+        /// <summary>
+        /// Retrieves completed tickets assigned to the specified agent asynchronously.
+        /// </summary>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of completed tickets assigned to the agent.</returns>
         public async Task<List<Ticket>> GetCompletedTicketsAssignedToAgentAsync(string agentId)
         {
             return await this.GetDbSet<Ticket>()

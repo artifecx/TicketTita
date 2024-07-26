@@ -3,11 +3,17 @@ using ASI.Basecode.WebApp.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
     public partial class TicketController : ControllerBase<TicketController>
     {
+        /// <summary>
+        /// Adds a comment to a ticket.
+        /// </summary>
+        /// <param name="model">The comment view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Authorize]
         [Route("addcomment")]
@@ -20,14 +26,19 @@ namespace ASI.Basecode.WebApp.Controllers
                     if (model == null) return RedirectToAction("GetAll");
                     model.UserId = UserId;
                     await _ticketService.AddCommentAsync(model);
-                    TempData["SuccessMessage"] = "Comment posted successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessCommentPosted;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while posting your comment. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorCommentPost;
                 return Json(new { success = false });
             }, "AddComment");
         }
 
+        /// <summary>
+        /// Edits an existing comment on a ticket.
+        /// </summary>
+        /// <param name="model">The comment view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Authorize]
         [Route("editcomment")]
@@ -39,14 +50,19 @@ namespace ASI.Basecode.WebApp.Controllers
                 {
                     model.UserId = UserId;
                     await _ticketService.UpdateCommentAsync(model);
-                    TempData["SuccessMessage"] = "Comment edited successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessCommentEdited;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while editing your comment. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorCommentEdit;
                 return Json(new { success = false });
             }, "EditComment");
         }
 
+        /// <summary>
+        /// Deletes a comment from a ticket.
+        /// </summary>
+        /// <param name="model">The comment view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Authorize]
         [Route("deletecomment")]
@@ -57,10 +73,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _ticketService.DeleteCommentAsync(model.CommentId);
-                    TempData["SuccessMessage"] = "Comment deleted successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessCommentDeleted;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while deleting your comment. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorCommentDelete;
                 return Json(new { success = false });
             }, "DeleteComment");
         }

@@ -3,6 +3,7 @@
 
 @{
     bool isClosed = ViewBag.IsClosed ?? false;
+    bool isResolved = ViewBag.IsResolved ?? false;
 }
 
 <div class="comment mb-3" id="comment-@Model.CommentId">
@@ -16,7 +17,7 @@
             }
         </div>
         <div>
-            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed)
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed && !isResolved)
             {
                 <a href="#" title="Edit Comment" class="edit-comment-link me-2 fas fa-edit action-icon" data-id="@Model.CommentId"></a>
             }
@@ -24,7 +25,7 @@
             {
                 <a href="#" title="Reply to Comment" class="reply-comment-link me-2 fa-solid fa-reply action-icon" data-id="@Model.CommentId"></a>
             }
-            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed)
+            @if (Model.UserId == HttpContextAccessor.HttpContext.Session.GetString("UserId") && !isClosed && !isResolved)
             {
                 <a href="#" title="Delete Comment" class="delete-comment-link me-2 fas fa-trash action-icon ml-1" data-id="@Model.CommentId"></a>
             }

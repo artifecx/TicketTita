@@ -6,20 +6,24 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Threading.Tasks;
-using static ASI.Basecode.Services.Exceptions.TicketExceptions;
-using System.Net.Sockets;
 using System.Security.Claims;
-using static ASI.Basecode.Resources.Constants.Enums;
+using static ASI.Basecode.Services.Exceptions.TicketExceptions;
+using ASI.Basecode.Resources.Messages;
+using ASI.Basecode.Resources.Views;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to ticket attachments.
+    /// </summary>
     public partial class TicketService : ITicketService
     {
         /// <summary>
-        /// Calls the repository to add a new attachment.
+        /// Adds a new attachment to a ticket asynchronously.
         /// </summary>
-        /// <param name="attachment">The attachment</param>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="attachment">The attachment entity.</param>
+        /// <param name="ticket">The ticket entity.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddAttachmentAsync(Attachment attachment, Ticket ticket)
         {
             attachment.Ticket = ticket;
@@ -27,14 +31,17 @@ namespace ASI.Basecode.Services.Services
             {
                 ticket.Attachments.Add(attachment);
                 await _repository.AddAttachmentAsync(attachment);
-                await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Add Attachment", $"Attachment added: {attachment.Name}");
+                await _activityLogService.LogActivityAsync(ticket, 
+                    _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, 
+                    Common.AddAttachment, string.Format(Common.AttachmentAdded, attachment.Name));
             }
         }
 
         /// <summary>
-        /// Remove attachment by ticket identifier.
+        /// Removes an attachment by ticket identifier asynchronously.
         /// </summary>
-        /// <param name="id">The ticket identifier</param>
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task RemoveAttachmentByTicketIdAsync(string id)
         {
             var attachment = await GetAttachmentByTicketIdAsync(id);
@@ -43,14 +50,16 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Helper method to create a new ticket attachment.
+        /// Handles the creation of a new ticket attachment asynchronously.
         /// </summary>
-        /// <param name="model">The ticket</param>
+        /// <param name="model">The ticket view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when the file type is not allowed or the file size exceeds the limit.</exception>
         private async Task HandleAttachmentAsync(TicketViewModel model)
         {
-            var allowedFileTypesString = Resources.Views.FileValidation.AllowedFileTypes;
+            var allowedFileTypesString = FileValidation.AllowedFileTypes;
             var allowedFileTypes = new HashSet<string>(allowedFileTypesString.Split(','), StringComparer.OrdinalIgnoreCase);
-            long maxFileSize = Convert.ToInt32(Resources.Views.FileValidation.MaxFileSizeMB) * 1024 * 1024;
+            long maxFileSize = Convert.ToInt32(FileValidation.MaxFileSizeMB) * 1024 * 1024;
 
             if (model.File != null && model.File.Length > 0)
             {
@@ -71,7 +80,7 @@ namespace ASI.Basecode.Services.Services
                 }
                 else
                 {
-                    throw new TicketException("File type not allowed or file size exceeds the limit.", model.TicketId);
+                    throw new TicketException(Common.FileTypeNotAllowedOrSizeExceeds, model.TicketId);
                 }
             }
         }

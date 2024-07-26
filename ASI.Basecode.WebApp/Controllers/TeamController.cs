@@ -1,7 +1,6 @@
 ﻿using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
-using ASI.Basecode.Services.Services;
 using ASI.Basecode.WebApp.Authentication;
 using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
@@ -10,13 +9,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    /// <summary>
+    /// Controller for handling team-related operations.
+    /// </summary>
     [Route("team")]
     public class TeamController : ControllerBase<TeamController>
     {
@@ -31,6 +32,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="configuration">The configuration.</param>
         /// <param name="mapper">The mapper.</param>
         /// <param name="teamService">The team service.</param>
+        /// <param name="ticketService">The ticket service.</param>
+        /// <param name="userPreferences">The user preferences service.</param>
         /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
         /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
         public TeamController(
@@ -49,7 +52,14 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         #region GET Methods 
-        /// <summary>Show all teams</summary>
+        /// <summary>
+        /// Show all teams.
+        /// </summary>
+        /// <param name="sortBy">The sort by option.</param>
+        /// <param name="filterBy">The filter by option.</param>
+        /// <param name="specialization">The specialization filter.</param>
+        /// <param name="pageIndex">The page index.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [Authorize(Policy = "Admin")]
         [HttpGet]
         [Route("all")]
@@ -69,13 +79,13 @@ namespace ASI.Basecode.WebApp.Controllers
                 return View("ViewAll", teams);
             }, "GetAll");
         }
-               
+
         /// <summary>
         /// Views the selected team.
         /// </summary>
         /// <param name="id">The identifier.</param>
         /// <param name="showModal">The show modal.</param>
-        /// <returns>View</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpGet]
         [Authorize(Policy = "Admin")]
         [Route("view")]
@@ -85,14 +95,14 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    TempData["ErrorMessage"] = "Team ID is invalid!";
+                    TempData["ErrorMessage"] = Errors.InvalidTeamId;
                     return RedirectToAction("GetAll");
                 }
 
                 var team = await _teamService.GetTeamByIdAsync(id);
-                if(team == null)
+                if (team == null)
                 {
-                    TempData["ErrorMessage"] = "Team not found!";
+                    TempData["ErrorMessage"] = Errors.TeamNotFound;
                     return RedirectToAction("GetAll");
                 }
                 var agents = await _teamService.GetAgentsAsync();
@@ -115,8 +125,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <summary>
         /// Creates a new team.
         /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>Json success status</returns>
+        /// <param name="model">The team view model.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         [Route("create")]
@@ -127,10 +137,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _teamService.AddAsync(model);
-                    TempData["SuccessMessage"] = "Team created successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessCreateTeam;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while creating the team. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorCreateTeam;
                 return Json(new { success = false });
             }, "Create");
         }
@@ -138,8 +148,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <summary>
         /// Updates the selected team.
         /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>Json success status</returns>
+        /// <param name="model">The team view model.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         [Route("update")]
@@ -150,10 +160,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _teamService.UpdateAsync(model);
-                    TempData["SuccessMessage"] = "Team updated successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessUpdateTeam;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while updating the team. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorUpdateTeam;
                 return Json(new { success = false });
             }, "Update");
         }
@@ -161,8 +171,8 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <summary>
         /// Deletes the selected team.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>Json success status</returns>
+        /// <param name="id">The team identifier.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         [Route("delete")]
@@ -173,20 +183,20 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _teamService.DeleteAsync(id);
-                    TempData["SuccessMessage"] = "Team deleted successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessDeleteTeam;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while deleting the team. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorDeleteTeam;
                 return Json(new { success = false });
             }, "Delete");
         }
 
         /// <summary>
-        /// Assigns an agent to team.
+        /// Assigns an agent to a team.
         /// </summary>
         /// <param name="teamId">The team identifier.</param>
         /// <param name="agentId">The agent identifier.</param>
-        /// <returns>Json success status</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         [Route("assignagent")]
@@ -197,21 +207,21 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     await _teamService.AddTeamMemberAsync(teamId, agentId);
-                    TempData["SuccessMessage"] = "Agent assigned successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessAssignAgent;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while assigning the agent. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorAssignAgent;
                 return Json(new { success = false });
             }, "AssignAgent");
         }
 
         /// <summary>
-        /// Reassigns an agent to team.
+        /// Reassigns an agent to a different team.
         /// </summary>
         /// <param name="oldTeamId">The old team identifier.</param>
         /// <param name="newTeamId">The new team identifier.</param>
         /// <param name="agentId">The agent identifier.</param>
-        /// <returns>Json success status</returns>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize(Policy = "Admin")]
         [Route("reassignagent")]
@@ -227,11 +237,11 @@ namespace ASI.Basecode.WebApp.Controllers
                         await _teamService.AddTeamMemberAsync(newTeamId, agentId);
                     }
 
-                    TempData["SuccessMessage"] = string.IsNullOrEmpty(newTeamId) ? 
-                        "Agent unassigned successfully!" : "Agent reassigned successfully!";
+                    TempData["SuccessMessage"] = string.IsNullOrEmpty(newTeamId) ?
+                        Common.SuccessUnassignAgent : Common.SuccessReassignAgent;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while reassigning the agent. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorReassignAgent;
                 return Json(new { success = false });
             }, "ReassignAgent");
         }

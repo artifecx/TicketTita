@@ -12,7 +12,7 @@ namespace ASI.Basecode.Data.Migrations
             migrationBuilder.InsertData(
                 table: "Admin",
                 columns: new[] { "admin_ID", "name", "email", "password", "isSuper" },
-                values: new object[,] 
+                values: new object[,]
                 {
                     { "D56F556E-50A4-4240-A0FF-9A6898B3A03B", "Joel", "joel@example.com", "securepassword", true },
                     { "cb2d0c01-ef51-4deb-96dd-f57c25497fe3", "Jane Doe", "123@", "Kw7+jFXwfGw/o6Mi2vJEXw==", true },
@@ -22,7 +22,7 @@ namespace ASI.Basecode.Data.Migrations
             migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "role_ID", "roleName", "description" },
-                values: new object[,]
+                values: new object[,] 
                 {
                     { "Admin", "Admin", "Administrator with full access to the system" },
                     { "Support Agent", "Support Agent", "Support agent with access to help desk functionalities" },

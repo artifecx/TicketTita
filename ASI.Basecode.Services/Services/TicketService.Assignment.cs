@@ -4,36 +4,24 @@ using ASI.Basecode.Services.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static ASI.Basecode.Services.Exceptions.TicketExceptions;
-using static ASI.Basecode.Services.Exceptions.TeamExceptions;
 using System.Security.Claims;
+using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using Microsoft.Extensions.Logging;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to ticket assignments.
+    /// </summary>
     public partial class TicketService : ITicketService
     {
         /// <summary>
-        /// Updates the assignment.
+        /// Updates the assignment of a ticket asynchronously.
         /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>string assignment type: "assign", "unassign", "reassign"</returns>
-        /// new assignment
-        /// case 0: no team, no agent - exception
-        /// case 1: no team, new agent
-        /// case 2: new team, no agent
-        /// case 3: new team, new agent
-        /// ------------------------------
-        /// existing assignment
-        /// case 0: same team, same agent - exception
-        /// case 1: same team, no agent assigned, no agent selected - exception
-        /// case 2: no team, no agent
-        /// case 3: same team, no agent
-        /// case 4: no team, different agent
-        /// case 5: same team, different agent
-        /// case 6: different team, no agent
-        /// case 7: different team, different agent
-        /// case 8: new team from no team, same agent -> no team agent with ticket was assigned to a team
+        /// <param name="model">The ticket view model.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the assignment type: "assign", "unassign", or "reassign".</returns>
+        /// <exception cref="TicketException">Thrown when the assignment update is invalid.</exception>
         public async Task<string> UpdateAssignmentAsync(TicketViewModel model)
         {
             var currentUser = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -42,8 +30,8 @@ namespace ASI.Basecode.Services.Services
             var teamId = model.TeamId;
             var agentId = model.AgentId;
             var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
-            string noTeam = "no_team";
-            string noAgent = "no_agent";
+            const string noTeam = "no_team";
+            const string noAgent = "no_agent";
             string activityLogDetail = string.Empty;
 
             if (assignment == null)
@@ -51,27 +39,27 @@ namespace ASI.Basecode.Services.Services
                 status = "assign";
                 if (teamId == noTeam && agentId == noAgent)
                 {
-                    throw new TicketException("Please select either an agent or a team to continue.", ticketId);
+                    throw new TicketException(Errors.SelectAgentOrTeam, ticketId);
                 }
 
                 if (teamId == noTeam && agentId != noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, agentId);
-                    activityLogDetail = $"Ticket assigned to agent";
+                    activityLogDetail = Common.TicketAssignedToAgent;
                 }
                 else if (teamId != noTeam && agentId == noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, teamId: teamId);
-                    activityLogDetail = $"Ticket assigned to team";
+                    activityLogDetail = Common.TicketAssignedToTeam;
                 }
                 else if (teamId != noTeam && agentId != noAgent)
                 {
                     assignment = await CreateTicketAssignmentAsync(ticketId, agentId, teamId);
-                    activityLogDetail = $"Ticket assigned to team and agent";
+                    activityLogDetail = Common.TicketAssignedToTeamAndAgent;
                 }
                 else
                 {
-                    throw new TicketException("Invalid assignment update. Please try again.", ticketId);
+                    throw new TicketException(Errors.InvalidAssignmentUpdate, ticketId);
                 }
                 await _repository.AssignTicketAsync(assignment);
             }
@@ -81,11 +69,11 @@ namespace ASI.Basecode.Services.Services
                 var assignmentAgentId = assignment.AgentId;
                 if (teamId == assignmentTeamId && agentId == assignmentAgentId)
                 {
-                    throw new TicketException("Cannot reassign to the same team and agent.", ticketId);
+                    throw new TicketException(Errors.CannotReassignSameTeamAndAgent, ticketId);
                 }
                 if (teamId == assignmentTeamId && agentId == noAgent && assignmentAgentId == null)
                 {
-                    throw new TicketException("Cannot assign to the same team without an agent selected.", ticketId);
+                    throw new TicketException(Errors.CannotAssignSameTeamWithoutAgent, ticketId);
                 }
 
                 if (teamId == noTeam && agentId == noAgent)
@@ -99,45 +87,44 @@ namespace ASI.Basecode.Services.Services
                 {
                     status = "unassign";
                     assignment.AgentId = null;
-                    activityLogDetail = $"Agent unassigned from ticket";
+                    activityLogDetail = Common.AgentUnassignedFromTicket;
                 }
                 else if (teamId == noTeam && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.TeamId = null;
                     assignment.AgentId = agentId;
-                    activityLogDetail = $"New agent assigned to ticket";
+                    activityLogDetail = Common.NewAgentAssignedToTicket;
                 }
                 else if (teamId == assignmentTeamId && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.AgentId = agentId;
-                    activityLogDetail = $"New agent assigned to ticket";
+                    activityLogDetail = Common.NewAgentAssignedToTicket;
                 }
                 else if (teamId != assignmentTeamId && agentId == noAgent)
                 {
                     status = "reassign";
                     assignment.TeamId = teamId;
                     assignment.AgentId = null;
-                    activityLogDetail = $"New team assigned to ticket";
+                    activityLogDetail = Common.NewTeamAssignedToTicket;
                 }
                 else if (teamId != assignmentTeamId && agentId != assignmentAgentId)
                 {
                     status = "reassign";
                     assignment.TeamId = teamId;
                     assignment.AgentId = agentId;
-                    activityLogDetail = $"New team and agent assigned to team";
+                    activityLogDetail = Common.NewTeamAndAgentAssignedToTicket;
                 }
-                else if (string.IsNullOrEmpty(assignmentTeamId) &&
-                    !string.IsNullOrEmpty(teamId) && agentId == assignmentAgentId)
+                else if (string.IsNullOrEmpty(assignmentTeamId) && !string.IsNullOrEmpty(teamId) && agentId == assignmentAgentId)
                 {
                     status = "assign";
                     assignment.TeamId = teamId;
-                    activityLogDetail = $"New team assigned to ticket";
+                    activityLogDetail = Common.NewTeamAssignedToTicket;
                 }
                 else
                 {
-                    throw new TicketException("Invalid assignment update. Please try again.", ticketId);
+                    throw new TicketException(Errors.InvalidAssignmentUpdate, ticketId);
                 }
                 assignment.AssignedDate = DateTime.Now;
                 assignment.AssignedById = currentUser;
@@ -145,16 +132,18 @@ namespace ASI.Basecode.Services.Services
             }
             await CheckAndModifyStatusByAssignment(ticketId, status);
             var ticket = await _repository.FindByIdAsync(model.TicketId);
-            await _activityLogService.LogActivityAsync(ticket, currentUser, "Assignment Updated", $"{activityLogDetail}");
+            await _activityLogService.LogActivityAsync(ticket, currentUser, Common.AssignmentUpdated, activityLogDetail);
             _notificationService.CreateNotification(ticket, 5, status == "reassign", ticket.TicketAssignment?.AgentId);
             return status;
         }
 
         /// <summary>
-        /// Checks the ticket's new assignment status and modify its status type accordingly.
+        /// Checks the ticket's new assignment status and modifies its status type accordingly.
         /// </summary>
         /// <param name="ticketId">The ticket identifier.</param>
         /// <param name="status">The status.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when the status is invalid.</exception>
         private async Task CheckAndModifyStatusByAssignment(string ticketId, string status)
         {
             var ticket = await _repository.FindByIdAsync(ticketId);
@@ -166,7 +155,7 @@ namespace ASI.Basecode.Services.Services
                 case "assign":
                 case "reassign":
                     if (closedStatuses.Contains(statusType))
-                        throw new TicketException($"Cannot {status} assignees in {statusType} tickets.", ticketId);
+                        throw new TicketException(string.Format(Errors.CannotAssignInClosedTickets, status, statusType), ticketId);
                     if (statusType == "in progress")
                         break;
                     if (statusType == "open")
@@ -177,7 +166,7 @@ namespace ASI.Basecode.Services.Services
                     break;
                 case "unassign":
                     if (closedStatuses.Contains(statusType))
-                        throw new TicketException($"Cannot unassign assignees in {statusType} tickets.", ticketId);
+                        throw new TicketException(string.Format(Errors.CannotAssignInClosedTickets, status, statusType), ticketId);
                     if (statusType == "open")
                         break;
                     if (statusType == "in progress")
@@ -187,20 +176,23 @@ namespace ASI.Basecode.Services.Services
                     }
                     break;
                 default:
-                    throw new TicketException(status, $"Invalid status value: {status}");
+                    throw new TicketException(string.Format(Errors.InvalidStatusValue, status), status);
             }
         }
 
         /// <summary>
-        /// Helper method to create a new ticket assignment.
+        /// Creates a new ticket assignment asynchronously.
         /// </summary>
-        /// <param name="model">The model</param>
-        /// <returns>TicketAssignment</returns>
+        /// <param name="ticketId">The ticket identifier.</param>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <param name="teamId">The team identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the new ticket assignment.</returns>
+        /// <exception cref="TicketException">Thrown when the current user is not found.</exception>
         private async Task<TicketAssignment> CreateTicketAssignmentAsync(string ticketId, string agentId = null, string teamId = null)
         {
             var currentUser = _httpContextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (currentUser == null)
-                throw new TicketException("Current user not found, unable to proceed.");
+                throw new TicketException(Errors.CurrentUserNotFound);
 
             return new TicketAssignment
             {

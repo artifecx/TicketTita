@@ -59,5 +59,428 @@ namespace ASI.Basecode.Resources.Messages {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C4.
+        /// </summary>
+        public static string AccountCategory {
+            get {
+                return ResourceManager.GetString("AccountCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Attachment.
+        /// </summary>
+        public static string AddAttachment {
+            get {
+                return ResourceManager.GetString("AddAttachment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add Feedback.
+        /// </summary>
+        public static string AddFeedbackLog {
+            get {
+                return ResourceManager.GetString("AddFeedbackLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agent unassigned from ticket.
+        /// </summary>
+        public static string AgentUnassignedFromTicket {
+            get {
+                return ResourceManager.GetString("AgentUnassignedFromTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assignment Updated.
+        /// </summary>
+        public static string AssignmentUpdated {
+            get {
+                return ResourceManager.GetString("AssignmentUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attachment added: {0}.
+        /// </summary>
+        public static string AttachmentAdded {
+            get {
+                return ResourceManager.GetString("AttachmentAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attachment.
+        /// </summary>
+        public static string AttachmentModified {
+            get {
+                return ResourceManager.GetString("AttachmentModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Category modified.
+        /// </summary>
+        public static string CategoryModified {
+            get {
+                return ResourceManager.GetString("CategoryModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S3,S4.
+        /// </summary>
+        public static string CompletedTicketStatus {
+            get {
+                return ResourceManager.GetString("CompletedTicketStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 7.
+        /// </summary>
+        public static string CreateNotificationForFeedback {
+            get {
+                return ResourceManager.GetString("CreateNotificationForFeedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Details &amp; Attachment modified.
+        /// </summary>
+        public static string DetailsAndAttachmentModified {
+            get {
+                return ResourceManager.GetString("DetailsAndAttachmentModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Details.
+        /// </summary>
+        public static string DetailsModified {
+            get {
+                return ResourceManager.GetString("DetailsModified", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Feedback created. Rating: {0}/5.
+        /// </summary>
+        public static string FeedbackCreated {
+            get {
+                return ResourceManager.GetString("FeedbackCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File type not allowed or file size exceeds the limit..
+        /// </summary>
+        public static string FileTypeNotAllowedOrSizeExceeds {
+            get {
+                return ResourceManager.GetString("FileTypeNotAllowedOrSizeExceeds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C2.
+        /// </summary>
+        public static string HardwareCategory {
+            get {
+                return ResourceManager.GetString("HardwareCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S2.
+        /// </summary>
+        public static string InProgressTicketStatus {
+            get {
+                return ResourceManager.GetString("InProgressTicketStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C3.
+        /// </summary>
+        public static string NetworkCategory {
+            get {
+                return ResourceManager.GetString("NetworkCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New agent assigned to ticket.
+        /// </summary>
+        public static string NewAgentAssignedToTicket {
+            get {
+                return ResourceManager.GetString("NewAgentAssignedToTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New Comment.
+        /// </summary>
+        public static string NewComment {
+            get {
+                return ResourceManager.GetString("NewComment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New comment &quot;{0}&quot;.
+        /// </summary>
+        public static string NewCommentMessage {
+            get {
+                return ResourceManager.GetString("NewCommentMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New team and agent assigned to ticket.
+        /// </summary>
+        public static string NewTeamAndAgentAssignedToTicket {
+            get {
+                return ResourceManager.GetString("NewTeamAndAgentAssignedToTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New team assigned to ticket.
+        /// </summary>
+        public static string NewTeamAssignedToTicket {
+            get {
+                return ResourceManager.GetString("NewTeamAssignedToTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to S1.
+        /// </summary>
+        public static string OpenTicketStatus {
+            get {
+                return ResourceManager.GetString("OpenTicketStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C5.
+        /// </summary>
+        public static string OtherCategory {
+            get {
+                return ResourceManager.GetString("OtherCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C1.
+        /// </summary>
+        public static string SoftwareCategory {
+            get {
+                return ResourceManager.GetString("SoftwareCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agent assigned successfully!.
+        /// </summary>
+        public static string SuccessAssignAgent {
+            get {
+                return ResourceManager.GetString("SuccessAssignAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comment deleted successfully!.
+        /// </summary>
+        public static string SuccessCommentDeleted {
+            get {
+                return ResourceManager.GetString("SuccessCommentDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comment edited successfully!.
+        /// </summary>
+        public static string SuccessCommentEdited {
+            get {
+                return ResourceManager.GetString("SuccessCommentEdited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Comment posted successfully!.
+        /// </summary>
+        public static string SuccessCommentPosted {
+            get {
+                return ResourceManager.GetString("SuccessCommentPosted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team created successfully!.
+        /// </summary>
+        public static string SuccessCreateTeam {
+            get {
+                return ResourceManager.GetString("SuccessCreateTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New ticket created successfully!.
+        /// </summary>
+        public static string SuccessCreateTicket {
+            get {
+                return ResourceManager.GetString("SuccessCreateTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team deleted successfully!.
+        /// </summary>
+        public static string SuccessDeleteTeam {
+            get {
+                return ResourceManager.GetString("SuccessDeleteTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket deleted successfully!.
+        /// </summary>
+        public static string SuccessDeleteTicket {
+            get {
+                return ResourceManager.GetString("SuccessDeleteTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thank you for your feedback!.
+        /// </summary>
+        public static string SuccessFeedbackSubmitted {
+            get {
+                return ResourceManager.GetString("SuccessFeedbackSubmitted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agent reassigned successfully!.
+        /// </summary>
+        public static string SuccessReassignAgent {
+            get {
+                return ResourceManager.GetString("SuccessReassignAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket {0}ed successfully!.
+        /// </summary>
+        public static string SuccessTicketAssignment {
+            get {
+                return ResourceManager.GetString("SuccessTicketAssignment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agent unassigned successfully!.
+        /// </summary>
+        public static string SuccessUnassignAgent {
+            get {
+                return ResourceManager.GetString("SuccessUnassignAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password updated successfully!.
+        /// </summary>
+        public static string SuccessUpdatePassword {
+            get {
+                return ResourceManager.GetString("SuccessUpdatePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings updated successfully!.
+        /// </summary>
+        public static string SuccessUpdatePreferences {
+            get {
+                return ResourceManager.GetString("SuccessUpdatePreferences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team updated successfully!.
+        /// </summary>
+        public static string SuccessUpdateTeam {
+            get {
+                return ResourceManager.GetString("SuccessUpdateTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket updated successfully!.
+        /// </summary>
+        public static string SuccessUpdateTicket {
+            get {
+                return ResourceManager.GetString("SuccessUpdateTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket assigned to agent.
+        /// </summary>
+        public static string TicketAssignedToAgent {
+            get {
+                return ResourceManager.GetString("TicketAssignedToAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket assigned to team.
+        /// </summary>
+        public static string TicketAssignedToTeam {
+            get {
+                return ResourceManager.GetString("TicketAssignedToTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket assigned to team and agent.
+        /// </summary>
+        public static string TicketAssignedToTeamAndAgent {
+            get {
+                return ResourceManager.GetString("TicketAssignedToTeamAndAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket created.
+        /// </summary>
+        public static string TicketCreated {
+            get {
+                return ResourceManager.GetString("TicketCreated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket deleted.
+        /// </summary>
+        public static string TicketDeleted {
+            get {
+                return ResourceManager.GetString("TicketDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket Update.
+        /// </summary>
+        public static string TicketUpdate {
+            get {
+                return ResourceManager.GetString("TicketUpdate", resourceCulture);
+            }
+        }
     }
 }

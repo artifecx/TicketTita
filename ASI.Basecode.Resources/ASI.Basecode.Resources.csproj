@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Update="Messages\UserRoles.Designer.cs">
+      <DependentUpon>UserRoles.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Messages\UserPreferences.Designer.cs">
+      <DependentUpon>UserPreferences.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="Messages\Errors.Designer.cs">
       <DependentUpon>Errors.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -50,6 +60,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Messages\UserRoles.resx">
+      <LastGenOutput>UserRoles.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Messages\UserPreferences.resx">
+      <LastGenOutput>UserPreferences.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Messages\Errors.resx">
       <LastGenOutput>Errors.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>

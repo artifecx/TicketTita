@@ -10,19 +10,24 @@ using System.Threading.Tasks;
 
 namespace ASI.Basecode.Data.Repositories
 {
+    /// <summary>
+    /// Repository class for handling operations related to the Ticket entity.
+    /// </summary>
     public class TicketRepository : BaseRepository, ITicketRepository
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketRepository"/> class.
         /// </summary>
-        /// <param name="unitOfWork"></param>
+        /// <param name="unitOfWork">The unit of work.</param>
         public TicketRepository(IUnitOfWork unitOfWork) : base(unitOfWork) { }
 
         #region Ticket Service Methods
         /// <summary>
-        /// Get all tickets with includes to related entities
+        /// Retrieves tickets with necessary related data.
+        /// Includes:
+        /// CategoryType, PriorityType, StatusType, User, Feedback, Attachments, ActivityLogs->User, Comments->User, Comments->Parent, Comments->InverseParent, TicketAssignment->Agent, TicketAssignment->Team.
         /// </summary>
-        /// <returns>IQueryable Ticket</returns>
+        /// <returns>An <see cref="IQueryable{T}"/> of <see cref="Ticket"/> including the specified related data.</returns>
         private IQueryable<Ticket> GetTicketsWithIncludes()
         {
             return this.GetDbSet<Ticket>()
@@ -47,6 +52,12 @@ namespace ASI.Basecode.Data.Repositories
                         .ThenInclude(ta => ta.Team);
         }
 
+        /// <summary>
+        /// Retrieves tickets with limited related data.
+        /// Includes:
+        /// CategoryType, PriorityType, StatusType, User, Feedback, ActivityLogs->User, TicketAssignment->Agent, TicketAssignment->Team.
+        /// </summary>
+        /// <returns>An <see cref="IQueryable{T}"/> of <see cref="Ticket"/> including the specified related data.</returns>
         private IQueryable<Ticket> GetTicketsWithLimitedIncludes()
         {
             return this.GetDbSet<Ticket>()
@@ -56,7 +67,7 @@ namespace ASI.Basecode.Data.Repositories
                     .Include(t => t.StatusType)
                     .Include(t => t.User)
                     .Include(t => t.Feedback)
-                    .Include (t => t.ActivityLogs)
+                    .Include(t => t.ActivityLogs)
                         .ThenInclude(t => t.User)
                     .Include(t => t.TicketAssignment)
                         .ThenInclude(ta => ta.Agent)
@@ -65,16 +76,16 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Get all tickets
+        /// Retrieves all tickets asynchronously with limited related data.
         /// </summary>
-        /// <returns>List Ticket</returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of tickets.</returns>
         public async Task<List<Ticket>> GetAllAsync() =>
             await GetTicketsWithLimitedIncludes().AsNoTracking().ToListAsync();
 
         /// <summary>
-        /// Get all tickets including deleted
+        /// Retrieves all tickets including deleted tickets asynchronously.
         /// </summary>
-        /// <returns>List Ticket</returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of tickets, including deleted ones.</returns>
         public async Task<List<Ticket>> GetAllAndDeletedTicketsAsync()
         {
             return await this.GetDbSet<Ticket>()
@@ -88,16 +99,17 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Gets all tickets including the deleted.
+        /// Counts all tickets including deleted tickets asynchronously.
         /// </summary>
-        /// <returns>List Ticket</returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the count of tickets, including deleted ones.</returns>
         public async Task<int> CountAllAndDeletedTicketsAsync() =>
             await this.GetDbSet<Ticket>().AsNoTracking().CountAsync();
 
         /// <summary>
-        /// Add a ticket
+        /// Adds a new ticket asynchronously.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddAsync(Ticket ticket)
         {
             await this.GetDbSet<Ticket>().AddAsync(ticket);
@@ -105,9 +117,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Update a ticket
+        /// Updates an existing ticket asynchronously.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateAsync(Ticket ticket)
         {
             this.GetDbSet<Ticket>().Update(ticket);
@@ -115,9 +128,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Delete a ticket
+        /// Soft deletes a ticket asynchronously.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket to delete.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteAsync(Ticket ticket)
         {
             ticket.IsDeleted = true;
@@ -126,9 +140,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Hard delete a ticket
+        /// Hard deletes a ticket asynchronously.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket to delete.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteHardAsync(Ticket ticket)
         {
             ticket.CategoryTypeId = null;
@@ -143,9 +158,10 @@ namespace ASI.Basecode.Data.Repositories
 
         #region Attachment Service Methods
         /// <summary>
-        /// Add an attachment
+        /// Adds an attachment to a ticket asynchronously.
         /// </summary>
-        /// <param name="attachment">The attachment</param>
+        /// <param name="attachment">The attachment to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddAttachmentAsync(Attachment attachment)
         {
             await this.GetDbSet<Attachment>().AddAsync(attachment);
@@ -153,9 +169,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Remove an attachment
+        /// Removes an attachment from a ticket asynchronously.
         /// </summary>
-        /// <param name="attachment">The attachment</param>
+        /// <param name="attachment">The attachment to remove.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RemoveAttachmentAsync(Attachment attachment)
         {
             this.GetDbSet<Attachment>().Remove(attachment);
@@ -165,9 +182,10 @@ namespace ASI.Basecode.Data.Repositories
 
         #region Ticket Assignment Service Methods  
         /// <summary>
-        /// Add a ticket assignment
+        /// Adds a ticket assignment asynchronously.
         /// </summary>
-        /// <param name="assignment">The assignment</param>
+        /// <param name="assignment">The assignment to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AssignTicketAsync(TicketAssignment assignment)
         {
             await this.GetDbSet<TicketAssignment>().AddAsync(assignment);
@@ -175,9 +193,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Updates a ticket assignment.
+        /// Updates an existing ticket assignment asynchronously.
         /// </summary>
-        /// <param name="assignment">The assignment.</param>
+        /// <param name="assignment">The assignment to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateAssignmentAsync(TicketAssignment assignment)
         {
             this.GetDbSet<TicketAssignment>().Update(assignment);
@@ -185,9 +204,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Remove a ticket assignment
+        /// Removes a ticket assignment asynchronously.
         /// </summary>
-        /// <param name="assignment">The assignment</param>
+        /// <param name="assignment">The assignment to remove.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RemoveAssignmentAsync(TicketAssignment assignment)
         {
             this.GetDbSet<TicketAssignment>().Remove(assignment);
@@ -197,9 +217,10 @@ namespace ASI.Basecode.Data.Repositories
 
         #region Comment Service Methods        
         /// <summary>
-        /// Adds the comment.
+        /// Adds a comment to a ticket asynchronously.
         /// </summary>
-        /// <param name="comment">The comment.</param>
+        /// <param name="comment">The comment to add.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddCommentAsync(Comment comment)
         {
             this.GetDbSet<Comment>().Add(comment);
@@ -207,9 +228,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Updates the comment.
+        /// Updates an existing comment asynchronously.
         /// </summary>
-        /// <param name="comment">The comment.</param>
+        /// <param name="comment">The comment to update.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateCommentAsync(Comment comment)
         {
             this.GetDbSet<Comment>().Update(comment);
@@ -217,9 +239,10 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Deletes the comment.
+        /// Deletes a comment by identifier asynchronously.
         /// </summary>
-        /// <param name="id">The identifier.</param>
+        /// <param name="id">The identifier of the comment to delete.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteCommentAsync(string id)
         {
             var comment = await FindCommentByIdAsync(id);
@@ -228,9 +251,9 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Deletes the comment and children recursively.
+        /// Recursively deletes a comment and its child comments.
         /// </summary>
-        /// <param name="comment">The comment.</param>
+        /// <param name="comment">The comment to delete.</param>
         private async Task DeleteCommentAndChildrenRecursive(Comment comment)
         {
             await Context.Entry(comment).Collection(c => c.InverseParent).LoadAsync();
@@ -245,65 +268,65 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Gets the comments with includes.
+        /// Retrieves comments with necessary related data.
+        /// Includes: User, Parent, InverseParent.
         /// </summary>
-        /// <returns>IQueryable Comment</returns>
+        /// <returns>An <see cref="IQueryable{T}"/> of <see cref="Comment"/> including the specified related data.</returns>
         public IQueryable<Comment> GetCommentsWithIncludesAsync()
         {
-            var comments = this.GetDbSet<Comment>()
+            return this.GetDbSet<Comment>()
                                 .Include(cu => cu.User)
                                 .Include(cp => cp.Parent)
                                 .Include(c => c.InverseParent);
-            return comments;
         }
 
         /// <summary>
-        /// Finds the comment by identifier asynchronous.
+        /// Finds a comment by identifier asynchronously.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>Comment</returns>
+        /// <param name="id">The identifier of the comment to find.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the comment with the specified identifier.</returns>
         public async Task<Comment> FindCommentByIdAsync(string id) =>
             await GetCommentsWithIncludesAsync().FirstOrDefaultAsync(c => c.CommentId == id);
-        #endregion
+        #endregion Comment Service Methods
 
         #region Find Methods
         /// <summary>
-        /// Find a ticket by id
+        /// Finds a ticket by identifier asynchronously.
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
-        /// <returns>Ticket</returns>
-        public async Task<Ticket> FindByIdAsync(string id) 
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the ticket with the specified identifier.</returns>
+        public async Task<Ticket> FindByIdAsync(string id)
             => await GetTicketsWithIncludes().FirstOrDefaultAsync(t => t.TicketId == id);
 
         /// <summary>
-        /// Find a ticket by user id
+        /// Finds tickets by user identifier asynchronously.
         /// </summary>
-        /// <param name="id">User identifier</param>
-        /// <returns>Ticket</returns>
+        /// <param name="id">The user identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a list of tickets associated with the specified user identifier.</returns>
         public async Task<IEnumerable<Ticket>> FindByUserIdAsync(string id) =>
             await GetTicketsWithIncludes().Where(t => t.UserId == id).ToListAsync();
 
         /// <summary>
-        /// Find an attachment by ticket identifier
+        /// Finds an attachment by ticket identifier asynchronously.
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
-        /// <returns>Attachment</returns>
-        public async Task<Attachment> FindAttachmentByTicketIdAsync(string id) 
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the attachment associated with the specified ticket identifier.</returns>
+        public async Task<Attachment> FindAttachmentByTicketIdAsync(string id)
             => await this.GetDbSet<Attachment>().FirstOrDefaultAsync(x => x.TicketId == id);
 
         /// <summary>
-        /// Find a ticket assignment by ticket identifier
+        /// Finds a ticket assignment by ticket identifier asynchronously.
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
-        /// <returns>TicketAssignment</returns>
-        public async Task<TicketAssignment> FindAssignmentByTicketIdAsync(string id) 
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the ticket assignment associated with the specified ticket identifier.</returns>
+        public async Task<TicketAssignment> FindAssignmentByTicketIdAsync(string id)
             => await this.GetDbSet<TicketAssignment>().FirstOrDefaultAsync(x => x.TicketId == id);
 
         /// <summary>
-        /// Find a team by a member's user identifier
+        /// Finds a team by a member's user identifier asynchronously.
         /// </summary>
-        /// <param name="id">User identifier</param>
-        /// <returns>Team</returns>
+        /// <param name="id">The user identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the team associated with the specified member's user identifier.</returns>
         public async Task<Team> FindTeamByUserIdAsync(string id)
         {
             var memberOf = await this.GetDbSet<TeamMember>().FirstOrDefaultAsync(x => x.UserId == id);
@@ -311,87 +334,87 @@ namespace ASI.Basecode.Data.Repositories
         }
 
         /// <summary>
-        /// Find a priority by its identifier
+        /// Finds a priority type by its identifier asynchronously.
         /// </summary>
-        /// <param name="id">PriorityType identifier</param>
-        /// <returns>PriorityType</returns>
-        public async Task<PriorityType> FindPriorityByIdAsync(string id) 
+        /// <param name="id">The priority type identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the priority type with the specified identifier.</returns>
+        public async Task<PriorityType> FindPriorityByIdAsync(string id)
             => await this.GetDbSet<PriorityType>().FirstOrDefaultAsync(x => x.PriorityTypeId == id);
 
         /// <summary>
-        /// Find a status by its identifier
+        /// Finds a status type by its identifier asynchronously.
         /// </summary>
-        /// <param name="id">StatusType identifier</param>
-        /// <returns>StatusType</returns>
-        public async Task<StatusType> FindStatusByIdAsync(string id) 
+        /// <param name="id">The status type identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the status type with the specified identifier.</returns>
+        public async Task<StatusType> FindStatusByIdAsync(string id)
             => await this.GetDbSet<StatusType>().FirstOrDefaultAsync(x => x.StatusTypeId == id);
 
         /// <summary>
-        /// Find a user by its identifier
+        /// Finds a user by its identifier asynchronously.
         /// </summary>
-        /// <param name="id">User identifier</param>
-        /// <returns>User</returns>
-        public async Task<User> UserFindByIdAsync(string id) 
+        /// <param name="id">The user identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the user with the specified identifier.</returns>
+        public async Task<User> UserFindByIdAsync(string id)
             => await this.GetDbSet<User>().FirstOrDefaultAsync(x => x.UserId == id);
-        
+
         /// <summary>
-        /// Find a feedback by ticket identifier
+        /// Finds a feedback by ticket identifier asynchronously.
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
-        /// <returns>Feedback</returns>
-        public async Task<Feedback> FeedbackFindByTicketIdAsync(string id) 
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the feedback associated with the specified ticket identifier.</returns>
+        public async Task<Feedback> FeedbackFindByTicketIdAsync(string id)
             => await this.GetDbSet<Feedback>().FirstOrDefaultAsync(x => x.TicketId == id);
-        
+
         /// <summary>
-        /// Find an admin by its identifier
+        /// Finds an admin by its identifier asynchronously.
         /// </summary>
-        /// <param name="id">Admin identifier</param>
-        /// <returns>Admin</returns>
-        public async Task<Admin> AdminFindByIdAsync(string id) 
+        /// <param name="id">The admin identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the admin with the specified identifier.</returns>
+        public async Task<Admin> AdminFindByIdAsync(string id)
             => await this.GetDbSet<Admin>().FirstOrDefaultAsync(x => x.AdminId == id);
         #endregion Find Methods
 
         #region Get Methods
         /// <summary>
-        /// Get all category types
+        /// Retrieves all category types asynchronously.
         /// </summary>
-        /// <returns>IQueryable CategoryType</returns>
-        public async Task<IQueryable<CategoryType>> GetCategoryTypesAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="CategoryType"/>.</returns>
+        public async Task<IQueryable<CategoryType>> GetCategoryTypesAsync()
             => await Task.FromResult(this.GetDbSet<CategoryType>());
 
         /// <summary>
-        /// Get all priority types
+        /// Retrieves all priority types asynchronously.
         /// </summary>
-        /// <returns>IQueryable PriorityType</returns>
-        public async Task<IQueryable<PriorityType>> GetPriorityTypesAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="PriorityType"/>.</returns>
+        public async Task<IQueryable<PriorityType>> GetPriorityTypesAsync()
             => await Task.FromResult(this.GetDbSet<PriorityType>());
 
         /// <summary>
-        /// Get all status types
+        /// Retrieves all status types asynchronously.
         /// </summary>
-        /// <returns>IQueryable StatusType</returns>
-        public async Task<IQueryable<StatusType>> GetStatusTypesAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="StatusType"/>.</returns>
+        public async Task<IQueryable<StatusType>> GetStatusTypesAsync()
             => await Task.FromResult(this.GetDbSet<StatusType>());
 
         /// <summary>
-        /// Get all support agents
+        /// Retrieves all support agents asynchronously.
         /// </summary>
-        /// <returns>IQueryable User</returns>
-        public async Task<IQueryable<User>> GetSupportAgentsAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="User"/> with the role of Support Agent.</returns>
+        public async Task<IQueryable<User>> GetSupportAgentsAsync()
             => await Task.FromResult(this.GetDbSet<User>().Where(x => x.RoleId == "Support Agent"));
 
         /// <summary>
-        /// Get all users
+        /// Retrieves all users asynchronously.
         /// </summary>
-        /// <returns>IQueryable User</returns>
-        public async Task<IQueryable<User>> UserGetAllAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="User"/> including their tickets.</returns>
+        public async Task<IQueryable<User>> UserGetAllAsync()
             => await Task.FromResult(this.GetDbSet<User>().Include(x => x.Tickets));
 
         /// <summary>
-        /// Get all user identifiers with tickets submitted
+        /// Retrieves all user identifiers who have submitted tickets asynchronously.
         /// </summary>
-        /// <returns>IQueryable string</returns>
-        public async Task<IQueryable<string>> GetUserIdsWithTicketsAsync() 
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="IQueryable{T}"/> of <see cref="string"/> representing the user identifiers.</returns>
+        public async Task<IQueryable<string>> GetUserIdsWithTicketsAsync()
             => await Task.FromResult(this.GetDbSet<Ticket>().Select(x => x.UserId).Distinct());
         #endregion Get Methods
     }

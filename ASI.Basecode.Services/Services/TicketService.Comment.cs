@@ -4,18 +4,23 @@ using ASI.Basecode.Services.ServiceModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Security.Claims;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
 using static ASI.Basecode.Services.Exceptions.TeamExceptions;
-using System.Security.Claims;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to tickets.
+    /// </summary>
     public partial class TicketService : ITicketService
     {
         /// <summary>
-        /// Adds a comment.
+        /// Adds a comment to a ticket asynchronously.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="model">The comment view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddCommentAsync(CommentViewModel model)
         {
             var comment = _mapper.Map<Comment>(model);
@@ -31,13 +36,16 @@ namespace ASI.Basecode.Services.Services
             ticket.UpdatedDate = DateTime.Now;
 
             await _repository.AddCommentAsync(comment);
-            await _activityLogService.LogActivityAsync(ticket, user.UserId, "New Comment", $"New comment \"{(comment.Content.Length > 15 ? comment.Content.Substring(0, 15) + "..." : comment.Content)}\"");
+            await _activityLogService.LogActivityAsync(ticket, user.UserId, Common.NewComment, string.Format(Common.NewCommentMessage, 
+                (comment.Content.Length > 15 ? comment.Content.Substring(0, 15) + "..." : comment.Content)));
         }
 
         /// <summary>
-        /// Updates a comment.
+        /// Updates an existing comment asynchronously.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="model">The comment view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when no changes are made to the comment content.</exception>
         public async Task UpdateCommentAsync(CommentViewModel model)
         {
             var comment = await _repository.FindCommentByIdAsync(model.CommentId);
@@ -45,7 +53,7 @@ namespace ASI.Basecode.Services.Services
             {
                 if (comment.Content == model.Content)
                 {
-                    throw new TicketException("No changes were made to the reply.", model.TicketId);
+                    throw new TicketException(Errors.NoChangesReply, model.TicketId);
                 }
 
                 comment.Content = model.Content;
@@ -55,9 +63,10 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Deletes a comment.
+        /// Deletes a comment asynchronously.
         /// </summary>
         /// <param name="commentId">The comment identifier.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteCommentAsync(string commentId)
         {
             await _repository.DeleteCommentAsync(commentId);

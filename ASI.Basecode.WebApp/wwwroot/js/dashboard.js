@@ -24,24 +24,32 @@
     const resolvedData = new Array(7).fill(0);
     const currentDate = new Date();
 
+    function setToMidnight(date) {
+        const newDate = new Date(date);
+        newDate.setHours(0, 0, 0, 0);
+        return newDate;
+    }
+
+    const normalizedCurrentDate = setToMidnight(currentDate);
+
     for (let i = 6; i >= 0; i--) {
-        const date = new Date(currentDate);
-        date.setDate(currentDate.getDate() - i);
+        const date = new Date(normalizedCurrentDate);
+        date.setDate(normalizedCurrentDate.getDate() - i);
         const formattedDate = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
         labels.push(formattedDate);
     }
 
     dashboardData.ticketDatesCreated.forEach(dateString => {
-        const date = new Date(dateString);
-        const index = 6 - Math.floor((currentDate - date) / (1000 * 60 * 60 * 24));
+        const date = setToMidnight(new Date(dateString));
+        const index = 6 - Math.floor((normalizedCurrentDate - date) / (1000 * 60 * 60 * 24));
         if (index >= 0 && index < 7) {
             createdData[index]++;
         }
     });
 
     dashboardData.ticketDatesResolved.forEach(dateString => {
-        const date = new Date(dateString);
-        const index = 6 - Math.floor((currentDate - date) / (1000 * 60 * 60 * 24));
+        const date = setToMidnight(new Date(dateString));
+        const index = 6 - Math.floor((normalizedCurrentDate - date) / (1000 * 60 * 60 * 24));
         if (index >= 0 && index < 7) {
             resolvedData[index]++;
         }
