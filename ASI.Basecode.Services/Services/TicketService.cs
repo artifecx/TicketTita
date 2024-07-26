@@ -5,22 +5,20 @@ using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ZXing;
 using static ASI.Basecode.Services.Exceptions.TicketExceptions;
-using static ASI.Basecode.Services.Exceptions.TeamExceptions;
-using static ASI.Basecode.Resources.Constants.Enums;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to tickets.
+    /// </summary>
     public partial class TicketService : ITicketService
     {
         private readonly ITicketRepository _repository;
@@ -35,10 +33,14 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="TicketService"/> class.
         /// </summary>
-        /// <param name="repository">The repository</param>
-        /// <param name="mapper">The mapper</param>
-        /// <param name="logger">The logger</param>
-        /// <param name="httpContextAccessor">The HTTP context accessor</param>
+        /// <param name="repository">The ticket repository.</param>
+        /// <param name="userPreferencesRepository">The user preferences repository.</param>
+        /// <param name="mapper">The mapper.</param>
+        /// <param name="notificationService">The notification service.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+        /// <param name="performanceReportService">The performance report service.</param>
+        /// <param name="teamRepository">The team repository.</param>
+        /// <param name="activityLogService">The activity log service.</param>
         public TicketService(
             ITicketRepository repository,
             IUserPreferencesRepository userPreferencesRepository,
@@ -61,21 +63,23 @@ namespace ASI.Basecode.Services.Services
 
         #region Ticket CRUD Operations
         /// <summary>
-        /// Calls the repository to add a new ticket.
+        /// Adds a new ticket asynchronously.
         /// </summary>
-        /// <param name="model">Ticket identifier</param>
-        /// <param name="userId">User identifier</param>
+        /// <param name="model">The ticket view model.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when a similar ticket already exists or the subject/description exceeds the allowed characters.</exception>
         public async Task AddAsync(TicketViewModel model, string userId)
         {
             if (await IsDuplicateTicketAsync(model, userId))
-                throw new TicketException("A similar ticket already exists.");
+                throw new TicketException(Errors.DuplicateTicket);
 
             if (model != null)
             {
                 if (model.Subject.Length > 100)
-                    throw new TicketException("Subject has exceeded maximum allowed characters of 100.");
+                    throw new TicketException(Errors.SubjectExceeded);
                 if (model.IssueDescription.Length > 800)
-                    throw new TicketException("Description has exceeded maximum allowed characters of 800.");
+                    throw new TicketException(Errors.DescriptionExceeded);
 
                 if (model.File != null)
                     await HandleAttachmentAsync(model);
@@ -97,40 +101,40 @@ namespace ASI.Basecode.Services.Services
                     await _repository.AddAsync(newTicket);
                 }
                 _notificationService.CreateNotification(newTicket, 1, null);
-
-                // Log the creation activity
-                await _activityLogService.LogActivityAsync(newTicket, userId, "Create", $"Ticket created");
+                await _activityLogService.LogActivityAsync(newTicket, userId, Common.TicketCreated, Common.TicketCreated);
             }
         }
 
         /// <summary>
-        /// Calls the repository to update an existing ticket.
+        /// Updates an existing ticket asynchronously.
         /// </summary>
-        /// <param name="model">The ticket</param>
+        /// <param name="model">The ticket view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when a similar ticket already exists, the subject/description exceeds the allowed characters, or changes are attempted on a resolved ticket.</exception>
         public async Task UpdateAsync(TicketViewModel model)
         {
             var ticket = await _repository.FindByIdAsync(model.TicketId);
             if (await IsDuplicateTicketAsync(model, model.UserId) && ticket.Subject != model.Subject)
-                throw new TicketException("A similar ticket already exists.");
+                throw new TicketException(Errors.DuplicateTicket);
 
             if (ticket != null)
             {
                 if (!string.IsNullOrEmpty(model.CategoryTypeId))
                 {
                     if (!string.IsNullOrEmpty(model.CategoryTypeId) && ticket.CategoryTypeId == model.CategoryTypeId)
-                        throw new TicketException("Ticket is already in the selected category.");
+                        throw new TicketException(Errors.DuplicateTicketCategory);
 
                     ticket.CategoryTypeId = model.CategoryTypeId;
                     await _repository.UpdateAsync(ticket);
-                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", $"Category modified");
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update", Common.CategoryModified);
                     _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                     return;
                 }
 
                 if (model.Subject.Length > 100)
-                    throw new TicketException("Subject has exceeded maximum allowed characters of 100.");
+                    throw new TicketException(Errors.SubjectExceeded);
                 if (model.IssueDescription.Length > 800)
-                    throw new TicketException("Description has exceeded maximum allowed characters of 800.");
+                    throw new TicketException(Errors.DescriptionExceeded);
 
                 bool hasChanges = ticket.IssueDescription != model.IssueDescription ||
                                 ticket.Subject != model.Subject ||
@@ -139,9 +143,9 @@ namespace ASI.Basecode.Services.Services
                                 (model.File == null && model.Attachment == null));
 
                 if ((hasChanges || hasAttachmentChanges) && ticket.ResolvedDate != null)
-                    throw new TicketException("Cannot make changes to resolved tickets.", model.TicketId);
+                    throw new TicketException(Errors.ResolvedTicketChanges, model.TicketId);
                 if (!hasChanges && !hasAttachmentChanges)
-                    throw new TicketException("No changes were made to the ticket.", model.TicketId);
+                    throw new TicketException(Errors.NoChangesToTicket, model.TicketId);
 
                 if (hasAttachmentChanges)
                 {
@@ -168,43 +172,42 @@ namespace ASI.Basecode.Services.Services
                 }
                 if (hasChanges || hasAttachmentChanges)
                 {
-                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Ticket Update",
-                        $"{(hasChanges ? "Details" : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? "Attachment" : "")} modified");
+                    await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, Common.TicketUpdate,
+                        $"{(hasChanges ? Common.DetailsModified : "")}{(hasChanges && hasAttachmentChanges ? " & " : "")}{(hasAttachmentChanges ? Common.AttachmentModified : "")}");
                     _notificationService.CreateNotification(ticket, 4, null, ticket.TicketAssignment?.AgentId);
                 }
             }
             else
             {
-                throw new TicketException("Ticket does not exist.");
+                throw new TicketException(Errors.TicketDoesNotExist);
             }
         }
 
         /// <summary>
-        /// Calls the repository to delete a ticket.
+        /// Deletes a ticket asynchronously.
         /// Deletes all associated data (attachments, assignments, feedback, notifications, and comments).
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="TicketException">Thrown when the ticket does not exist.</exception>
         public async Task DeleteAsync(string id)
         {
             var ticket = await _repository.FindByIdAsync(id);
             if (ticket != null)
             {
                 await _repository.DeleteAsync(ticket);
-
-                await _activityLogService.LogActivityAsync(ticket, _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value, "Delete", $"Ticket deleted");
             }
-            else throw new TicketException("Ticket does not exist.");
-
+            else throw new TicketException(Errors.TicketDoesNotExist);
         }
         #endregion Ticket CRUD Operations
 
         #region Utility Methods
         /// <summary>
-        /// Calls the repository to check if a ticket is a duplicate.
+        /// Checks if a ticket is a duplicate asynchronously.
         /// </summary>
-        /// <param name="ticket">The new ticket</param>
-        /// <param name="userId">User identifier</param>
-        /// <returns>true or false</returns>
+        /// <param name="ticket">The new ticket.</param>
+        /// <param name="userId">The user identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a boolean indicating whether the ticket is a duplicate.</returns>
         private async Task<bool> IsDuplicateTicketAsync(TicketViewModel ticket, string userId)
         {
             var duplicateTickets = await _repository.FindByUserIdAsync(userId);
@@ -214,9 +217,9 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Helper method to assign ticket properties.
+        /// Assigns properties to a new ticket.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket.</param>
         private void AssignTicketProperties(Ticket ticket)
         {
             string CC = ticket.CategoryTypeId;
@@ -231,9 +234,9 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Helper method to update the ticket resolved date based on status.
+        /// Updates the ticket resolved date based on its status.
         /// </summary>
-        /// <param name="ticket">The ticket</param>
+        /// <param name="ticket">The ticket.</param>
         private async Task UpdateTicketDate(Ticket ticket)
         {
             if (ticket.StatusTypeId != null && (ticket.StatusTypeId.Equals("S3") || ticket.StatusTypeId.Equals("S4")))

@@ -9,17 +9,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
-using System.Net.Sockets;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using static ASI.Basecode.Services.Exceptions.TeamExceptions;
-using static ASI.Basecode.Services.Exceptions.TicketExceptions;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to user preferences.
+    /// </summary>
     public class UserPreferencesService : IUserPreferencesService
     {
         private readonly IUserPreferencesRepository _repository;
@@ -28,12 +28,14 @@ namespace ASI.Basecode.Services.Services
         private readonly IUserRepository _userRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TeamService"/> class.
+        /// Initializes a new instance of the <see cref="UserPreferencesService"/> class.
         /// </summary>
-        /// <param name="repository">The repository</param>
-        /// <param name="mapper">The mapper</param>
-        /// <param name="logger">The logger</param>
-        /// <param name="httpContextAccessor">The HTTP context accessor</param>
+        /// <param name="repository">The user preferences repository.</param>
+        /// <param name="ticketRepository">The ticket repository.</param>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="mapper">The mapper.</param>
+        /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+        /// <param name="performanceReportRepository">The performance report repository.</param>
         public UserPreferencesService(
             IUserPreferencesRepository repository,
             ITicketRepository ticketRepository,
@@ -47,12 +49,12 @@ namespace ASI.Basecode.Services.Services
             _userRepository = userRepository;
             _mapper = mapper;
         }
-        
+
         /// <summary>
-        /// Gets the user preferences.
+        /// Gets the user preferences asynchronously.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the user preferences view model.</returns>
         public async Task<UserPreferencesViewModel> GetUserPreferencesAsync(string userId)
         {
             var preferences = _repository.GetUserPreferences(userId);
@@ -72,9 +74,10 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Updates the user preferences.
+        /// Updates the user preferences asynchronously.
         /// </summary>
-        /// <param name="model">The model.</param>
+        /// <param name="model">The user preferences view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task UpdateUserPreferencesAsync(UserPreferencesViewModel model)
         {
             var existingPreferences = _repository.GetUserPreferences(model.UserId);
@@ -88,6 +91,11 @@ namespace ASI.Basecode.Services.Services
             }
         }
 
+        /// <summary>
+        /// Updates the user password.
+        /// </summary>
+        /// <param name="model">The user preferences view model.</param>
+        /// <exception cref="InvalidOperationException">Thrown when the old password does not match, the new password is the same as the old password, or an error occurs during the update process.</exception>
         public void UpdateUserPassword(UserPreferencesViewModel model)
         {
             var user = _userRepository.FindById(model.UserId);
@@ -103,19 +111,23 @@ namespace ASI.Basecode.Services.Services
                 else
                 {
                     if (!doesOldPasswordMatchWithCurrent)
-                        throw new InvalidOperationException("Old password does not match with the existing password.");
+                        throw new InvalidOperationException(Errors.OldPasswordMismatch);
 
                     if (doesNewPasswordMatchWithCurrent)
-                        throw new InvalidOperationException("New password is the same with the existing password.");
+                        throw new InvalidOperationException(Errors.NewPasswordSameAsCurrent);
 
-                    throw new InvalidOperationException("An error occurred while updating the password. Please try again.");
+                    throw new InvalidOperationException(Errors.GenericPasswordUpdate);
                 }
             }
         }
 
-        public async Task<KeyValuePair<string, string>> GetUserPreferenceByKeyAsync(string userId, string key)
-        {
-            return await _repository.FindUserPreferenceByKeyAsync(userId, key);
-        }
+        /// <summary>
+        /// Gets a user preference by key asynchronously.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="key">The preference key.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the key-value pair representing the user preference.</returns>
+        public async Task<KeyValuePair<string, string>> GetUserPreferenceByKeyAsync(string userId, string key) =>
+            await _repository.FindUserPreferenceByKeyAsync(userId, key);
     }
 }

@@ -8,9 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to feedback.
+    /// </summary>
     public class FeedbackService : IFeedbackService
     {
         private readonly IFeedbackRepository _repository;
@@ -22,13 +26,19 @@ namespace ASI.Basecode.Services.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="FeedbackService"/> class.
         /// </summary>
-        /// <param name="repository">The repository.</param>
+        /// <param name="repository">The feedback repository.</param>
+        /// <param name="ticketRepository">The ticket repository.</param>
+        /// <param name="activityLogService">The activity log service.</param>
+        /// <param name="notificationService">The notification service.</param>
         /// <param name="mapper">The mapper.</param>
-        public FeedbackService(IFeedbackRepository repository,
-                            ITicketRepository ticketRepository,
-                            IActivityLogService activityLogService,
-                            INotificationService notificationService,
-                            IMapper mapper, ILogger<FeedbackService> logger)
+        /// <param name="logger">The logger.</param>
+        public FeedbackService(
+            IFeedbackRepository repository,
+            ITicketRepository ticketRepository,
+            IActivityLogService activityLogService,
+            INotificationService notificationService,
+            IMapper mapper,
+            ILogger<FeedbackService> logger)
         {
             _mapper = mapper;
             _repository = repository;
@@ -38,9 +48,10 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Adds a ticket feedback.
+        /// Adds a ticket feedback asynchronously.
         /// </summary>
-        /// <param name="feedback">The feedback.</param>
+        /// <param name="feedback">The feedback view model.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AddAsync(FeedbackViewModel feedback)
         {
             var existingFeedback = await _repository.FindFeedbackByTicketIdAsync(feedback.TicketId);
@@ -63,16 +74,16 @@ namespace ASI.Basecode.Services.Services
                     user.Feedbacks.Add(newFeedback);
 
                     await _repository.AddAsync(newFeedback);
-                    await _activityLogService.LogActivityAsync(ticket, user.UserId, "Add Feedback", $"Feedback created. Rating: {newFeedback.FeedbackRating}/5");
-                    _notificationService.CreateNotification(ticket, 7, null, ticket.TicketAssignment?.AgentId);
+                    await _activityLogService.LogActivityAsync(ticket, user.UserId, Common.AddFeedbackLog, string.Format(Common.FeedbackCreated, newFeedback.FeedbackRating));
+                    _notificationService.CreateNotification(ticket, Convert.ToInt32(Common.CreateNotificationForFeedback), null, ticket.TicketAssignment?.AgentId);
                 }
             }
         }
 
         /// <summary>
-        /// Gets all feedbacks.
+        /// Retrieves all feedbacks asynchronously.
         /// </summary>
-        /// <returns>IEnumerable FeedbackViewModel</returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an enumerable of feedback view models.</returns>
         public async Task<IEnumerable<FeedbackViewModel>> GetAllAsync()
         {
             var feedbacks = await _repository.GetAllAsync();
@@ -82,18 +93,18 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Calls the repository to get feedback by its identifier.
+        /// Retrieves feedback by its identifier asynchronously.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>FeedbackViewModel</returns>
+        /// <param name="id">The feedback identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the feedback view model.</returns>
         public async Task<FeedbackViewModel> GetFeedbackByIdAsync(string id) =>
             _mapper.Map<FeedbackViewModel>(await _repository.FindFeedbackByIdAsync(id));
 
         /// <summary>
-        /// Calls the repository to get feedback by ticket identifier.
+        /// Retrieves feedback by ticket identifier asynchronously.
         /// </summary>
-        /// <param name="id">The identifier.</param>
-        /// <returns>FeedbackViewModel</returns>
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the feedback view model.</returns>
         public async Task<FeedbackViewModel> GetFeedbackByTicketIdAsync(string id) =>
             _mapper.Map<FeedbackViewModel>(await _repository.FindFeedbackByTicketIdAsync(id));
     }

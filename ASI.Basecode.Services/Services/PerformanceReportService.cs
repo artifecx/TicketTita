@@ -1,33 +1,38 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
-using ASI.Basecode.Data.Repositories;
-using ASI.Basecode.Services.Exceptions;
 using ASI.Basecode.Services.Interfaces;
-using ASI.Basecode.Services.Manager;
 using ASI.Basecode.Services.ServiceModels;
-using AutoMapper;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Data.Entity.Core.Metadata.Edm;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static ASI.Basecode.Services.Exceptions.TeamExceptions;
-using System.Collections.Generic;
 
 namespace ASI.Basecode.Services.Services
 {
+    /// <summary>
+    /// Service class for handling operations related to performance reports.
+    /// </summary>
     public class PerformanceReportService : IPerformanceReportService
     {
         private readonly IPerformanceReportRepository _performanceReportRepository;
         private readonly ITeamRepository _teamRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PerformanceReportService"/> class.
+        /// </summary>
+        /// <param name="performanceReportRepository">The performance report repository.</param>
+        /// <param name="teamRepository">The team repository.</param>
         public PerformanceReportService(IPerformanceReportRepository performanceReportRepository, ITeamRepository teamRepository)
         {
             _performanceReportRepository = performanceReportRepository;
             _teamRepository = teamRepository;
         }
 
+        /// <summary>
+        /// Generates the performance report for an agent asynchronously.
+        /// </summary>
+        /// <param name="agentId">The agent identifier.</param>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the generated performance report.</returns>
         public async Task<PerformanceReport> GenerateAgentPerformanceReportAsync(string agentId)
         {
             var agent = await _teamRepository.FindAgentByIdAsync(agentId);
@@ -51,11 +56,7 @@ namespace ASI.Basecode.Services.Services
                 if (!completedTickets.Any()) return performanceReport;
 
                 performanceReport.ResolvedTickets = completedTickets.Count;
-                var resolutionTime = new List<double>();
-                foreach(var ticket in completedTickets)
-                {
-                    resolutionTime.Add((ticket.ResolvedDate.Value - ticket.TicketAssignment.AssignedDate).TotalMinutes);
-                }
+                var resolutionTime = completedTickets.Select(ticket => (ticket.ResolvedDate.Value - ticket.TicketAssignment.AssignedDate).TotalMinutes).ToList();
 
                 performanceReport.AverageResolutionTime = resolutionTime.Average();
                 await _performanceReportRepository.UpdatePerformanceReportAsync(performanceReport);
@@ -65,10 +66,10 @@ namespace ASI.Basecode.Services.Services
         }
 
         /// <summary>
-        /// Gets the performance report.
+        /// Gets the performance report for a user asynchronously.
         /// </summary>
         /// <param name="userId">The user identifier.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the performance report view model.</returns>
         public async Task<PerformanceReportViewModel> GetPerformanceReport(string userId)
         {
             var user = await _teamRepository.FindAgentByIdAsync(userId);
@@ -76,7 +77,7 @@ namespace ASI.Basecode.Services.Services
             {
                 var performanceReport = user.PerformanceReport;
                 var tickets = await _teamRepository.GetCompletedTicketsAssignedToAgentAsync(userId);
-                if(tickets.Any() && performanceReport != null)
+                if (tickets.Any() && performanceReport != null)
                 {
                     return new PerformanceReportViewModel
                     {

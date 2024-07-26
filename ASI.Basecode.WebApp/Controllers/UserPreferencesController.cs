@@ -1,7 +1,6 @@
 ﻿using ASI.Basecode.Data.Models;
 using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
-using ASI.Basecode.Services.Services;
 using ASI.Basecode.WebApp.Authentication;
 using ASI.Basecode.WebApp.Mvc;
 using AutoMapper;
@@ -10,21 +9,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    /// <summary>
+    /// Controller for handling user preferences.
+    /// </summary>
     [Authorize]
     [Route("preferences")]
-    public class UserPreferences : ControllerBase<UserPreferences>
+    public class UserPreferencesController : ControllerBase<UserPreferencesController>
     {
         private readonly IUserPreferencesService _userPreferencesService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserPreferences"/> class.
+        /// Initializes a new instance of the <see cref="UserPreferencesController"/> class.
         /// </summary>
         /// <param name="httpContextAccessor">The HTTP context accessor.</param>
         /// <param name="loggerFactory">The logger factory.</param>
@@ -33,7 +33,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="userPreferencesService">The user preferences service.</param>
         /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
         /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
-        public UserPreferences(
+        public UserPreferencesController(
             IHttpContextAccessor httpContextAccessor,
             ILoggerFactory loggerFactory,
             IConfiguration configuration,
@@ -45,6 +45,10 @@ namespace ASI.Basecode.WebApp.Controllers
             this._userPreferencesService = userPreferencesService;
         }
 
+        /// <summary>
+        /// Gets the user preferences.
+        /// </summary>
+        /// <returns>The user preferences view.</returns>
         [HttpGet]
         [Route("")]
         public async Task<IActionResult> GetUserPreferences()
@@ -53,6 +57,11 @@ namespace ASI.Basecode.WebApp.Controllers
             return View("ViewPreferences", preferences);
         }
 
+        /// <summary>
+        /// Updates the user preferences.
+        /// </summary>
+        /// <param name="model">The user preferences view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Route("UpdateUserPreferences")]
         public async Task<IActionResult> UpdateUserPreferences(UserPreferencesViewModel model)
@@ -62,14 +71,19 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (model.UserId != null)
                 {
                     await _userPreferencesService.UpdateUserPreferencesAsync(model);
-                    TempData["SuccessMessage"] = "Settings updated successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessUpdatePreferences;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while saving. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorUpdatePreferences;
                 return Json(new { success = false });
             }, "UpdateUserPreferences");
         }
 
+        /// <summary>
+        /// Updates the user password.
+        /// </summary>
+        /// <param name="model">The user preferences view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Route("UpdatePassword")]
         public async Task<IActionResult> UpdatePassword(UserPreferencesViewModel model)
@@ -80,10 +94,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 {
                     model.UserId = UserId;
                     _userPreferencesService.UpdateUserPassword(model);
-                    TempData["SuccessMessage"] = "Password updated successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessUpdatePassword;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while saving. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorUpdatePassword;
                 return Json(new { success = false });
             }, "UpdatePassword");
         }

@@ -3,16 +3,17 @@ using ASI.Basecode.WebApp.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
     public partial class TicketController : ControllerBase<TicketController>
     {
         /// <summary>
-        /// Allows the user to provide a feedback.
+        /// Allows the user to provide feedback on a ticket.
         /// </summary>
-        /// <param name="model">The model.</param>
-        /// <returns>Success result</returns>
+        /// <param name="model">The feedback view model.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Authorize(Policy = "Employee")]
         [Route("providefeedback")]
@@ -27,10 +28,10 @@ namespace ASI.Basecode.WebApp.Controllers
 
                     await _feedbackService.AddAsync(model);
 
-                    TempData["SuccessMessage"] = "Thank you for your feedback!";
+                    TempData["SuccessMessage"] = Common.SuccessFeedbackSubmitted;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while submitting your feedback. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorFeedbackSubmission;
                 return Json(new { success = false });
             }, "ProvideFeedback");
         }

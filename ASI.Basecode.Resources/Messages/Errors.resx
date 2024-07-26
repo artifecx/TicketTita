@@ -117,8 +117,170 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="a" xml:space="preserve">
+    <value />
+  </data>
+  <data name="AddedToTeamNotification" xml:space="preserve">
+    <value>You have been added to a team {0}, with specialization {1}.</value>
+  </data>
+  <data name="AgentNotFound" xml:space="preserve">
+    <value>Agent not found.</value>
+  </data>
+  <data name="CannotAssignInClosedTickets" xml:space="preserve">
+    <value>Cannot {0} assignees in {1} tickets.</value>
+  </data>
+  <data name="CannotAssignSameTeamWithoutAgent" xml:space="preserve">
+    <value>Cannot assign to the same team without an agent selected.</value>
+  </data>
+  <data name="CannotReassignSameTeamAndAgent" xml:space="preserve">
+    <value>Cannot reassign to the same team and agent.</value>
+  </data>
+  <data name="CurrentUserNotFound" xml:space="preserve">
+    <value>Current user not found, unable to proceed.</value>
+  </data>
+  <data name="DescriptionExceeded" xml:space="preserve">
+    <value>Description has exceeded the maximum allowed characters of 800.</value>
+  </data>
+  <data name="DuplicateTicket" xml:space="preserve">
+    <value>A similar ticket already exists.</value>
+  </data>
+  <data name="DuplicateTicketCategory" xml:space="preserve">
+    <value>Ticket is already in the selected category.</value>
+  </data>
+  <data name="ErrorAssignAgent" xml:space="preserve">
+    <value>An error occurred while assigning the agent. Please try again.</value>
+  </data>
+  <data name="ErrorAttachmentIdEmpty" xml:space="preserve">
+    <value>Attachment ID is invalid or empty!</value>
+  </data>
+  <data name="ErrorAttachmentNotFound" xml:space="preserve">
+    <value>Attachment not found!</value>
+  </data>
+  <data name="ErrorCommentDelete" xml:space="preserve">
+    <value>An error occurred while deleting your comment. Please try again.</value>
+  </data>
+  <data name="ErrorCommentEdit" xml:space="preserve">
+    <value>An error occurred while editing your comment. Please try again.</value>
+  </data>
+  <data name="ErrorCommentPost" xml:space="preserve">
+    <value>An error occurred while posting your comment. Please try again.</value>
+  </data>
+  <data name="ErrorCreateTeam" xml:space="preserve">
+    <value>An error occurred while creating the team. Please try again.</value>
+  </data>
+  <data name="ErrorCreateTicket" xml:space="preserve">
+    <value>An error occurred while creating a new ticket. Please try again.</value>
+  </data>
+  <data name="ErrorDeleteTeam" xml:space="preserve">
+    <value>An error occurred while deleting the team. Please try again.</value>
+  </data>
+  <data name="ErrorDeleteTicket" xml:space="preserve">
+    <value>An error occurred while deleting the ticket. Please try again.</value>
+  </data>
+  <data name="ErrorFeedbackSubmission" xml:space="preserve">
+    <value>An error occurred while submitting your feedback. Please try again.</value>
+  </data>
+  <data name="ErrorReassignAgent" xml:space="preserve">
+    <value>An error occurred while reassigning the agent. Please try again.</value>
+  </data>
+  <data name="ErrorTicketAssignment" xml:space="preserve">
+    <value>An error occurred while updating the ticket assignment. Please try again.</value>
+  </data>
+  <data name="ErrorUpdatePassword" xml:space="preserve">
+    <value>An error occurred while saving. Please try again.</value>
+  </data>
+  <data name="ErrorUpdatePreferences" xml:space="preserve">
+    <value>An error occurred while saving. Please try again.</value>
+  </data>
+  <data name="ErrorUpdateTeam" xml:space="preserve">
+    <value>An error occurred while updating the team. Please try again.</value>
+  </data>
+  <data name="ErrorUpdateTicket" xml:space="preserve">
+    <value>An error occurred while updating the ticket. Please try again.</value>
+  </data>
+  <data name="GenericPasswordUpdate" xml:space="preserve">
+    <value>An error occurred while updating the password. Please try again.</value>
+  </data>
+  <data name="InvalidAssignmentUpdate" xml:space="preserve">
+    <value>Invalid assignment update. Please try again.</value>
+  </data>
+  <data name="InvalidSpecialization" xml:space="preserve">
+    <value>Invalid specialization.</value>
+  </data>
+  <data name="InvalidStatusValue" xml:space="preserve">
+    <value>Invalid status value: {0}</value>
+  </data>
+  <data name="InvalidTeamId" xml:space="preserve">
+    <value>Team ID is invalid!</value>
+  </data>
+  <data name="InvalidTicketId" xml:space="preserve">
+    <value>Ticket ID is invalid!</value>
+  </data>
+  <data name="MembersExistMessage" xml:space="preserve">
+    <value>Cannot delete team with members, unassign or reassign them before deleting.</value>
+  </data>
+  <data name="NewPasswordSameAsCurrent" xml:space="preserve">
+    <value>New password is the same as the existing password.</value>
+  </data>
+  <data name="NoChangesReply" xml:space="preserve">
+    <value>No changes were made to the reply.</value>
+  </data>
+  <data name="NoChangesToTeam" xml:space="preserve">
+    <value>No changes were made to the team.</value>
+  </data>
+  <data name="NoChangesToTicket" xml:space="preserve">
+    <value>No changes were made to the ticket.</value>
+  </data>
+  <data name="NoUnresolvedTickets" xml:space="preserve">
+    <value>No unresolved tickets older than {0}</value>
+  </data>
+  <data name="OldPasswordMismatch" xml:space="preserve">
+    <value>Old password does not match with the existing password.</value>
+  </data>
+  <data name="RemovedFromTeamNotification" xml:space="preserve">
+    <value>You have been removed from team {0}.</value>
+  </data>
+  <data name="ResolvedTicketChanges" xml:space="preserve">
+    <value>Cannot make changes to resolved tickets.</value>
+  </data>
+  <data name="SelectAgentOrTeam" xml:space="preserve">
+    <value>Please select either an agent or a team to continue.</value>
+  </data>
+  <data name="SelectAgentToAdd" xml:space="preserve">
+    <value>Please select an agent to add to the team.</value>
+  </data>
   <data name="ServerError" xml:space="preserve">
     <value>Server error occured!</value>
+  </data>
+  <data name="SubjectExceeded" xml:space="preserve">
+    <value>Subject has exceeded the maximum allowed characters of 100.</value>
+  </data>
+  <data name="TeamNameExists" xml:space="preserve">
+    <value>Team name already exists.</value>
+  </data>
+  <data name="TeamNotFound" xml:space="preserve">
+    <value>Team not found!</value>
+  </data>
+  <data name="TicketClosedPriorityUpdate" xml:space="preserve">
+    <value>Cannot change priority of a closed/resolved ticket.</value>
+  </data>
+  <data name="TicketClosedStatusUpdate" xml:space="preserve">
+    <value>Cannot change status of a closed ticket.</value>
+  </data>
+  <data name="TicketClosedUpdate" xml:space="preserve">
+    <value>Cannot update a closed ticket.</value>
+  </data>
+  <data name="TicketDoesNotExist" xml:space="preserve">
+    <value>Ticket does not exist.</value>
+  </data>
+  <data name="TicketNoChanges" xml:space="preserve">
+    <value>No changes were made to the ticket.</value>
+  </data>
+  <data name="TicketNotFound" xml:space="preserve">
+    <value>Ticket was not found.</value>
+  </data>
+  <data name="UnresolvedTicketsMessage" xml:space="preserve">
+    <value>Cannot delete team with unresolved tickets, reassign or unassign tickets before deleting.</value>
   </data>
   <data name="UserExists" xml:space="preserve">
     <value>UserId already exists!</value>

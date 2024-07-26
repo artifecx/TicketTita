@@ -16,9 +16,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using static ASI.Basecode.Resources.Constants.Enums;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    /// <summary>
+    /// Controller for handling ticket-related operations.
+    /// </summary>
     [Route("ticket")]
     public partial class TicketController : ControllerBase<TicketController>
     {
@@ -36,6 +40,11 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <param name="configuration">The configuration.</param>
         /// <param name="mapper">The mapper.</param>
         /// <param name="ticketService">The ticket service.</param>
+        /// <param name="feedbackService">The feedback service.</param>
+        /// <param name="notificationService">The notification service.</param>
+        /// <param name="teamService">The team service.</param>
+        /// <param name="userPreferences">The user preferences service.</param>
+        /// <param name="activityLogService">The activity log service.</param>
         /// <param name="tokenValidationParametersFactory">The token validation parameters factory.</param>
         /// <param name="tokenProviderOptionsFactory">The token provider options factory.</param>
         public TicketController(
@@ -61,12 +70,16 @@ namespace ASI.Basecode.WebApp.Controllers
 
         #region GET methods
         /// <summary>
-        /// Shows all tickets
+        /// Shows all tickets.
         /// </summary>
-        /// <param name="sortBy">User defined, taken from the page</param>
-        /// <param name="filterBy">User defined, taken from the page</param>
-        /// <param name="filterValue">User defined, taken from the page</param>
-        /// <returns>GetAll page</returns>
+        /// <param name="showOption">The show option filter.</param>
+        /// <param name="sortBy">The sort by option.</param>
+        /// <param name="selectedFilters">The selected filters.</param>
+        /// <param name="search">The search term.</param>
+        /// <param name="clearFilters">Whether to clear filters.</param>
+        /// <param name="pageIndex">The page index.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [Authorize]
         [HttpGet]
         [Route("all")]
@@ -87,10 +100,12 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         /// <summary>
-        /// Shows a specific ticket
+        /// Shows a specific ticket.
         /// </summary>
-        /// <param name="id">Ticket identifier</param>
-        /// <returns>GetTicket page</returns>
+        /// <param name="id">The ticket identifier.</param>
+        /// <param name="notificationId">The notification identifier.</param>
+        /// <param name="showModal">The show modal flag.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpGet]
         [Authorize]
         [Route("view/{id}")]
@@ -100,7 +115,7 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 if (string.IsNullOrEmpty(id))
                 {
-                    TempData["ErrorMessage"] = "Ticket ID is invalid!";
+                    TempData["ErrorMessage"] = Errors.InvalidTicketId;
                     return RedirectToAction("GetAll");
                 }
 
@@ -108,7 +123,7 @@ namespace ASI.Basecode.WebApp.Controllers
                 ticket.ActivityLogs = await _activityLogService.GetActivityLogsByTicketIdAsync(id);
                 if (ticket == null)
                 {
-                    TempData["ErrorMessage"] = "Ticket not found!";
+                    TempData["ErrorMessage"] = Errors.TicketNotFound;
                     return RedirectToAction("GetAll");
                 }
 
@@ -125,10 +140,10 @@ namespace ASI.Basecode.WebApp.Controllers
 
         #region POST methods
         /// <summary>
-        /// Allows the user to create a ticket
+        /// Allows the user to create a ticket.
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns>GetAll page</returns>
+        /// <param name="model">The ticket view model.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize]
         [Route("create")]
@@ -136,22 +151,22 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             return await HandleExceptionAsync(async () =>
             {
-                if(model != null || string.IsNullOrEmpty(UserId))
+                if (model != null || string.IsNullOrEmpty(UserId))
                 {
                     await _ticketService.AddAsync(model, UserId);
-                    TempData["SuccessMessage"] = "New ticket created successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessCreateTicket;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while creating a new ticket. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorCreateTicket;
                 return Json(new { success = false });
             }, "Create");
         }
 
         /// <summary>
-        /// Allows the user to update a ticket
+        /// Allows the user to update a ticket.
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns>GetAll page</returns>
+        /// <param name="model">The ticket view model.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize]
         [Route("update")]
@@ -162,19 +177,19 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (model != null)
                 {
                     await _ticketService.UpdateAsync(model);
-                    TempData["SuccessMessage"] = "Ticket updated successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessUpdateTicket;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while updating the ticket. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorUpdateTicket;
                 return Json(new { success = false });
             }, "Update");
         }
 
         /// <summary>
-        /// Allows the user to delete a ticket
+        /// Allows the user to delete a ticket.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Json success status</returns>
+        /// <param name="id">The ticket identifier.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an <see cref="IActionResult"/>.</returns>
         [HttpPost]
         [Authorize]
         [Route("delete")]
@@ -185,19 +200,21 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (!string.IsNullOrEmpty(id))
                 {
                     await _ticketService.DeleteAsync(id);
-                    TempData["SuccessMessage"] = "Ticket deleted successfully!";
+                    TempData["SuccessMessage"] = Common.SuccessDeleteTicket;
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while deleting the ticket. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorDeleteTicket;
                 return Json(new { success = false });
             }, "Delete");
         }
         #endregion POST methods
 
         /// <summary>
-        /// Populates the view bag with the priority, status, category types and users
-        /// Used for dropdowns in the view
+        /// Populates the view bag with the priority, status, category types and users.
+        /// Used for dropdowns in the view.
         /// </summary>
+        /// <param name="selectedFilters">The selected filters.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         private async Task PopulateViewBagAsync(List<string> selectedFilters)
         {
             var priorityTypes = await _ticketService.GetPriorityTypesAsync();

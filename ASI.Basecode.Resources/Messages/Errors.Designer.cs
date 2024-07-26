@@ -61,11 +61,497 @@ namespace ASI.Basecode.Resources.Messages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string a {
+            get {
+                return ResourceManager.GetString("a", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have been added to a team {0}, with specialization {1}..
+        /// </summary>
+        public static string AddedToTeamNotification {
+            get {
+                return ResourceManager.GetString("AddedToTeamNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Agent not found..
+        /// </summary>
+        public static string AgentNotFound {
+            get {
+                return ResourceManager.GetString("AgentNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot {0} assignees in {1} tickets..
+        /// </summary>
+        public static string CannotAssignInClosedTickets {
+            get {
+                return ResourceManager.GetString("CannotAssignInClosedTickets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot assign to the same team without an agent selected..
+        /// </summary>
+        public static string CannotAssignSameTeamWithoutAgent {
+            get {
+                return ResourceManager.GetString("CannotAssignSameTeamWithoutAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot reassign to the same team and agent..
+        /// </summary>
+        public static string CannotReassignSameTeamAndAgent {
+            get {
+                return ResourceManager.GetString("CannotReassignSameTeamAndAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current user not found, unable to proceed..
+        /// </summary>
+        public static string CurrentUserNotFound {
+            get {
+                return ResourceManager.GetString("CurrentUserNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Description has exceeded the maximum allowed characters of 800..
+        /// </summary>
+        public static string DescriptionExceeded {
+            get {
+                return ResourceManager.GetString("DescriptionExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A similar ticket already exists..
+        /// </summary>
+        public static string DuplicateTicket {
+            get {
+                return ResourceManager.GetString("DuplicateTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket is already in the selected category..
+        /// </summary>
+        public static string DuplicateTicketCategory {
+            get {
+                return ResourceManager.GetString("DuplicateTicketCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while assigning the agent. Please try again..
+        /// </summary>
+        public static string ErrorAssignAgent {
+            get {
+                return ResourceManager.GetString("ErrorAssignAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attachment ID is invalid or empty!.
+        /// </summary>
+        public static string ErrorAttachmentIdEmpty {
+            get {
+                return ResourceManager.GetString("ErrorAttachmentIdEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attachment not found!.
+        /// </summary>
+        public static string ErrorAttachmentNotFound {
+            get {
+                return ResourceManager.GetString("ErrorAttachmentNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while deleting your comment. Please try again..
+        /// </summary>
+        public static string ErrorCommentDelete {
+            get {
+                return ResourceManager.GetString("ErrorCommentDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while editing your comment. Please try again..
+        /// </summary>
+        public static string ErrorCommentEdit {
+            get {
+                return ResourceManager.GetString("ErrorCommentEdit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while posting your comment. Please try again..
+        /// </summary>
+        public static string ErrorCommentPost {
+            get {
+                return ResourceManager.GetString("ErrorCommentPost", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while creating the team. Please try again..
+        /// </summary>
+        public static string ErrorCreateTeam {
+            get {
+                return ResourceManager.GetString("ErrorCreateTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while creating a new ticket. Please try again..
+        /// </summary>
+        public static string ErrorCreateTicket {
+            get {
+                return ResourceManager.GetString("ErrorCreateTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while deleting the team. Please try again..
+        /// </summary>
+        public static string ErrorDeleteTeam {
+            get {
+                return ResourceManager.GetString("ErrorDeleteTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while deleting the ticket. Please try again..
+        /// </summary>
+        public static string ErrorDeleteTicket {
+            get {
+                return ResourceManager.GetString("ErrorDeleteTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while submitting your feedback. Please try again..
+        /// </summary>
+        public static string ErrorFeedbackSubmission {
+            get {
+                return ResourceManager.GetString("ErrorFeedbackSubmission", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while reassigning the agent. Please try again..
+        /// </summary>
+        public static string ErrorReassignAgent {
+            get {
+                return ResourceManager.GetString("ErrorReassignAgent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the ticket assignment. Please try again..
+        /// </summary>
+        public static string ErrorTicketAssignment {
+            get {
+                return ResourceManager.GetString("ErrorTicketAssignment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while saving. Please try again..
+        /// </summary>
+        public static string ErrorUpdatePassword {
+            get {
+                return ResourceManager.GetString("ErrorUpdatePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while saving. Please try again..
+        /// </summary>
+        public static string ErrorUpdatePreferences {
+            get {
+                return ResourceManager.GetString("ErrorUpdatePreferences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the team. Please try again..
+        /// </summary>
+        public static string ErrorUpdateTeam {
+            get {
+                return ResourceManager.GetString("ErrorUpdateTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the ticket. Please try again..
+        /// </summary>
+        public static string ErrorUpdateTicket {
+            get {
+                return ResourceManager.GetString("ErrorUpdateTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while updating the password. Please try again..
+        /// </summary>
+        public static string GenericPasswordUpdate {
+            get {
+                return ResourceManager.GetString("GenericPasswordUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid assignment update. Please try again..
+        /// </summary>
+        public static string InvalidAssignmentUpdate {
+            get {
+                return ResourceManager.GetString("InvalidAssignmentUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid specialization..
+        /// </summary>
+        public static string InvalidSpecialization {
+            get {
+                return ResourceManager.GetString("InvalidSpecialization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid status value: {0}.
+        /// </summary>
+        public static string InvalidStatusValue {
+            get {
+                return ResourceManager.GetString("InvalidStatusValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team ID is invalid!.
+        /// </summary>
+        public static string InvalidTeamId {
+            get {
+                return ResourceManager.GetString("InvalidTeamId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket ID is invalid!.
+        /// </summary>
+        public static string InvalidTicketId {
+            get {
+                return ResourceManager.GetString("InvalidTicketId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete team with members, unassign or reassign them before deleting..
+        /// </summary>
+        public static string MembersExistMessage {
+            get {
+                return ResourceManager.GetString("MembersExistMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to New password is the same as the existing password..
+        /// </summary>
+        public static string NewPasswordSameAsCurrent {
+            get {
+                return ResourceManager.GetString("NewPasswordSameAsCurrent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No changes were made to the reply..
+        /// </summary>
+        public static string NoChangesReply {
+            get {
+                return ResourceManager.GetString("NoChangesReply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No changes were made to the team..
+        /// </summary>
+        public static string NoChangesToTeam {
+            get {
+                return ResourceManager.GetString("NoChangesToTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No changes were made to the ticket..
+        /// </summary>
+        public static string NoChangesToTicket {
+            get {
+                return ResourceManager.GetString("NoChangesToTicket", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No unresolved tickets older than {0}.
+        /// </summary>
+        public static string NoUnresolvedTickets {
+            get {
+                return ResourceManager.GetString("NoUnresolvedTickets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Old password does not match with the existing password..
+        /// </summary>
+        public static string OldPasswordMismatch {
+            get {
+                return ResourceManager.GetString("OldPasswordMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have been removed from team {0}..
+        /// </summary>
+        public static string RemovedFromTeamNotification {
+            get {
+                return ResourceManager.GetString("RemovedFromTeamNotification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot make changes to resolved tickets..
+        /// </summary>
+        public static string ResolvedTicketChanges {
+            get {
+                return ResourceManager.GetString("ResolvedTicketChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select either an agent or a team to continue..
+        /// </summary>
+        public static string SelectAgentOrTeam {
+            get {
+                return ResourceManager.GetString("SelectAgentOrTeam", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please select an agent to add to the team..
+        /// </summary>
+        public static string SelectAgentToAdd {
+            get {
+                return ResourceManager.GetString("SelectAgentToAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Server error occured!.
         /// </summary>
         public static string ServerError {
             get {
                 return ResourceManager.GetString("ServerError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subject has exceeded the maximum allowed characters of 100..
+        /// </summary>
+        public static string SubjectExceeded {
+            get {
+                return ResourceManager.GetString("SubjectExceeded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team name already exists..
+        /// </summary>
+        public static string TeamNameExists {
+            get {
+                return ResourceManager.GetString("TeamNameExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Team not found!.
+        /// </summary>
+        public static string TeamNotFound {
+            get {
+                return ResourceManager.GetString("TeamNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot change priority of a closed/resolved ticket..
+        /// </summary>
+        public static string TicketClosedPriorityUpdate {
+            get {
+                return ResourceManager.GetString("TicketClosedPriorityUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot change status of a closed ticket..
+        /// </summary>
+        public static string TicketClosedStatusUpdate {
+            get {
+                return ResourceManager.GetString("TicketClosedStatusUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot update a closed ticket..
+        /// </summary>
+        public static string TicketClosedUpdate {
+            get {
+                return ResourceManager.GetString("TicketClosedUpdate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket does not exist..
+        /// </summary>
+        public static string TicketDoesNotExist {
+            get {
+                return ResourceManager.GetString("TicketDoesNotExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No changes were made to the ticket..
+        /// </summary>
+        public static string TicketNoChanges {
+            get {
+                return ResourceManager.GetString("TicketNoChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ticket was not found..
+        /// </summary>
+        public static string TicketNotFound {
+            get {
+                return ResourceManager.GetString("TicketNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete team with unresolved tickets, reassign or unassign tickets before deleting..
+        /// </summary>
+        public static string UnresolvedTicketsMessage {
+            get {
+                return ResourceManager.GetString("UnresolvedTicketsMessage", resourceCulture);
             }
         }
         

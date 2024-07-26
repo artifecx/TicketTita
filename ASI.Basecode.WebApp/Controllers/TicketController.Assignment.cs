@@ -3,16 +3,17 @@ using ASI.Basecode.WebApp.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using ASI.Basecode.Resources.Messages;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
     public partial class TicketController : ControllerBase<TicketController>
     {
         /// <summary>
-        /// Allows the user to update the ticket status and/or priority
+        /// Allows the user to update the ticket status and/or priority.
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns>Success or fail status</returns>
+        /// <param name="model">The ticket view model containing the assignment details.</param>
+        /// <returns>A JSON result indicating success or failure.</returns>
         [HttpPost]
         [Authorize]
         [Route("updateassignment")]
@@ -23,10 +24,10 @@ namespace ASI.Basecode.WebApp.Controllers
                 if (!string.IsNullOrEmpty(model.TicketId) && !string.IsNullOrEmpty(model.AgentId))
                 {
                     var status = await _ticketService.UpdateAssignmentAsync(model);
-                    TempData["SuccessMessage"] = $"Ticket {status}ed successfully!";
+                    TempData["SuccessMessage"] = string.Format(Common.SuccessTicketAssignment, status);
                     return Json(new { success = true });
                 }
-                TempData["ErrorMessage"] = "An error occurred while updating the ticket assignment. Please try again.";
+                TempData["ErrorMessage"] = Errors.ErrorTicketAssignment;
                 return Json(new { success = false });
             }, "UpdateAssignment");
         }

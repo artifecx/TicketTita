@@ -12,6 +12,7 @@
     await Html.RenderPartialAsync("_UpdateCategoryModal", Model);
     await Html.RenderPartialAsync("_ConfirmationModal");
     ViewBag.IsClosed = Model.StatusType.StatusName == "Closed";
+    ViewBag.IsResolved = Model.StatusType.StatusName == "Resolved";
 }
 
 @section styles {
