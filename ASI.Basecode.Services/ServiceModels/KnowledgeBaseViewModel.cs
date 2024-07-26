@@ -13,20 +13,23 @@ namespace ASI.Basecode.Services.ServiceModels
     {
         [StringLength(256)]
         public string ArticleId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Category is required.")]
         public string CategoryId { get; set; }
-        [Required]
+        
         [StringLength(100)]
+        [Required(ErrorMessage = "Title is required.")]
         public string Title { get; set; }
 
-        [Required]
+        
         [StringLength(800)]
+        [Required(ErrorMessage = "Content is required.")]
         public string Content { get; set; }
         [Required]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? UpdatedDate { get; set; }
-        [Required]
+        
         [StringLength(256)]
+        [Required]
         public string AuthorId { get; set; }
         public ArticleCategory Category { get; set; }
         public User Author { get; set; }
