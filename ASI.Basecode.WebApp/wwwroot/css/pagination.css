@@ -8,12 +8,12 @@
 }
 
     .page-link:active, .page-link:focus {
-        border: 1px solid black !important;
+        border: 1px solid var(--primary-color) !important;
         box-shadow: none !important;
     }
 
 .page-item.active .page-link {
     color: white !important;
     background: var(--primary-color) !important;
-    border: 1px solid black !important;
+    border: 1px var(--primary-color) black !important;
 }

@@ -38,7 +38,7 @@
                 </button>
             </div>
         }
-        <div class="mx-3">
+        <div class="mr-3">
             <button type="button" class="btn notif-bell" id="notifBellBtn">
                 <i class="fa fa-bell px-1"></i>
             </button>
@@ -103,34 +103,34 @@
                     @if (Model.HasPreviousPage)
                     {
                         <li class="page-item">
-                            <form method="get" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
-                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
-                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex - 1)" />
-                                <input type="hidden" name="pageSize" value="@pageSize" />
-                                <button type="submit" class="page-link">Previous</button>
-                            </form>
+                            <a class="page-link" asp-action="Index"
+                                asp-route-sortBy="@sortBy"
+                                asp-route-sortOrder="@sortOrder"
+                                asp-route-searchTerm="@searchTerm"
+                                asp-route-selectedCategories="@selectedCategories"
+                                asp-route-pageIndex="@(pageIndex - 1)">Previous</a>
                         </li>
                     }
                     @for (int i = 1; i <= Model.TotalPages; i++)
                     {
-                        <li class="page-item @(i == Model.PageIndex + 1 ? "active" : "")">
-                            <form method="get" asp-action="Index" asp-route-pageIndex="@(i - 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
-                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
-                                <input type="hidden" name="pageIndex" value="@(i - 1)" />
-                                <input type="hidden" name="pageSize" value="@pageSize" />
-                                <button type="submit" class="page-link">@i</button>
-                            </form>
+                        <li class="page-item @(i == pageIndex ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                                asp-route-sortBy="@sortBy"
+                                asp-route-sortOrder="@sortOrder"
+                                asp-route-searchTerm="@searchTerm"
+                                asp-route-selectedCategories="@selectedCategories"
+                                asp-route-pageIndex="@i">@i</a>
                         </li>
                     }
                     @if (Model.HasNextPage)
                     {
                         <li class="page-item">
-                            <form method="get" asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-sortBy="@sortBy" asp-route-searchTerm="@searchTerm" asp-route-sortOrder="@sortOrder" asp-route-pageSize="@pageSize">
-                                <input type="hidden" name="selectedCategories" value="@selectedCategories" />
-                                <input type="hidden" name="pageIndex" value="@(Model.PageIndex + 1)" />
-                                <input type="hidden" name="pageSize" value="@pageSize" />
-                                <button type="submit" class="page-link">Next</button>
-                            </form>
+                            <a class="page-link" asp-action="Index"
+                                asp-route-sortBy="@sortBy"
+                                asp-route-sortOrder="@sortOrder"
+                                asp-route-searchTerm="@searchTerm"
+                                asp-route-selectedCategories="@selectedCategories"
+                                asp-route-pageIndex="@(pageIndex + 1)">Next</a>
                         </li>
                     }
                 </ul>
@@ -220,6 +220,7 @@
         });
     </script>
 
+
     <script>
         $(document).ready(function () {
             $('#notifBellBtn').click(function () {
@@ -236,5 +237,6 @@
 }
 
 @section styles {
+    <link rel="stylesheet" href="~/css/notification.css" />
     <link rel="stylesheet" href="~/css/pagination.css" />
 }
