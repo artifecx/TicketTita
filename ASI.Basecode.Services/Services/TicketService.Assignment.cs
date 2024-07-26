@@ -44,7 +44,7 @@ namespace ASI.Basecode.Services.Services
             var assignment = await _repository.FindAssignmentByTicketIdAsync(ticketId);
             string noTeam = "no_team";
             string noAgent = "no_agent";
-            string activityLogDetail = "";
+            string activityLogDetail = string.Empty;
 
             if (assignment == null)
             {
@@ -94,7 +94,7 @@ namespace ASI.Basecode.Services.Services
                     await _repository.RemoveAssignmentAsync(assignment);
                     return status;
                 }
-                
+
                 if (teamId == assignmentTeamId && agentId == noAgent)
                 {
                     status = "unassign";
@@ -128,7 +128,7 @@ namespace ASI.Basecode.Services.Services
                     assignment.AgentId = agentId;
                     activityLogDetail = $"New team and agent assigned to team";
                 }
-                else if(string.IsNullOrEmpty(assignmentTeamId) && 
+                else if (string.IsNullOrEmpty(assignmentTeamId) &&
                     !string.IsNullOrEmpty(teamId) && agentId == assignmentAgentId)
                 {
                     status = "assign";
