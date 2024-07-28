@@ -43,7 +43,7 @@ namespace ASI.Basecode.WebApp.Controllers
         /// <returns></returns>
         public IActionResult Index(string sortOrder, string currentFilter,string roleFilter, string searchString, int pageNumber = 1)
         {
-            var pageSize = 5;
+            var pageSize = 10;
 
             var users = _userService.FilterUsers(sortOrder, currentFilter, searchString, roleFilter);
             var FilteredUsersCount = _userService.CountFilteredUsers(users);

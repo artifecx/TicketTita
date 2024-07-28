@@ -45,7 +45,7 @@
             </p>
         </div>
         <div class="mr-3">
-            <button type="button" class="btn notif-bell" id="notifBellBtn">
+            <button type="button" class="btn notif-bell" id="notifBellBtn" onclick="clickNotifBtn()">
                 <i class="fa fa-bell px-1"></i>
             </button>
         </div>
@@ -152,17 +152,15 @@
             window.location.href = url.toString();
         });
 
-        $(document).ready(function () {
-            $('#notifBellBtn').click(function () {
-                $.ajax({
-                    url: '@Url.Action("Index", "Notification")',
-                    success: function (result) {
-                        $('#notificationModal .modal-content').html(result);
-                        $('#notificationModal').modal('show');
-                    }
-                });
+        function clickNotifBtn() {
+            $.ajax({
+                url: '@Url.Action("Index", "Notification")',
+                success: function (result) {
+                    $('#notificationModal .modal-content').html(result);
+                    $('#notificationModal').modal('show');
+                }
             });
-        });
+        }
     </script>
 }
 
